@@ -17,8 +17,9 @@ class User(UserMixin, db.Model):
     gender = db.Column(db.String(10), nullable=True)
     birthday = db.Column(db.Date, nullable=True)
     city = db.Column(db.String(120), nullable=True)
-    avatar = db.Column(db.String(255), default="images/host-avatar.png")
+    avatar = db.Column(db.String(255), nullable=True)
     role = db.Column(db.String(20), default="guest") # guest, host, admin
+    admin_role = db.Column(db.String(20), nullable=True)  # super, admin, support
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Auth Status
@@ -42,6 +43,24 @@ class User(UserMixin, db.Model):
         if not self.password_hash:
             return False
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def is_super_admin(self):
+        return self.role == "admin" and (self.admin_role or "admin") == "super"
+
+    @property
+    def admin_role_label(self):
+        from backend.app.utils.admin_roles import admin_role_label
+        if self.role != "admin":
+            return None
+        return admin_role_label(self.admin_role)
+
+    @property
+    def admin_status_label(self):
+        from backend.app.utils.admin_roles import admin_status_label
+        if self.role != "admin":
+            return None
+        return admin_status_label(self.is_locked)
 
     @property
     def avatar_url(self):

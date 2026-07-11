@@ -18,7 +18,7 @@
 
     <div class="alert alert-warning d-flex align-items-center gap-2 py-2" role="alert">
       <i class="bi bi-clock-history"></i>
-      <span class="small mb-0">Giữ chỗ trong 15 phút. Vui lòng hoàn tất thanh toán để xác nhận đặt phòng.</span>
+      <span class="small mb-0">Giữ chỗ trong 20 phút. Vui lòng hoàn tất thanh toán để xác nhận đặt phòng.</span>
     </div>
 
     <form method="POST" action="{{ url_for('customer_booking.checkout', booking_code=booking.booking_code.lstrip('#')) }}"
@@ -93,13 +93,13 @@
               <div class="form-check border rounded-3 p-3 mb-2 d-flex align-items-center gap-2">
                 <input class="form-check-input mt-0" type="radio" name="payment_method" id="pm-online" value="online" checked>
                 <label class="form-check-label w-100" for="pm-online">
-                  <i class="bi bi-credit-card-2-front me-1"></i> Thanh toán online (cổng thanh toán mô phỏng)
+                  <i class="bi bi-credit-card-2-front me-1"></i> Thanh toán online
                 </label>
               </div>
               <div class="form-check border rounded-3 p-3 d-flex align-items-center gap-2">
                 <input class="form-check-input mt-0" type="radio" name="payment_method" id="pm-cash" value="cash">
                 <label class="form-check-label w-100" for="pm-cash">
-                  <i class="bi bi-cash-coin me-1"></i> Thanh toán tiền mặt khi nhận phòng
+                  <i class="bi bi-cash-coin me-1"></i> Thanh toán tiền mặt
                 </label>
               </div>
             </div>
@@ -115,7 +115,7 @@
               <p class="text-secondary small mb-3"><i class="bi bi-geo-alt"></i> {{ acc.city }}</p>
 
               <ul class="list-unstyled small mb-3">
-                <li class="d-flex justify-content-between py-1"><span class="text-secondary">Phòng</span><span class="fw-medium">{{ room.name }}</span></li>
+                <li class="d-flex justify-content-between py-1"><span class="text-secondary">{{ acc.booking_unit_label }}</span><span class="fw-medium">{% if acc.books_whole_unit %}{{ acc.name }}{% else %}{{ room.name }}{% endif %}</span></li>
                 <li class="d-flex justify-content-between py-1"><span class="text-secondary">Nhận phòng</span><span class="fw-medium">{{ booking.check_in.strftime('%d/%m/%Y') }}</span></li>
                 <li class="d-flex justify-content-between py-1"><span class="text-secondary">Trả phòng</span><span class="fw-medium">{{ booking.check_out.strftime('%d/%m/%Y') }}</span></li>
                 <li class="d-flex justify-content-between py-1"><span class="text-secondary">Số khách</span><span class="fw-medium">{{ booking.guest_count }} khách</span></li>

@@ -32,13 +32,17 @@
         </div>
     
         <p class="page-accommodation__specs">
-          {{ acc.total_rooms }} phòng • Sức chứa tối đa {{ acc.rooms.all() | map(attribute='capacity') | max if acc.total_rooms else 0 }} khách • {{ acc.type }}
+          {% if acc.books_whole_unit %}
+          Sức chứa tối đa {{ acc.max_capacity }} khách • {{ acc.type }} • Thuê nguyên căn
+          {% else %}
+          {{ acc.total_rooms }} phòng • Sức chứa tối đa {{ acc.max_capacity }} khách • {{ acc.type }}
+          {% endif %}
         </p>
         <hr class="page-accommodation__divider">
     
         <section class="page-accommodation__rooms">
           <div class="page-accommodation__section-head">
-            <h2>Hình ảnh chi tiết phòng</h2>
+            <h2>{% if acc.books_whole_unit %}Hình ảnh không gian{% else %}Hình ảnh chi tiết phòng{% endif %}</h2>
             <div class="page-accommodation__room-nav">
               <button type="button" class="page-accommodation__room-nav-btn" data-room-nav="prev" hidden aria-label="Ảnh trước">
                 <i class="bi bi-chevron-left"></i>
@@ -50,8 +54,12 @@
           </div>
           <div class="page-accommodation__room-track" id="room-gallery-track">
             {% for room in acc.rooms %}
+              {% if acc.shows_room_gallery_detail or not acc.books_whole_unit %}
               <article class="page-accommodation__room-card" role="button" tabindex="0"
                        data-bs-toggle="modal" data-bs-target="#roomModal{{ room.id }}">
+              {% else %}
+              <article class="page-accommodation__room-card">
+              {% endif %}
                 <img src="{{ room.image_url }}" alt="{{ room.name }}">
                 <h3>{{ room.name }}</h3>
                 <p class="text-secondary small mb-0">{{ room.bed_info }} • {{ room.capacity }} khách</p>
@@ -77,8 +85,10 @@
         </div>
     
         <div class="page-accommodation__split">
+          {% set rooms = acc.rooms.all() %}
+          {% set book_room = acc.primary_room %}
           <div class="page-accommodation__amenities">
-            {% set first_room = rooms[0] if rooms else None %}
+            {% set first_room = book_room or (rooms[0] if rooms else None) %}
             <section class="page-accommodation__section">
               <h2>Tiện ích chung</h2>
               <div class="accommodation-amenity-list">
@@ -92,7 +102,7 @@
 
             {% if first_room and first_room.features %}
             <section class="page-accommodation__section mt-4">
-              <h2>Tiện nghi phòng</h2>
+              <h2>{% if acc.books_whole_unit %}Tiện nghi nội thất{% else %}Tiện nghi phòng{% endif %}</h2>
               <div class="accommodation-amenity-list">
                 {% for f in first_room.features %}
                 <div class="accommodation-amenity"><i class="bi bi-check-circle text-primary"></i><span>{{ f }}</span></div>
@@ -118,47 +128,54 @@
           </div>
     
           <aside class="booking-panel booking-panel--figma">
-            {% set rooms = acc.rooms.all() %}
-            {% if rooms %}
+            {% if book_room %}
             <div class="booking-panel__price">
-              <span id="booking-price">{{ "{:,.0f}".format(rooms[0].base_price) }}</span> đ <span>/ đêm</span>
+              <span id="booking-price">{{ "{:,.0f}".format(book_room.base_price) }}</span> đ <span>/ đêm</span>
             </div>
             <form id="booking-form" method="POST"
-                  action="{{ url_for('customer_booking.create_booking', room_id=rooms[0].id) }}">
+                  action="{{ url_for('customer_booking.create_booking', room_id=book_room.id) }}">
+              {% if acc.books_whole_unit %}
+              <div class="mb-3 booking-panel__unit-summary">
+                <div class="small text-uppercase fw-semibold text-secondary mb-1">Bạn đặt</div>
+                <div class="fw-semibold">{{ acc.name }}</div>
+                <p class="text-secondary small mb-0">Toàn bộ {{ acc.type|lower }} • Tối đa {{ acc.max_capacity }} khách</p>
+              </div>
+              {% else %}
               <div class="mb-3">
                 <label for="room-select" class="form-label small text-uppercase fw-semibold text-secondary">Chọn phòng</label>
                 <select id="room-select" name="room_select" class="form-select">
                   {% for room in rooms %}
-                  <option value="{{ room.id }}" data-price="{{ room.base_price }}" data-capacity="{{ room.capacity }}">
+                  <option value="{{ room.id }}" data-price="{{ room.base_price }}" data-capacity="{{ room.capacity }}"{% if room.id == book_room.id %} selected{% endif %}>
                     {{ room.name }} — {{ "{:,.0f}".format(room.base_price) }}đ/đêm
                   </option>
                   {% endfor %}
                 </select>
               </div>
+              {% endif %}
               <div class="row g-2 mb-3">
                 <div class="col-6">
-                  <label for="check_in" class="form-label small text-uppercase fw-semibold text-secondary">Nhận phòng</label>
+                  <label for="check_in" class="form-label small text-uppercase fw-semibold text-secondary">{% if acc.books_whole_unit %}Ngày nhận{% else %}Nhận phòng{% endif %}</label>
                   <input type="date" id="check_in" name="check_in" class="form-control" required>
                 </div>
                 <div class="col-6">
-                  <label for="check_out" class="form-label small text-uppercase fw-semibold text-secondary">Trả phòng</label>
+                  <label for="check_out" class="form-label small text-uppercase fw-semibold text-secondary">{% if acc.books_whole_unit %}Ngày trả{% else %}Trả phòng{% endif %}</label>
                   <input type="date" id="check_out" name="check_out" class="form-control" required>
                 </div>
               </div>
               <div class="mb-3">
                 <label for="guest_count" class="form-label small text-uppercase fw-semibold text-secondary">Số khách</label>
-                <input type="number" id="guest_count" name="guest_count" class="form-control" min="1" value="2" required>
+                <input type="number" id="guest_count" name="guest_count" class="form-control" min="1"{% if acc.max_capacity %} max="{{ acc.max_capacity }}"{% endif %} value="2" required>
                 <div class="form-text">Cho phép thú cưng: {% if acc.allows_pets %}Có{% else %}Không{% endif %}</div>
               </div>
               <div class="mb-3">
                 <label for="guest_note" class="form-label small text-uppercase fw-semibold text-secondary">Ghi chú (tuỳ chọn)</label>
                 <textarea id="guest_note" name="guest_note" class="form-control" rows="2" placeholder="Yêu cầu thêm cho chủ nhà..."></textarea>
               </div>
-              <button type="submit" class="booking-panel__submit btn w-100">Đặt phòng ngay</button>
+              <button type="submit" class="booking-panel__submit btn w-100">{{ acc.book_cta_label }}</button>
               <p class="booking-panel__note">Giá đã bao gồm thuế &amp; phí • Giữ chỗ trong 15 phút</p>
             </form>
             {% else %}
-            <div class="booking-panel__price">Hiện chưa có phòng trống</div>
+            <div class="booking-panel__price">{{ acc.unavailable_label }}</div>
             {% endif %}
           </aside>
         </div>
@@ -184,7 +201,8 @@
               <div class="page-accommodation__host-stats">
                 <div><span>THAM GIA TỪ</span><strong>{{ acc.host.created_at.strftime('%Y') if acc.host.created_at else '2022' }}</strong></div>
               </div>
-              <button type="button" class="page-accommodation__host-contact">Liên hệ ngay</button>
+              <a href="{% if current_user.is_authenticated %}{{ url_for('customer.accommodation_contact', id=acc.id) }}{% else %}{{ url_for('auth.login', next=url_for('customer.accommodation_contact', id=acc.id)) }}{% endif %}"
+                 class="page-accommodation__host-contact">Liên hệ ngay</a>
             </div>
           </div>
         </section>
@@ -245,6 +263,7 @@
 
     <!-- Room detail modals -->
     {% for room in acc.rooms %}
+    {% if acc.shows_room_gallery_detail or not acc.books_whole_unit %}
     <div class="modal fade" id="roomModal{{ room.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -256,14 +275,16 @@
             <img src="{{ room.image_url }}" alt="{{ room.name }}"
                  class="w-100 rounded-3 mb-3" style="max-height:320px;object-fit:cover;">
             <div class="row g-2 mb-3">
-              <div class="col-6 col-md-3"><span class="text-secondary small d-block">Giường</span><strong>{{ room.bed_info }}</strong></div>
-              <div class="col-6 col-md-3"><span class="text-secondary small d-block">Sức chứa</span><strong>{{ room.capacity }} khách</strong></div>
-              <div class="col-6 col-md-3"><span class="text-secondary small d-block">Diện tích</span><strong>{{ room.area }}</strong></div>
-              <div class="col-6 col-md-3"><span class="text-secondary small d-block">Giá/đêm</span><strong class="text-primary">{{ "{:,.0f}".format(room.base_price) }}đ</strong></div>
+              <div class="col-6 col-md-4"><span class="text-secondary small d-block">Giường</span><strong>{{ room.bed_info }}</strong></div>
+              <div class="col-6 col-md-4"><span class="text-secondary small d-block">Sức chứa</span><strong>{{ room.capacity }} khách</strong></div>
+              <div class="col-6 col-md-4"><span class="text-secondary small d-block">Diện tích</span><strong>{{ room.area or '—' }}</strong></div>
+              {% if not acc.books_whole_unit %}
+              <div class="col-6 col-md-4"><span class="text-secondary small d-block">Giá/đêm</span><strong class="text-primary">{{ "{:,.0f}".format(room.base_price) }}đ</strong></div>
+              {% endif %}
             </div>
             {% if room.description %}<p class="text-secondary">{{ room.description }}</p>{% endif %}
             {% if room.features %}
-            <h6 class="fw-semibold mt-3">Tiện nghi phòng</h6>
+            <h6 class="fw-semibold mt-3">{% if acc.books_whole_unit %}Tiện nghi{% else %}Tiện nghi phòng{% endif %}</h6>
             <div class="d-flex flex-wrap gap-2">
               {% for f in room.features %}
               <span class="badge bg-light text-dark border"><i class="bi bi-check-lg text-primary"></i> {{ f }}</span>
@@ -272,15 +293,20 @@
             {% endif %}
           </div>
           <div class="modal-footer">
+            {% if acc.books_whole_unit %}
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+            {% else %}
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
             <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
                     onclick="rovvaSelectRoom('{{ room.id }}', '{{ room.base_price }}')">
               Chọn phòng này
             </button>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
+    {% endif %}
     {% endfor %}
   </main>
 {% endblock %}
@@ -307,6 +333,10 @@
         form.action = form.action.replace(/\/create\/\d+$/, '/create/' + sel.value);
         var opt = sel.options[sel.selectedIndex];
         if (priceEl && opt) priceEl.textContent = fmt(opt.dataset.price);
+        var capInput = document.getElementById('guest_count');
+        if (capInput && opt && opt.dataset.capacity) {
+          capInput.max = opt.dataset.capacity;
+        }
       });
     }
 

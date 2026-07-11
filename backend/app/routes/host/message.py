@@ -4,7 +4,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from backend.app.extensions import db
-from backend.app.models import Accommodation, Booking, Conversation, Dispute, Message, Room
+from backend.app.models import Accommodation, Booking, Conversation, Dispute, Message, Room, User
 from backend.app.services.host_dashboard import get_host_stats
 from backend.app.utils.host_display import filter_bookings_by_tab
 
@@ -32,6 +32,10 @@ def index():
         active_conversation = Conversation.query.filter_by(
             id=conversation_id, host_id=host_id
         ).first_or_404()
+        if not active_conversation.guest_id:
+            guest_user = User.query.filter_by(email=active_conversation.guest_email).first()
+            if guest_user:
+                active_conversation.guest_id = guest_user.id
         unread_msgs = active_conversation.messages.filter_by(
             sender_type="guest", is_read=False
         ).all()
@@ -67,13 +71,15 @@ def send_message(conversation_id):
     ).first_or_404()
     content = request.form.get("content")
     if content and content.strip():
+        from datetime import datetime
+
         msg = Message(
             conversation_id=conversation.id,
             sender_type="host",
             content=content.strip(),
         )
         db.session.add(msg)
-        conversation.updated_at = db.func.now()
+        conversation.updated_at = datetime.utcnow()
         db.session.commit()
     return redirect(url_for("message.index", conversation_id=conversation.id))
 

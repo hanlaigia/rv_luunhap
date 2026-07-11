@@ -1,0 +1,156 @@
+{% extends 'customer/base.html' %}
+{% block body_attrs %}data-page="account"{% endblock %}
+
+{% block content %}
+<main class="page-content page-content--messages">
+  <div class="account-layout account-layout--messages">
+    {% include 'customer/includes/account/_sidebar.html' %}
+    <div class="account-main">
+      <div class="account-page-head">
+        <h1 class="account-page-title">Tin nhắn từ cơ sở lưu trú</h1>
+        <p class="account-page-subtitle">Trao đổi trực tiếp với chủ cơ sở lưu trú về đặt phòng và dịch vụ lưu trú của bạn.</p>
+      </div>
+
+      <div class="account-content-box account-content-box--messages">
+        <div class="guest-host-chat">
+          <aside class="guest-host-chat__list" aria-label="Danh sách hội thoại">
+            <div class="guest-host-chat__list-head">
+              <div class="guest-host-chat__search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input type="search" id="guest-chat-search" placeholder="Tìm cơ sở lưu trú..." autocomplete="off">
+              </div>
+              {% if total_unread %}
+              <span class="guest-host-chat__unread-pill">{{ total_unread }} tin chưa đọc</span>
+              {% endif %}
+            </div>
+
+            <div class="guest-host-chat__threads">
+              {% for conv in conversations %}
+              {% set acc = conv.host.accommodations.first() if conv.host else none %}
+              {% set acc_name = acc.name if acc else 'Cơ sở lưu trú' %}
+              {% set last_msg = conv.last_message() %}
+              {% set unread = conv.guest_unread_count() %}
+              <a href="{{ url_for('customer.account_messages', conversation_id=conv.id) }}"
+                 class="guest-host-chat__thread{% if active_conversation and active_conversation.id == conv.id %} is-active{% endif %}{% if unread %} has-unread{% endif %}"
+                 data-search-text="{{ acc_name|lower }} {{ conv.host.full_name|lower if conv.host else '' }}">
+                <div class="guest-host-chat__avatar">
+                  {% if acc and acc.cover_url %}
+                  <img src="{{ acc.cover_url }}" alt="{{ acc_name }}">
+                  {% else %}
+                  <span>{{ acc_name[:1]|upper }}</span>
+                  {% endif %}
+                </div>
+                <div class="guest-host-chat__thread-body">
+                  <div class="guest-host-chat__thread-top">
+                    <strong class="guest-host-chat__thread-name">{{ acc_name }}</strong>
+                    <time class="guest-host-chat__thread-time">
+                      {% if conv.updated_at %}{{ conv.updated_at.strftime('%H:%M') }}{% endif %}
+                    </time>
+                  </div>
+                  <div class="guest-host-chat__thread-host">{{ conv.host.full_name if conv.host else 'Chủ cơ sở lưu trú' }}</div>
+                  <p class="guest-host-chat__thread-preview">
+                    {% if last_msg %}
+                      {% if last_msg.sender_type == 'guest' %}Bạn: {% endif %}{{ last_msg.content }}
+                    {% else %}
+                      Chưa có tin nhắn
+                    {% endif %}
+                  </p>
+                </div>
+                {% if unread %}<span class="guest-host-chat__dot" aria-label="Tin nhắn chưa đọc"></span>{% endif %}
+              </a>
+              {% else %}
+              <div class="guest-host-chat__empty-list">
+                <i class="bi bi-chat-dots"></i>
+                <p>Chưa có tin nhắn từ cơ sở lưu trú.</p>
+              </div>
+              {% endfor %}
+            </div>
+          </aside>
+
+          <section class="guest-host-chat__panel" aria-label="Khung trò chuyện">
+            {% if active_conversation %}
+            {% set host_name = active_conversation.host.full_name if active_conversation.host else 'Chủ cơ sở lưu trú' %}
+            {% set acc_title = accommodation.name if accommodation else 'Cơ sở lưu trú' %}
+            <header class="guest-host-chat__panel-head">
+              <div class="guest-host-chat__panel-host">
+                <div class="guest-host-chat__avatar guest-host-chat__avatar--lg">
+                  {% if accommodation and accommodation.cover_url %}
+                  <img src="{{ accommodation.cover_url }}" alt="{{ acc_title }}">
+                  {% else %}
+                  <span>{{ acc_title[:1]|upper }}</span>
+                  {% endif %}
+                </div>
+                <div>
+                  <h2 class="guest-host-chat__panel-title">{{ acc_title }}</h2>
+                  <p class="guest-host-chat__panel-sub">{{ host_name }} · Chủ cơ sở lưu trú</p>
+                </div>
+              </div>
+              {% if booking %}
+              <div class="guest-host-chat__booking-chip">
+                <i class="bi bi-calendar-check"></i>
+                <span>{{ booking.booking_code }}</span>
+              </div>
+              {% endif %}
+            </header>
+
+            <div class="guest-host-chat__messages" id="guest-chat-messages">
+              {% for msg in chat_messages %}
+              <div class="guest-host-chat__msg guest-host-chat__msg--{{ 'out' if msg.sender_type == 'guest' else 'in' }}">
+                <div class="guest-host-chat__bubble">{{ msg.content }}</div>
+                <time class="guest-host-chat__msg-time">{{ msg.created_at.strftime('%H:%M') if msg.created_at else '' }}</time>
+              </div>
+              {% else %}
+              <div class="guest-host-chat__msg-empty">Bắt đầu cuộc trò chuyện với {{ host_name }}.</div>
+              {% endfor %}
+            </div>
+
+            <footer class="guest-host-chat__composer">
+              <form method="post" action="{{ url_for('customer.account_messages_send', conversation_id=active_conversation.id) }}">
+                <div class="guest-host-chat__input-wrap">
+                  <textarea name="content" rows="2" placeholder="Nhập tin nhắn gửi chủ cơ sở lưu trú..." required></textarea>
+                  <div class="guest-host-chat__composer-bar">
+                    <div class="guest-host-chat__tools" aria-hidden="true">
+                      <button type="button" class="guest-host-chat__tool" tabindex="-1"><i class="bi bi-image"></i></button>
+                      <button type="button" class="guest-host-chat__tool" tabindex="-1"><i class="bi bi-paperclip"></i></button>
+                      <button type="button" class="guest-host-chat__tool" tabindex="-1"><i class="bi bi-emoji-smile"></i></button>
+                    </div>
+                    <button type="submit" class="btn btn-primary guest-host-chat__send">
+                      Gửi tin nhắn <i class="bi bi-send-fill"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </footer>
+            {% else %}
+            <div class="guest-host-chat__placeholder">
+              <i class="bi bi-chat-left-text"></i>
+              <h2>Chọn cuộc trò chuyện</h2>
+              <p>Chọn một cơ sở lưu trú bên trái để xem và phản hồi tin nhắn.</p>
+            </div>
+            {% endif %}
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    const box = document.getElementById('guest-chat-messages');
+    if (box) box.scrollTop = box.scrollHeight;
+
+    const search = document.getElementById('guest-chat-search');
+    if (!search) return;
+    search.addEventListener('input', function () {
+      const q = this.value.trim().toLowerCase();
+      document.querySelectorAll('.guest-host-chat__thread').forEach((el) => {
+        const text = el.getAttribute('data-search-text') || '';
+        el.style.display = !q || text.includes(q) ? '' : 'none';
+      });
+    });
+  })();
+</script>
+{% endblock %}

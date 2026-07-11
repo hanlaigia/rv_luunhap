@@ -14,7 +14,7 @@
   <div class="account-sidebar__nav">
     <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.account_profile' else '' }}"
        href="{{ url_for('customer.account_profile') }}">
-      <i class="bi bi-person"></i> <span>Thông tin tài khoản</span>
+      <i class="bi bi-person"></i> <span>Tài khoản</span>
     </a>
     <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.trips' else '' }}"
        href="{{ url_for('customer.trips') }}">
@@ -22,7 +22,11 @@
     </a>
     <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.account_wallet' else '' }}"
        href="{{ url_for('customer.account_wallet') }}">
-      <i class="bi bi-wallet2"></i> <span>Ví Xu</span>
+      <i class="bi bi-wallet2"></i> <span>Ví xu</span>
+    </a>
+    <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.account_tier' else '' }}"
+       href="{{ url_for('customer.account_tier') }}">
+      <i class="bi bi-award"></i> <span>Hạng thành viên</span>
     </a>
     <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.account_favorites' else '' }}"
        href="{{ url_for('customer.account_favorites') }}">
@@ -32,9 +36,11 @@
        href="{{ url_for('customer.account_reviews') }}">
       <i class="bi bi-chat-square-text"></i> <span>Đánh giá của tôi</span>
     </a>
-    <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.account_tier' else '' }}"
-       href="{{ url_for('customer.account_tier') }}">
-      <i class="bi bi-award"></i> <span>Hạng thành viên</span>
+    <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.account_messages' else '' }}"
+       href="{{ url_for('customer.account_messages') }}">
+      <i class="bi bi-chat-dots-fill"></i>
+      <span>Tin nhắn từ cơ sở lưu trú</span>
+      {% if sidebar_unread_messages %}<span class="account-sidebar__badge">{{ sidebar_unread_messages }}</span>{% endif %}
     </a>
     <a class="account-sidebar__link {{ 'is-active' if ep == 'customer.account_security' else '' }}"
        href="{{ url_for('customer.account_security') }}">

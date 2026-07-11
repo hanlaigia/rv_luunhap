@@ -40,7 +40,13 @@
               </div>
               <div class="col-8 col-md-9">
                 <strong>{{ acc.name }}</strong>
-                <div class="text-secondary small">{{ room.name }} • {{ acc.city }}</div>
+                <div class="text-secondary small">
+                  {% if acc.books_whole_unit %}
+                  {{ acc.type }} • {{ acc.city }}
+                  {% else %}
+                  {{ room.name }} • {{ acc.city }}
+                  {% endif %}
+                </div>
               </div>
             </div>
             <ul class="list-unstyled small mb-0">

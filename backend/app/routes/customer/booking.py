@@ -7,6 +7,9 @@ from backend.app.models import Room, Booking
 from backend.app.extensions import db
 from backend.app.services.booking_notify import send_booking_confirmation_email
 from backend.app.services.ai_chat import chat_completion
+from backend.app.utils.reviews import _VN_MONTHS, format_vnd
+
+HOLD_MINUTES = 20
 
 customer_booking_bp = Blueprint("customer_booking", __name__, url_prefix="/customer/booking")
 
@@ -43,6 +46,7 @@ def _notify_and_redirect(booking: Booking, *, success_msg: str):
 @customer_booking_bp.route("/create/<int:room_id>", methods=["POST"])
 def create_booking(room_id):
     room = Room.query.get_or_404(room_id)
+    acc = room.accommodation
 
     check_in_str = request.form.get("check_in")
     check_out_str = request.form.get("check_out")
@@ -54,14 +58,20 @@ def create_booking(room_id):
         check_out = datetime.strptime(check_out_str, "%Y-%m-%d").date()
     except (ValueError, TypeError):
         flash("Ngày check-in hoặc check-out không hợp lệ.", "error")
-        return redirect(url_for("customer.accommodation_detail", id=room.accommodation_id))
+        return redirect(url_for("customer.accommodation_detail", id=acc.id))
 
     if check_in >= check_out:
         flash("Ngày trả phòng phải sau ngày nhận phòng.", "error")
-        return redirect(url_for("customer.accommodation_detail", id=room.accommodation_id))
+        return redirect(url_for("customer.accommodation_detail", id=acc.id))
+
+    if acc.books_whole_unit:
+        room_ids = [r.id for r in acc.rooms]
+        overlap_filter = Booking.room_id.in_(room_ids)
+    else:
+        overlap_filter = Booking.room_id == room_id
 
     overlap = Booking.query.filter(
-        Booking.room_id == room_id,
+        overlap_filter,
         Booking.status.in_([Booking.STATUS_CONFIRMED, Booking.STATUS_HOLDING]),
         Booking.check_in < check_out,
         Booking.check_out > check_in,
@@ -71,11 +81,21 @@ def create_booking(room_id):
         overlap.status = Booking.STATUS_CANCELLED
         db.session.commit()
     elif overlap:
-        flash("Phòng đã được đặt hoặc đang có người giữ chỗ trong khoảng thời gian này.", "error")
-        return redirect(url_for("customer.accommodation_detail", id=room.accommodation_id))
+        flash(
+            f"{acc.type} đã được đặt hoặc đang có người giữ chỗ trong khoảng thời gian này."
+            if acc.books_whole_unit
+            else "Phòng đã được đặt hoặc đang có người giữ chỗ trong khoảng thời gian này.",
+            "error",
+        )
+        return redirect(url_for("customer.accommodation_detail", id=acc.id))
+
+    booking_room = acc.primary_room if acc.books_whole_unit else room
+    if not booking_room:
+        flash(acc.unavailable_label, "error")
+        return redirect(url_for("customer.accommodation_detail", id=acc.id))
 
     nights = (check_out - check_in).days
-    total_amount = room.base_price * nights
+    total_amount = booking_room.base_price * nights
 
     booking_code = f"#RV{uuid.uuid4().hex[:6].upper()}"
 
@@ -92,7 +112,7 @@ def create_booking(room_id):
 
     booking = Booking(
         booking_code=booking_code,
-        room_id=room_id,
+        room_id=booking_room.id,
         guest_id=guest_id,
         guest_name=guest_name,
         guest_phone=guest_phone,
@@ -103,7 +123,7 @@ def create_booking(room_id):
         check_out=check_out,
         total_amount=total_amount,
         status=Booking.STATUS_HOLDING,
-        hold_expiry_at=datetime.utcnow() + timedelta(minutes=15),
+        hold_expiry_at=datetime.utcnow() + timedelta(minutes=HOLD_MINUTES),
     )
 
     db.session.add(booking)
@@ -170,7 +190,12 @@ def checkout(booking_code):
                 success_msg="Đặt phòng thành công! Bạn sẽ thanh toán bằng tiền mặt khi nhận phòng.",
             )
 
-        return redirect(url_for("customer_booking.mock_gateway", booking_code=booking.booking_code.lstrip("#")))
+        code = booking.booking_code.lstrip("#")
+        session[f"checkout_pricing_{code}"] = pricing
+        booking.payment_method = "online"
+        booking.payment_status = "pending"
+        db.session.commit()
+        return redirect(url_for("customer_booking.online_payment", booking_code=code))
 
     pricing = _compute_pricing(booking, request.args)
     return render_template(
@@ -250,10 +275,92 @@ def success(booking_code):
     return redirect(url_for("customer_booking.order_detail", booking_code=booking_code))
 
 
+def _format_vn_date(d):
+    return f"{d.day} {_VN_MONTHS[d.month]}, {d.year}"
+
+
+def _pricing_for_online(booking, booking_code):
+    pricing = session.get(f"checkout_pricing_{booking_code}")
+    if pricing:
+        return pricing
+    room = booking.room
+    nights = booking.nights
+    room_subtotal = (room.base_price or 0) * nights
+    return {
+        "nights": nights,
+        "room_price": room.base_price or 0,
+        "room_subtotal": room_subtotal,
+        "services": [],
+        "services_total": 0,
+        "promo_code": "",
+        "promo_label": None,
+        "promo_discount": 0,
+        "use_xu": False,
+        "xu_discount": 0,
+        "total": booking.total_amount,
+    }
+
+
+def _online_payment_context(booking, booking_code):
+    pricing = _pricing_for_online(booking, booking_code)
+    hold_expires = booking.hold_expiry_at or (datetime.utcnow() + timedelta(minutes=HOLD_MINUTES))
+    pay_before = hold_expires.strftime("%H:%M, %d/%m/%Y")
+    return {
+        "booking": booking,
+        "pricing": pricing,
+        "amount_display": format_vnd(pricing["total"]),
+        "room_subtotal_display": format_vnd(pricing["room_subtotal"]),
+        "services_display": format_vnd(pricing["services_total"]),
+        "promo_display": format_vnd(pricing["promo_discount"]),
+        "xu_display": format_vnd(pricing["xu_discount"]),
+        "transfer_ref": booking.booking_code.lstrip("#"),
+        "check_in_display": _format_vn_date(booking.check_in),
+        "check_out_display": _format_vn_date(booking.check_out),
+        "hold_expires_iso": hold_expires.isoformat() + "Z",
+        "pay_before": pay_before,
+    }
+
+
+@customer_booking_bp.route("/payment/online/<booking_code>", methods=["GET"])
+def online_payment(booking_code):
+    booking = _get_booking_or_403(booking_code)
+
+    if booking.status != Booking.STATUS_HOLDING:
+        flash("Booking này không ở trạng thái chờ thanh toán.", "warning")
+        return redirect(url_for("customer.index"))
+
+    if booking.hold_expiry_at and booking.hold_expiry_at < datetime.utcnow():
+        booking.status = Booking.STATUS_CANCELLED
+        db.session.commit()
+        flash("Thời gian giữ chỗ đã hết hạn. Vui lòng đặt lại.", "error")
+        return redirect(url_for("customer.index"))
+
+    return render_template(
+        "customer/pages/payment/online.html",
+        **_online_payment_context(booking, booking_code),
+    )
+
+
+@customer_booking_bp.route("/payment/online/<booking_code>/confirm", methods=["POST"])
+def online_payment_confirm(booking_code):
+    booking = _get_booking_or_403(booking_code)
+
+    if booking.status != Booking.STATUS_HOLDING:
+        flash("Booking này không ở trạng thái chờ thanh toán.", "warning")
+        return redirect(url_for("customer.index"))
+
+    return redirect(
+        url_for(
+            "customer_booking.payment_callback",
+            booking_code=booking_code,
+            status="success",
+        )
+    )
+
+
 @customer_booking_bp.route("/mock-gateway/<booking_code>")
 def mock_gateway(booking_code):
-    booking = _get_booking_or_403(booking_code)
-    return render_template("customer/pages/mock_payment.html", booking=booking)
+    return redirect(url_for("customer_booking.online_payment", booking_code=booking_code))
 
 
 @customer_booking_bp.route("/payment-callback/<booking_code>")
@@ -269,6 +376,7 @@ def payment_callback(booking_code):
         booking.commission_fee = int(booking.total_amount * 0.15)
         booking.host_payout_amount = booking.total_amount - booking.commission_fee
         db.session.commit()
+        session.pop(f"checkout_pricing_{booking_code}", None)
         return _notify_and_redirect(booking, success_msg="Thanh toán thành công! Chúc bạn có kỳ nghỉ vui vẻ.")
 
     flash("Thanh toán thất bại hoặc bị hủy. Vui lòng thử lại.", "error")

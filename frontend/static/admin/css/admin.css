@@ -1,16 +1,16 @@
 /* ═══════════════════════════════════════════════════════════
    ROVVA Admin v2 — Premium Light Dashboard
    ═══════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --adm-sidebar-w: 268px;
+  --adm-sidebar-w: 256px;
   --adm-topbar-h: 72px;
   --adm-blue: #0058be;
   --adm-blue-light: #2784f0;
   --adm-blue-soft: #e8f2ff;
   --adm-navy: #0f294d;
-  --adm-bg: #f4f7fc;
+  --adm-bg: #f8fafc;
   --adm-bg-accent: linear-gradient(135deg, #f0f6ff 0%, #f8fafc 50%, #eef4ff 100%);
   --adm-surface: #ffffff;
   --adm-border: #e8edf4;
@@ -35,11 +35,11 @@
 
 body.admin-body {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   background: var(--adm-bg);
-  color: var(--adm-text);
-  font-size: 0.9375rem;
-  line-height: 1.55;
+  color: #1e293b;
+  font-size: 1rem;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -389,7 +389,7 @@ body.admin-body {
 
 /* ── Content ── */
 .admin-main {
-  padding: 1.75rem 2rem 2.5rem;
+  padding: 32px;
   flex: 1;
   max-width: 1440px;
 }
@@ -503,17 +503,19 @@ body.admin-body {
 .admin-page-head { margin-bottom: 1.5rem; }
 
 .admin-page-head h1 {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 2.25rem;
   margin: 0 0 0.25rem;
-  letter-spacing: -0.03em;
-  color: var(--adm-navy);
+  letter-spacing: -0.02em;
+  color: #1e293b;
 }
 
 .admin-page-head p {
   margin: 0;
-  color: var(--adm-muted);
+  color: #64748b;
   font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 /* ── Stat cards (bento) ── */
@@ -582,18 +584,19 @@ body.admin-body {
 .admin-stat-card--amber .admin-stat-card__icon  { background: #fef3c7; color: var(--adm-warning); }
 
 .admin-stat-card__label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--adm-muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  color: #64748b;
   margin-bottom: 0.15rem;
 }
 
 .admin-stat-card__value {
-  font-size: 1.65rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  color: var(--adm-navy);
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 2.25rem;
+  color: #1e293b;
 }
 
 .admin-stat-card__value--danger  { color: var(--adm-danger); }
@@ -618,10 +621,11 @@ body.admin-body {
 }
 
 .admin-panel__title {
-  font-size: 0.9375rem;
+  font-size: 1.125rem;
   font-weight: 700;
+  line-height: 1.75rem;
   margin: 0;
-  color: var(--adm-navy);
+  color: #1e293b;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1015,16 +1019,19 @@ body.admin-body {
 }
 
 .admin-page-head--row h1 {
-  margin: 0 0 0.35rem;
-  font-size: 1.65rem;
-  font-weight: 800;
-  color: var(--adm-navy);
-  letter-spacing: -0.03em;
+  margin: 0 0 0.25rem;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 2.25rem;
+  color: #1e293b;
+  letter-spacing: -0.02em;
 }
 
 .admin-page-head--row p {
   margin: 0;
-  color: var(--adm-muted);
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .admin-filter-group {

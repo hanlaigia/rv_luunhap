@@ -104,6 +104,9 @@ def create_app(config_name="default"):
 
         db.create_all()
         from backend.app.seed import (
+            patch_admin_schema,
+            patch_conversation_schema,
+            patch_guest_messages_demo,
             patch_guest_review_demo,
             patch_host_id_card_demo,
             patch_host_notifications_demo,
@@ -115,7 +118,10 @@ def create_app(config_name="default"):
         )
 
         patch_review_schema()
+        patch_admin_schema()
+        patch_conversation_schema()
         seed_database()
+        patch_guest_messages_demo()
         patch_host_payment_demo()
         patch_guest_review_demo()
         patch_host_notifications_demo()

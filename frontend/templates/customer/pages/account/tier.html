@@ -18,7 +18,7 @@
           <div>
             <span class="profile-gold-card__tier-label">Mức hạng:</span>
             <h2 id="tier-user-name" class="profile-gold-card__name">{{ current_user.full_name }}</h2>
-            <span id="tier-name" class="profile-gold-card__tier">
+            <span id="tier-name" class="profile-gold-card__tier {{ member_tier.cls }}">
               <i class="bi bi-award-fill"></i> {{ member_tier.label }}
             </span>
           </div>
@@ -26,34 +26,38 @@
 
         <div class="member-tier-progress-box">
           <div class="member-tier-progress-box__head">
-            <h2 class="member-tier-progress-box__title" id="tier-next-title">Tiến trình lên Hạng Bạch Kim</h2>
-            <span class="member-tier-progress-box__target" id="tier-target-label">Bạch kim (25.000.000đ)</span>
+            <h2 class="member-tier-progress-box__title" id="tier-next-title">{{ tier_progress.next_title }}</h2>
+            <span class="member-tier-progress-box__target" id="tier-target-label">{{ tier_progress.target_label }}</span>
           </div>
           <div class="member-tier-progress__bar">
-            <div class="member-tier-progress__fill" id="tier-progress" style="width:65%"></div>
+            <div class="member-tier-progress__fill" id="tier-progress" style="width:{{ tier_progress.progress_percent }}%"></div>
           </div>
           <div class="member-tier-progress__stats">
             <div>
               <div class="member-tier-progress__stat-label">Chi tiêu hiện tại</div>
-              <div class="member-tier-progress__stat-value" id="tier-spent">10.745.000đ</div>
+              <div class="member-tier-progress__stat-value" id="tier-spent">{{ tier_progress.spent_display }}</div>
             </div>
             <div>
               <div class="member-tier-progress__stat-label">Còn lại</div>
-              <div class="member-tier-progress__stat-value member-tier-progress__stat-value--remain" id="tier-remain">14.255.000đ</div>
+              <div class="member-tier-progress__stat-value member-tier-progress__stat-value--remain" id="tier-remain">{{ tier_progress.remain_display }}</div>
             </div>
           </div>
-          <p class="member-tier-progress__hint" id="tier-hint">
-            Bạn chỉ cần chi tiêu thêm 14.255.000đ trước ngày 31/12/2026 để thăng Hạng Bạch Kim và nhận các đặc quyền cao hơn.
-          </p>
+          <p class="member-tier-progress__hint" id="tier-hint">{{ tier_progress.hint }}</p>
         </div>
 
         <div class="member-benefits-box">
           <h2 class="member-benefits-box__title" id="tier-benefits-title">Quyền lợi {{ member_tier.label }}</h2>
           <div class="member-benefits-grid" id="tier-benefits">
-            <div class="d-flex align-items-start gap-2 mb-2"><i class="bi bi-check-circle text-primary"></i><span>Tích lũy xu cho mỗi lần đặt phòng thành công.</span></div>
-            <div class="d-flex align-items-start gap-2 mb-2"><i class="bi bi-check-circle text-primary"></i><span>Ưu tiên hỗ trợ khách hàng và xử lý yêu cầu nhanh hơn.</span></div>
-            <div class="d-flex align-items-start gap-2 mb-2"><i class="bi bi-check-circle text-primary"></i><span>Nhận ưu đãi và mã giảm giá độc quyền cho thành viên.</span></div>
-            <div class="d-flex align-items-start gap-2"><i class="bi bi-check-circle text-primary"></i><span>Số dư hiện tại: <strong>{{ balance }} xu</strong> (~{{ "{:,.0f}".format(balance * 1000) }}đ).</span></div>
+            {% for benefit in tier_progress.benefits %}
+            <div class="d-flex align-items-start gap-2{% if not loop.last %} mb-2{% endif %}">
+              <i class="bi bi-check-circle text-primary"></i>
+              <span>{{ benefit }}</span>
+            </div>
+            {% endfor %}
+            <div class="d-flex align-items-start gap-2 mt-2">
+              <i class="bi bi-check-circle text-primary"></i>
+              <span>Số dư hiện tại: <strong>{{ balance }} xu</strong> (~{{ balance_vnd }}).</span>
+            </div>
           </div>
         </div>
       </div>

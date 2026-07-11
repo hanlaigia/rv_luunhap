@@ -88,6 +88,19 @@ def accommodation_detail(id):
     )
 
 
+@customer_bp.route("/accommodation/<int:id>/contact")
+@login_required
+def accommodation_contact(id):
+    from backend.app.models import Accommodation
+    from backend.app.services.customer_messages import get_or_create_host_conversation
+
+    acc = Accommodation.query.get_or_404(id)
+    conversation = get_or_create_host_conversation(current_user, acc)
+    return redirect(
+        url_for("customer.account_messages", conversation_id=conversation.id)
+    )
+
+
 @customer_bp.route("/favorites/toggle", methods=["POST"])
 def toggle_favorite():
     from backend.app.models import Accommodation, Favorite
@@ -290,23 +303,31 @@ def smart_search():
 
 
 def _member_tier(user):
-    from backend.app.models import Booking
+    from backend.app.services.member_tier import member_tier_info
 
-    if not getattr(user, "is_authenticated", False):
-        return {"label": "Khách", "cls": "account-sidebar__tier--silver"}
-    completed = Booking.query.filter_by(
-        guest_id=user.id, status=Booking.STATUS_COMPLETED
-    ).count()
-    if completed >= 5:
-        return {"label": "Hạng Bạch Kim", "cls": "account-sidebar__tier--platinum"}
-    if completed >= 2:
-        return {"label": "Hạng Vàng", "cls": ""}
-    return {"label": "Hạng Bạc", "cls": "account-sidebar__tier--silver"}
+    return member_tier_info(user)
 
 
 @customer_bp.app_context_processor
 def inject_member_tier():
-    return {"member_tier": _member_tier(current_user)}
+    from sqlalchemy import or_
+
+    from backend.app.models import Conversation
+
+    ctx = {"member_tier": _member_tier(current_user)}
+    if current_user.is_authenticated:
+        ctx["sidebar_unread_messages"] = sum(
+            c.guest_unread_count()
+            for c in Conversation.query.filter(
+                or_(
+                    Conversation.guest_id == current_user.id,
+                    Conversation.guest_email == current_user.email,
+                )
+            ).all()
+        )
+    else:
+        ctx["sidebar_unread_messages"] = 0
+    return ctx
 
 
 def _wallet_balance(user_id):
@@ -497,17 +518,196 @@ def account_review_write(booking_id):
     )
 
 
+@customer_bp.route("/account/messages")
+@login_required
+def account_messages():
+    from backend.app.extensions import db
+    from backend.app.services.customer_messages import (
+        conversation_accommodation,
+        conversation_booking,
+        conversation_for_guest,
+        conversation_messages,
+        guest_conversations,
+        mark_host_messages_read,
+    )
+
+    conversations = guest_conversations(current_user)
+    conversation_id = request.args.get("conversation_id", type=int)
+    active_conversation = None
+    accommodation = None
+    booking = None
+    chat_messages = []
+
+    if conversation_id:
+        active_conversation = conversation_for_guest(conversation_id, current_user)
+    elif conversations:
+        active_conversation = conversations[0]
+
+    if active_conversation:
+        if not active_conversation.guest_id:
+            active_conversation.guest_id = current_user.id
+            active_conversation.guest_email = current_user.email
+            active_conversation.guest_name = current_user.full_name
+        mark_host_messages_read(active_conversation)
+        db.session.commit()
+        accommodation = conversation_accommodation(active_conversation)
+        booking = conversation_booking(active_conversation)
+        chat_messages = conversation_messages(active_conversation)
+
+    total_unread = sum(c.guest_unread_count() for c in conversations)
+
+    return render_template(
+        "customer/pages/account/messages.html",
+        conversations=conversations,
+        active_conversation=active_conversation,
+        accommodation=accommodation,
+        booking=booking,
+        chat_messages=chat_messages,
+        total_unread=total_unread,
+    )
+
+
+@customer_bp.route("/account/messages/<int:conversation_id>/send", methods=["POST"])
+@login_required
+def account_messages_send(conversation_id):
+    from datetime import datetime
+
+    from backend.app.extensions import db
+    from backend.app.models import Message
+    from backend.app.services.customer_messages import conversation_for_guest
+
+    conversation = conversation_for_guest(conversation_id, current_user)
+    if not conversation:
+        abort(404)
+
+    content = (request.form.get("content") or "").strip()
+    if not content:
+        flash("Vui lòng nhập nội dung tin nhắn.", "error")
+        return redirect(
+            url_for("customer.account_messages", conversation_id=conversation.id)
+        )
+
+    conversation.guest_id = current_user.id
+    conversation.guest_email = current_user.email
+    conversation.guest_name = current_user.full_name
+
+    db.session.add(
+        Message(
+            conversation_id=conversation.id,
+            sender_type="guest",
+            content=content,
+            is_read=False,
+        )
+    )
+    conversation.updated_at = datetime.utcnow()
+    db.session.commit()
+    return redirect(url_for("customer.account_messages", conversation_id=conversation.id))
+
+
 @customer_bp.route("/account/security")
 @login_required
 def account_security():
     return render_template("customer/pages/account/security.html")
 
 
+@customer_bp.route("/account/security/change-password", methods=["POST"])
+@login_required
+def account_security_change_password():
+    from backend.app.extensions import db
+
+    current_password = (request.form.get("current_password") or "").strip()
+    new_password = (request.form.get("new_password") or "").strip()
+    confirm_password = (request.form.get("confirm_password") or "").strip()
+
+    if not current_password or not new_password or not confirm_password:
+        flash("Vui lòng điền đầy đủ thông tin.", "error")
+        return redirect(url_for("customer.account_security"))
+
+    if not current_user.check_password(current_password):
+        flash("Mật khẩu hiện tại không đúng.", "error")
+        return redirect(url_for("customer.account_security"))
+
+    if new_password == current_password:
+        flash("Mật khẩu mới phải khác mật khẩu hiện tại.", "error")
+        return redirect(url_for("customer.account_security"))
+
+    if new_password != confirm_password:
+        flash("Xác nhận mật khẩu không khớp.", "error")
+        return redirect(url_for("customer.account_security"))
+
+    current_user.set_password(new_password)
+    db.session.commit()
+    flash("Đổi mật khẩu thành công.", "success")
+    return redirect(url_for("customer.account_security"))
+
+
+def _delete_customer_account(user):
+    from backend.app.extensions import db
+    from backend.app.models import (
+        Booking,
+        Conversation,
+        Favorite,
+        Message,
+        Notification,
+        WalletTransaction,
+    )
+
+    user_id = user.id
+    user_email = user.email
+
+    Favorite.query.filter_by(user_id=user_id).delete(synchronize_session=False)
+    WalletTransaction.query.filter_by(user_id=user_id).delete(synchronize_session=False)
+    Notification.query.filter_by(user_id=user_id).delete(synchronize_session=False)
+
+    guest_convs = Conversation.query.filter(
+        db.or_(Conversation.guest_id == user_id, Conversation.guest_email == user_email)
+    ).all()
+    for conv in guest_convs:
+        Message.query.filter_by(conversation_id=conv.id).delete(synchronize_session=False)
+        db.session.delete(conv)
+
+    Booking.query.filter_by(guest_id=user_id).update(
+        {Booking.guest_id: None}, synchronize_session=False
+    )
+
+    db.session.delete(user)
+
+
+@customer_bp.route("/account/security/delete", methods=["POST"])
+@login_required
+def account_security_delete():
+    from flask import jsonify
+    from flask_login import logout_user
+
+    from backend.app.extensions import db
+
+    if current_user.role not in ("guest", "customer"):
+        return jsonify({"ok": False, "error": "Loại tài khoản này không thể xóa tại đây."}), 400
+
+    try:
+        _delete_customer_account(current_user)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"ok": False, "error": "Không thể xóa tài khoản. Vui lòng thử lại."}), 500
+
+    logout_user()
+    return jsonify({"ok": True})
+
+
 @customer_bp.route("/account/tier")
 @login_required
 def account_tier():
+    from backend.app.services.member_tier import format_vnd, member_tier_progress
+
     balance, _ = _wallet_balance(current_user.id)
-    return render_template("customer/pages/account/tier.html", balance=balance)
+    tier_progress = member_tier_progress(current_user)
+    return render_template(
+        "customer/pages/account/tier.html",
+        balance=balance,
+        balance_vnd=format_vnd(balance * 1000),
+        tier_progress=tier_progress,
+    )
 
 
 # Các template dưới đây được render qua route riêng (cần context/đăng nhập),
@@ -526,6 +726,7 @@ _SSR_REDIRECTS = {
     "pages/account/tier.html": "customer.account_tier",
     "pages/account/reviews-pending.html": "customer.account_reviews",
     "pages/account/reviews-completed.html": "customer.account_reviews",
+    "pages/account/messages.html": "customer.account_messages",
     "pages/review/write.html": "customer.account_reviews",
     "pages/trip/upcoming.html": "customer.trips",
 }

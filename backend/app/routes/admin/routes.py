@@ -16,6 +16,16 @@ from backend.app.models import (
 )
 from backend.app.routes.admin import admin_bp
 from backend.app.services.admin_portal import build_portal_context, normalize_view
+from backend.app.utils.admin_roles import ADMIN_ROLE_CHOICES
+
+
+def _resolve_admin_role(raw_role):
+    role = (raw_role or "admin").strip()
+    if role not in ADMIN_ROLE_CHOICES:
+        return "admin"
+    if role == "super" and not current_user.is_super_admin:
+        return "admin"
+    return role
 
 
 def admin_required(f):
@@ -37,8 +47,9 @@ def _redirect_portal(view=None):
 @admin_required
 def index():
     active_view = normalize_view(request.args.get("view", "dashboard"))
-    ctx = build_portal_context(active_view=active_view)
+    ctx = build_portal_context(active_view=active_view, current_user_id=current_user.id)
     ctx["current_user"] = current_user
+    ctx["can_manage_admin_roles"] = current_user.is_super_admin
     return render_template("admin/portal.html", **ctx)
 
 
@@ -287,6 +298,7 @@ def create_admin():
     email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "").strip()
     phone = request.form.get("phone", "").strip()
+    admin_role = _resolve_admin_role(request.form.get("admin_role"))
     if not full_name or not email or not password:
         flash("Vui lòng nhập đủ họ tên, email và mật khẩu.", "error")
         return redirect(url_for("admin.index", view="admins"))
@@ -298,12 +310,58 @@ def create_admin():
         email=email,
         phone=phone or None,
         role="admin",
+        admin_role=admin_role,
         is_email_verified=True,
     )
     admin.set_password(password)
     db.session.add(admin)
     db.session.commit()
-    flash(f"Đã tạo tài khoản admin: {email}", "success")
+    flash(f"Đã tạo tài khoản quản trị viên: {email}", "success")
+    return redirect(url_for("admin.index", view="admins"))
+
+
+@admin_bp.route("/admins/<int:admin_id>/update", methods=["POST"])
+@admin_required
+def update_admin(admin_id):
+    admin = User.query.get_or_404(admin_id)
+    if admin.role != "admin":
+        abort(403)
+
+    full_name = request.form.get("full_name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    phone = request.form.get("phone", "").strip()
+    status = request.form.get("status", "").strip()
+    admin_role = request.form.get("admin_role", "").strip()
+    password = request.form.get("password", "").strip()
+
+    if not full_name or not email:
+        flash("Vui lòng nhập đủ họ tên và email.", "error")
+        return redirect(url_for("admin.index", view="admins"))
+
+    if email != admin.email and User.query.filter_by(email=email).first():
+        flash("Email đã tồn tại trong hệ thống.", "error")
+        return redirect(url_for("admin.index", view="admins"))
+
+    if password and len(password) < 6:
+        flash("Mật khẩu mới phải có ít nhất 6 ký tự.", "error")
+        return redirect(url_for("admin.index", view="admins"))
+
+    admin.full_name = full_name
+    admin.email = email
+    admin.phone = phone or None
+
+    if admin_id != current_user.id:
+        admin.is_locked = status == "revoked"
+        if current_user.is_super_admin:
+            admin.admin_role = _resolve_admin_role(admin_role or admin.admin_role)
+    elif current_user.is_super_admin and admin_role:
+        admin.admin_role = _resolve_admin_role(admin_role)
+
+    if password:
+        admin.set_password(password)
+
+    db.session.commit()
+    flash(f"Đã cập nhật quản trị viên: {admin.email}", "success")
     return redirect(url_for("admin.index", view="admins"))
 
 

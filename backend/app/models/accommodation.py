@@ -75,6 +75,50 @@ class Accommodation(db.Model):
         return min(prices) if prices else 0
 
     @property
+    def books_whole_unit(self):
+        from backend.app.utils.accommodation_display import books_whole_unit
+
+        return books_whole_unit(self.type)
+
+    @property
+    def shows_room_gallery_detail(self):
+        from backend.app.utils.accommodation_display import shows_room_gallery_detail
+
+        return shows_room_gallery_detail(self.type)
+
+    @property
+    def primary_room(self):
+        active = (
+            self.rooms.filter_by(status=Room.STATUS_ACTIVE)
+            .order_by(Room.base_price.asc())
+            .first()
+        )
+        return active or self.rooms.first()
+
+    @property
+    def max_capacity(self):
+        caps = [r.capacity for r in self.rooms if r.capacity]
+        return max(caps) if caps else 0
+
+    @property
+    def booking_unit_label(self):
+        from backend.app.utils.accommodation_display import booking_unit_label
+
+        return booking_unit_label(self.type)
+
+    @property
+    def book_cta_label(self):
+        from backend.app.utils.accommodation_display import book_cta_label
+
+        return book_cta_label(self.type)
+
+    @property
+    def unavailable_label(self):
+        from backend.app.utils.accommodation_display import unavailable_label
+
+        return unavailable_label(self.type)
+
+    @property
     def top_features(self):
         return (self.features or [])[:2]
 

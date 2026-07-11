@@ -13,18 +13,19 @@
         <div class="security-box">
           <h2 class="security-box__title">Đổi mật khẩu</h2>
           <p class="security-box__text">Cập nhật mật khẩu định kỳ để bảo vệ tài khoản của bạn.</p>
-          <form id="security-form">
+          <form id="security-form" method="POST" action="{{ url_for('customer.account_security_change_password') }}" novalidate>
+            <div id="security-form-error" class="security-form-error" role="alert" hidden></div>
             <div class="figma-field mb-3">
               <label class="figma-field__label" for="sec-current">Mật khẩu hiện tại</label>
-              <input class="figma-field__box" id="sec-current" type="password" name="current" autocomplete="current-password">
+              <input class="figma-field__box" id="sec-current" type="password" name="current_password" autocomplete="current-password" required>
             </div>
             <div class="figma-field mb-3">
               <label class="figma-field__label" for="sec-new">Mật khẩu mới</label>
-              <input class="figma-field__box" id="sec-new" type="password" name="newPass" autocomplete="new-password">
+              <input class="figma-field__box" id="sec-new" type="password" name="new_password" autocomplete="new-password" required>
             </div>
             <div class="figma-field mb-4">
               <label class="figma-field__label" for="sec-confirm">Xác nhận mật khẩu mới</label>
-              <input class="figma-field__box" id="sec-confirm" type="password" name="confirmPass" autocomplete="new-password">
+              <input class="figma-field__box" id="sec-confirm" type="password" name="confirm_password" autocomplete="new-password" required>
             </div>
             <button type="submit" class="profile-save-btn">
               <i class="bi bi-shield-check"></i> Đổi mật khẩu
@@ -42,4 +43,11 @@
       </div>
     </div>
   </main>
+
+  {% include 'customer/includes/modals/delete-account-step1.html' %}
+  {% include 'customer/includes/modals/delete-account-step2.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ url_for('static', filename='customer/js/app/security.js') }}"></script>
 {% endblock %}

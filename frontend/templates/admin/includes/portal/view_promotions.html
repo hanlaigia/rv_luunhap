@@ -3,14 +3,14 @@
             <h1 class="page-title">Quản lý khuyến mãi</h1>
             <p class="page-subtitle">Tạo và quản lý các chương trình khuyến mãi, sự kiện giảm giá và phiếu giảm giá</p>
           </div>
-          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <div class="stat-card" style="padding: 16px;">
+          <div class="stats-grid">
+            <div class="stat-card stat-card--compact">
               <div class="stat-info"><span class="stat-label">Tổng khuyến mãi</span><span class="stat-value">{{ promotions|length }}</span></div>
             </div>
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--success);">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--success);">
               <div class="stat-info"><span class="stat-label">Đang hoạt động</span><span class="stat-value">{{ promo_active }}</span></div>
             </div>
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--accent);">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--accent);">
               <div class="stat-info"><span class="stat-label">Tổng phiếu giảm giá</span><span class="stat-value">{{ promotions|length }}</span></div>
             </div>
           </div>
@@ -24,8 +24,8 @@
                   <select class="filter-select" data-filter-for="promotions-table" data-filter-attr="data-filter-type">
                     <option value="">Loại (Tất cả)</option>
                     <option value="Phiếu giảm giá">Phiếu giảm giá</option>
-                    <option value="Flash Sale">Flash Sale</option>
-                    <option value="Promo">Promo</option>
+                    <option value="Flash Sale">Giảm giá nhanh</option>
+                    <option value="Promo">Khuyến mãi</option>
                   </select>
                   <select class="filter-select" data-filter-for="promotions-table" data-filter-attr="data-filter-status">
                     <option value="">Trạng thái (Tất cả)</option>
@@ -51,7 +51,7 @@
                     {% for p in promotions %}
                     <tr data-id="p{{ p.id }}" data-filter-type="{{ p.type }}" data-filter-status="{% if p.status %}active{% else %}inactive{% endif %}">
                       <td class="cell-bold">{{ p.name }}</td>
-                      <td><span class="badge" style="background-color:var(--bg-muted); color:var(--text-primary)">{{ p.type }}</span></td>
+                      <td><span class="badge" style="background-color:var(--bg-muted); color:var(--text-primary)">{{ promo_type_label(p.type) }}</span></td>
                       <td class="cell-highlight">{{ p.discount_value }}{% if '%' not in (p.discount_value or '') %} ₫{% endif %}</td>
                       <td>{{ p.start_date or '—' }}</td>
                       <td>{{ p.end_date or '—' }}</td>

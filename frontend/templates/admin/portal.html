@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SmartStay Admin Portal - Hệ thống quản lý thông minh</title>
-  <meta name="description" content="Trang quản trị hệ thống đặt phòng SmartStay Platform - Quản lý người dùng, phòng, khách sạn, booking, thanh toán và tranh chấp.">
+  <title>Rovva Admin — Hệ thống quản trị</title>
+  <meta name="description" content="Trang quản trị hệ thống đặt phòng Rovva — Quản lý khách hàng, phòng, cơ sở lưu trú, đặt phòng, thanh toán và tranh chấp.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,9 +19,7 @@
 
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-logo-badge">
-          <div class="sidebar-logo" id="sidebar-logo">QUẢN TRỊ</div>
-        </div>
+        <div class="sidebar-logo" id="sidebar-logo">QUẢN TRỊ</div>
       </div>
       <nav class="sidebar-nav">
         <div class="nav-group">
@@ -43,7 +41,7 @@
           </button>
           <button class="nav-item{% if active_view == 'bookings' %} active{% endif %}" data-target="bookings" id="nav-bookings">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></span>
-            <span class="nav-label">Quản lý booking</span>
+            <span class="nav-label">Quản lý đặt phòng</span>
           </button>
           <button class="nav-item{% if active_view == 'disputes' %} active{% endif %}" data-target="disputes" id="nav-disputes">
             <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>
@@ -108,7 +106,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title" id="modal-title">Chi tiết thông tin</h3>
-        <button class="modal-close" onclick="closeModal('detail-modal')" aria-label="Close Modal">
+        <button class="modal-close" onclick="closeModal('detail-modal')" aria-label="Đóng hộp thoại">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
@@ -122,8 +120,8 @@
   <div class="modal-backdrop" id="form-modal">
     <div class="modal-box modal-box-lg">
       <div class="modal-header">
-        <h3 class="modal-title" id="form-modal-title">Form</h3>
-        <button class="modal-close" onclick="closeModal('form-modal')" aria-label="Close Modal">
+        <h3 class="modal-title" id="form-modal-title">Biểu mẫu</h3>
+        <button class="modal-close" onclick="closeModal('form-modal')" aria-label="Đóng hộp thoại">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
@@ -140,11 +138,19 @@
       exportReport: "{{ url_for('admin.export_report', report_type='__TYPE__') }}",
       createPromotion: "{{ url_for('admin.create_promotion') }}",
       createAdmin: "{{ url_for('admin.create_admin') }}",
+      updateAdmin: "{{ url_for('admin.update_admin', admin_id=0) }}".replace('/0/', '/__ID__/'),
       updateRoom: "{{ url_for('admin.update_room', room_id=0) }}".replace('/0/', '/__ID__/'),
       resolveDispute: "{{ url_for('admin.resolve_dispute', dispute_id=0) }}".replace('/0/', '/__ID__/'),
       processDispute: "{{ url_for('admin.process_dispute', dispute_id=0) }}".replace('/0/', '/__ID__/'),
       bookingStatus: "{{ url_for('admin.update_booking_status', booking_id=0) }}".replace('/0/', '/__ID__/'),
     };
+    window.ADMIN_CURRENT_USER_ID = {{ current_user.id }};
+    window.ADMIN_CAN_MANAGE_ROLES = {{ 'true' if can_manage_admin_roles else 'false' }};
+    window.ADMIN_ROLE_OPTIONS = [
+      {% for role in admin_role_choices %}
+      { value: {{ role|tojson }}, label: {{ admin_role_label(role)|tojson }} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
     window.ADMIN_HOSTS = [
       {% for h in host_users %}
       { id: {{ h.id }}, name: {{ h.full_name|tojson }} }{% if not loop.last %},{% endif %}

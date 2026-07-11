@@ -10,6 +10,62 @@
   const entities = window.ADMIN_ENTITIES || {};
   const urls = window.ADMIN_URLS || {};
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function buildAdminRoleOptions(selectedRole, includeSuper) {
+    const options = window.ADMIN_ROLE_OPTIONS || [];
+    const canManage = window.ADMIN_CAN_MANAGE_ROLES === true;
+    return options
+      .filter((opt) => canManage || opt.value !== 'super')
+      .filter((opt) => includeSuper || opt.value !== 'super' || canManage)
+      .map((opt) => {
+        const selected = opt.value === (selectedRole || 'admin') ? ' selected' : '';
+        return `<option value="${escapeHtml(opt.value)}"${selected}>${escapeHtml(opt.label)}</option>`;
+      })
+      .join('');
+  }
+
+  function buildAdminStatusField(edit) {
+    if (edit.is_self) {
+      return `<div class="form-field">
+          <label>Trạng thái</label>
+          <input type="text" value="Hoạt động" disabled>
+          <p class="form-hint">Không thể thu hồi quyền tài khoản đang đăng nhập.</p>
+        </div>`;
+    }
+    return `<div class="form-field">
+          <label>Trạng thái</label>
+          <select name="status">
+            <option value="active"${!edit.is_locked ? ' selected' : ''}>Hoạt động</option>
+            <option value="revoked"${edit.is_locked ? ' selected' : ''}>Thu hồi quyền</option>
+          </select>
+        </div>`;
+  }
+
+  function buildAdminRoleField(selectedRole, disabled) {
+    const role = selectedRole || 'admin';
+    if (disabled) {
+      const options = window.ADMIN_ROLE_OPTIONS || [];
+      const current = options.find((opt) => opt.value === role);
+      return `<div class="form-field">
+          <label>Phân quyền</label>
+          <input type="text" value="${escapeHtml(current?.label || 'Quản trị viên')}" disabled>
+          <input type="hidden" name="admin_role" value="${escapeHtml(role === 'super' && !window.ADMIN_CAN_MANAGE_ROLES ? 'admin' : role)}">
+          <p class="form-hint">Chỉ quản trị cấp cao mới có thể thay đổi phân quyền.</p>
+        </div>`;
+    }
+    return `<div class="form-field">
+          <label>Phân quyền</label>
+          <select name="admin_role">${buildAdminRoleOptions(role, true)}</select>
+        </div>`;
+  }
+
   function showView(target) {
     if (!target) return;
     views.forEach((v) => v.classList.toggle('active', v.id === `view-${target}`));
@@ -135,6 +191,10 @@
   }
 
   window.viewDetails = function viewDetails(type, id) {
+    if (type === 'admin') {
+      openAdminEditModal(id);
+      return;
+    }
     const item = entities[type]?.[id];
     if (!item) {
       showToast('Không tìm thấy dữ liệu.', 'info');
@@ -149,7 +209,7 @@
         body += `<form method="post" action="${urls.bookingStatus.replace('__ID__', item.id)}"><input type="hidden" name="status" value="confirmed"><button type="submit" class="btn btn-primary">Xác nhận</button></form>`;
       }
       if (!['cancelled', 'completed'].includes(item.status)) {
-        body += `<form method="post" action="${urls.bookingStatus.replace('__ID__', item.id)}"><input type="hidden" name="status" value="cancelled"><button type="submit" class="btn btn-secondary">Hủy booking</button></form>`;
+        body += `<form method="post" action="${urls.bookingStatus.replace('__ID__', item.id)}"><input type="hidden" name="status" value="cancelled"><button type="submit" class="btn btn-secondary">Hủy đặt phòng</button></form>`;
       }
       if (item.status === 'confirmed') {
         body += `<form method="post" action="${urls.bookingStatus.replace('__ID__', item.id)}"><input type="hidden" name="status" value="completed"><button type="submit" class="btn btn-primary">Hoàn thành</button></form>`;
@@ -197,8 +257,14 @@
     }
     const e = item.edit;
     const action = urls.updateRoom.replace('__ID__', item.id);
+    const statusLabels = {
+      active: 'Hoạt động',
+      pending: 'Chờ duyệt',
+      paused: 'Tạm ngưng',
+      draft: 'Nháp',
+    };
     const statusOptions = ['active', 'pending', 'paused', 'draft'].map((s) =>
-      `<option value="${s}"${e.status === s ? ' selected' : ''}>${s}</option>`
+      `<option value="${s}"${e.status === s ? ' selected' : ''}>${statusLabels[s] || s}</option>`
     ).join('');
     const html = `
       <form method="post" action="${action}" class="form-grid">
@@ -214,6 +280,49 @@
     openModal('form-modal', 'Chỉnh sửa phòng', html);
   };
 
+  window.openAdminEditModal = function openAdminEditModal(id) {
+    const item = entities.admin?.[id];
+    if (!item?.edit) {
+      showToast('Không tìm thấy quản trị viên.', 'info');
+      return;
+    }
+    const e = item.edit;
+    const action = urls.updateAdmin.replace('__ID__', item.id);
+    const statusField = buildAdminStatusField(e);
+    const roleField = buildAdminRoleField(
+      e.admin_role,
+      !window.ADMIN_CAN_MANAGE_ROLES || (e.is_self && e.admin_role === 'super')
+    );
+
+    const html = `
+      <form method="post" action="${action}" class="form-grid" autocomplete="off">
+        <div class="form-field">
+          <label>Họ tên</label>
+          <input type="text" name="full_name" value="${escapeHtml(e.full_name)}" required>
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" name="email" value="${escapeHtml(e.email)}" autocomplete="off" required>
+        </div>
+        <div class="form-field">
+          <label>SĐT</label>
+          <input type="text" name="phone" value="${escapeHtml(e.phone)}" autocomplete="off">
+        </div>
+        ${roleField}
+        ${statusField}
+        <div class="form-field">
+          <label>Mật khẩu mới</label>
+          <input type="password" name="password" autocomplete="new-password" minlength="6" placeholder="Để trống nếu không đổi">
+          <p class="form-hint">Chỉ nhập khi muốn đặt lại mật khẩu (tối thiểu 6 ký tự).</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('form-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        </div>
+      </form>`;
+    openModal('form-modal', 'Chỉnh sửa quản trị viên', html);
+  };
+
   window.openAddModal = function openAddModal(type) {
     if (type === 'promotion') {
       const hostOptions = (window.ADMIN_HOSTS || []).map((h) => `<option value="${h.id}">${h.name}</option>`).join('');
@@ -222,15 +331,15 @@
           <div class="form-field"><label>Tên khuyến mãi</label><input type="text" name="name" required></div>
           <div class="form-field"><label>Loại</label>
             <select name="type">
-              <option>Phiếu giảm giá</option>
-              <option>Flash Sale</option>
-              <option>Promo</option>
+              <option value="Phiếu giảm giá">Phiếu giảm giá</option>
+              <option value="Flash Sale">Giảm giá nhanh</option>
+              <option value="Promo">Khuyến mãi</option>
             </select>
           </div>
           <div class="form-field"><label>Giảm giá (vd: 15% hoặc 100000)</label><input type="text" name="discount_value" required></div>
           <div class="form-field"><label>Từ ngày</label><input type="date" name="start_date"></div>
           <div class="form-field"><label>Đến ngày</label><input type="date" name="end_date"></div>
-          <div class="form-field"><label>Host</label><select name="host_id">${hostOptions}</select></div>
+          <div class="form-field"><label>Chủ cơ sở lưu trú</label><select name="host_id">${hostOptions}</select></div>
           <div class="modal-actions">
             <button type="button" class="btn btn-secondary" onclick="closeModal('form-modal')">Hủy</button>
             <button type="submit" class="btn btn-primary">Tạo khuyến mãi</button>
@@ -240,12 +349,26 @@
       return;
     }
     if (type === 'admin') {
+      const roleField = buildAdminRoleField('admin', !window.ADMIN_CAN_MANAGE_ROLES);
       const html = `
-        <form method="post" action="${urls.createAdmin}" class="form-grid">
-          <div class="form-field"><label>Họ tên</label><input type="text" name="full_name" required></div>
-          <div class="form-field"><label>Email</label><input type="email" name="email" required></div>
-          <div class="form-field"><label>SĐT</label><input type="text" name="phone"></div>
-          <div class="form-field"><label>Mật khẩu</label><input type="password" name="password" required minlength="6"></div>
+        <form method="post" action="${urls.createAdmin}" class="form-grid" autocomplete="off">
+          <div class="form-field">
+            <label>Họ tên</label>
+            <input type="text" name="full_name" autocomplete="off" placeholder="Nhập họ tên" required>
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" name="email" autocomplete="off" placeholder="Nhập email" required>
+          </div>
+          <div class="form-field">
+            <label>SĐT</label>
+            <input type="text" name="phone" autocomplete="off" placeholder="Nhập số điện thoại (tuỳ chọn)">
+          </div>
+          ${roleField}
+          <div class="form-field">
+            <label>Mật khẩu</label>
+            <input type="password" name="password" autocomplete="new-password" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" required minlength="6">
+          </div>
           <div class="modal-actions">
             <button type="button" class="btn btn-secondary" onclick="closeModal('form-modal')">Hủy</button>
             <button type="submit" class="btn btn-primary">Tạo tài khoản</button>
@@ -408,7 +531,7 @@ function initDashboardCharts(mockDatabase) {
     setText('dash-stat-disputes', newData.kpis.disputes);
     setText('dash-stat-completion', newData.kpis.completion);
     const labelBookings = document.getElementById('dash-label-bookings');
-    if (labelBookings) labelBookings.innerText = filterType === 'year' ? 'Booking trong năm' : 'Booking trong tháng';
+    if (labelBookings) labelBookings.innerText = filterType === 'year' ? 'Đặt phòng trong năm' : 'Đặt phòng trong tháng';
 
     if (revenueBookingChart) {
       revenueBookingChart.data.labels = newData.chartLabels;

@@ -47,7 +47,13 @@
                           {% elif b.status == 'cancelled' %}<span class="badge bg-danger-subtle text-danger-emphasis">Đã hủy</span>
                           {% else %}<span class="badge bg-warning-subtle text-warning-emphasis">Chờ xử lý</span>{% endif %}
                         </div>
-                        <p class="text-secondary small mb-2">{{ b.room.name }} • {{ acc.city }}</p>
+                        <p class="text-secondary small mb-2">
+                          {% if acc.books_whole_unit %}
+                          {{ acc.type }} • {{ acc.city }}
+                          {% else %}
+                          {{ b.room.name }} • {{ acc.city }}
+                          {% endif %}
+                        </p>
                         <div class="d-flex flex-wrap gap-3 small text-secondary mb-2">
                           <span><i class="bi bi-calendar-check"></i> {{ b.check_in.strftime('%d/%m/%Y') }} → {{ b.check_out.strftime('%d/%m/%Y') }}</span>
                           <span><i class="bi bi-people"></i> {{ b.guest_count }} khách</span>

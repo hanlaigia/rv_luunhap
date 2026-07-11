@@ -3,17 +3,17 @@
             <h1 class="page-title">Quản lý thanh toán</h1>
             <p class="page-subtitle">Theo dõi giao dịch và quản lý thanh toán hệ thống</p>
           </div>
-          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <div class="stat-card" style="padding: 16px;">
+          <div class="stats-grid stats-grid--4">
+            <div class="stat-card stat-card--compact">
               <div class="stat-info"><span class="stat-label">Tổng giao dịch</span><span class="stat-value">{{ fmt_m(paid_total + pending_total) }}</span></div>
             </div>
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--success);">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--success);">
               <div class="stat-info"><span class="stat-label">Đã xử lý</span><span class="stat-value">{{ fmt_m(paid_total) }}</span></div>
             </div>
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--warning);">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--warning);">
               <div class="stat-info"><span class="stat-label">Đang chờ xử lý</span><span class="stat-value">{{ fmt_m(pending_total) }}</span></div>
             </div>
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--danger);">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--danger);">
               <div class="stat-info"><span class="stat-label">Hoàn tiền</span><span class="stat-value">{{ fmt_m(refund_total) }}</span></div>
             </div>
           </div>
@@ -38,7 +38,7 @@
                 <table class="data-table" id="payments-table">
                   <thead>
                     <tr>
-                      <th>ID Giao dịch</th><th>Booking</th><th>Số tiền</th><th>Loại</th><th>Ngày</th><th>Trạng thái</th><th>Hành động</th>
+                      <th>Mã giao dịch</th><th>Đặt phòng</th><th>Số tiền</th><th>Loại</th><th>Ngày</th><th>Trạng thái</th><th>Hành động</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -47,7 +47,7 @@
                       <td class="cell-highlight">TXN{{ '%03d'|format(b.id) }}</td>
                       <td class="cell-bold">{{ b.booking_code }}</td>
                       <td class="cell-bold">{{ fmt_m(b.total_amount or 0) }}</td>
-                      <td>Booking Payment</td>
+                      <td>Thanh toán đặt phòng</td>
                       <td>{{ b.created_at.strftime('%Y-%m-%d') if b.created_at else '—' }}</td>
                       <td>
                         {% if b.payment_status == 'paid' %}

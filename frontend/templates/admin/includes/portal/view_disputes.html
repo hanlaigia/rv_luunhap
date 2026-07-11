@@ -3,14 +3,14 @@
             <h1 class="page-title">Quản lý tranh chấp</h1>
             <p class="page-subtitle">Xử lý và giải quyết các tranh chấp phát sinh giữa người dùng</p>
           </div>
-          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--info);">
+          <div class="stats-grid">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--info);">
               <div class="stat-info"><span class="stat-label">Tổng tranh chấp</span><span class="stat-value">{{ dispute_counts.total }}</span></div>
             </div>
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--danger);">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--danger);">
               <div class="stat-info"><span class="stat-label">Chưa xử lý</span><span class="stat-value">{{ dispute_counts.open }}</span></div>
             </div>
-            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--success);">
+            <div class="stat-card stat-card--compact" style="border-left: 4px solid var(--success);">
               <div class="stat-info"><span class="stat-label">Đã giải quyết</span><span class="stat-value">{{ dispute_counts.resolved }}</span></div>
             </div>
           </div>
@@ -33,10 +33,17 @@
                 </div>
               </div>
               <div class="table-responsive">
-                <table class="data-table" id="disputes-table">
+                <table class="data-table data-table--disputes" id="disputes-table">
                   <thead>
                     <tr>
-                      <th>ID TRANH CHẤP</th><th>BOOKING</th><th>NGƯỜI KHIẾU NẠI</th><th>BÊN LIÊN QUAN</th><th>LÝ DO</th><th>NGÀY TẠO</th><th>TRẠNG THÁI</th><th>HÀNH ĐỘNG</th>
+                      <th>Mã tranh chấp</th>
+                      <th>Đặt phòng</th>
+                      <th>Người khiếu nại</th>
+                      <th>Bên liên quan</th>
+                      <th>Lý do</th>
+                      <th>Ngày tạo</th>
+                      <th>Trạng thái</th>
+                      <th>Hành động</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -45,16 +52,18 @@
                     {% set guest_name = booking.guest_name if booking else '—' %}
                     {% set acc_name = booking.room.accommodation.name if booking and booking.room and booking.room.accommodation else '—' %}
                     <tr data-id="ds{{ d.id }}" data-filter-status="{% if d.status == 'needs_response' %}open{% elif d.status == 'processing' %}processing{% else %}resolved{% endif %}">
-                      <td class="cell-highlight flex-align-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-danger"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        {{ d.dispute_code }}
+                      <td class="cell-highlight">
+                        <span class="table-cell-inline">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-danger" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                          <span>{{ d.dispute_code }}</span>
+                        </span>
                       </td>
                       <td class="cell-bold">{{ booking.booking_code if booking else '—' }}</td>
                       <td>{{ guest_name }}</td>
                       <td>{{ acc_name }}</td>
-                      <td>{{ (d.guest_complaint or '')[:60] }}{% if d.guest_complaint and d.guest_complaint|length > 60 %}...{% endif %}</td>
-                      <td>{{ d.created_at.strftime('%Y-%m-%d') if d.created_at else '—' }}</td>
-                      <td>
+                      <td class="cell-ellipsis" title="{{ d.guest_complaint or '' }}">{{ (d.guest_complaint or '—')[:80] }}{% if d.guest_complaint and d.guest_complaint|length > 80 %}…{% endif %}</td>
+                      <td class="cell-nowrap">{{ d.created_at.strftime('%d/%m/%Y') if d.created_at else '—' }}</td>
+                      <td class="cell-center">
                         {% if d.status == 'needs_response' %}
                         <span class="badge badge-danger">Chưa xử lý</span>
                         {% elif d.status == 'processing' %}
@@ -63,8 +72,8 @@
                         <span class="badge badge-success">Đã giải quyết</span>
                         {% endif %}
                       </td>
-                      <td>
-                        <div class="flex-align-center">
+                      <td class="cell-center">
+                        <div class="flex-align-center table-actions">
                           <button class="btn-icon" title="Chi tiết" onclick="viewDetails('dispute', 'ds{{ d.id }}')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                           </button>

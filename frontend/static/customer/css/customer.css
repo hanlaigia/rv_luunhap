@@ -7173,6 +7173,15 @@ body[data-page="trip"] .page-content {
   border-color: rgba(95, 100, 135, 0.3);
 }
 
+.account-sidebar__tier--gold {
+  background: #fff0c7;
+  border-color: rgba(180, 120, 0, 0.35);
+}
+
+.account-sidebar__tier--gold i {
+  color: #b8860b;
+}
+
 .account-sidebar__tier--platinum {
   background: #dce4ff;
   border-color: rgba(48, 77, 204, 0.3);
@@ -7237,6 +7246,20 @@ body[data-page="trip"] .page-content {
 
 .account-sidebar__link--logout {
   margin-top: 0.25rem;
+}
+
+.account-sidebar__badge {
+  margin-left: auto;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
 }
 
 /* ── Main ── */
@@ -7514,6 +7537,460 @@ body[data-page="trip"] .page-content {
   outline: 2px solid rgba(0, 88, 190, 0.6);
   outline-offset: -2px;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.account-content-box--messages {
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+body[data-page="account"] .page-content.page-content--messages {
+  padding-top: 1.25rem;
+  padding-bottom: 2.5rem;
+}
+
+.account-layout--messages {
+  gap: clamp(1rem, 2.5vw, 2rem);
+  max-width: 100%;
+}
+
+@media (min-width: 1200px) {
+  .account-layout--messages {
+    grid-template-columns: 302px minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  body[data-page="account"] .page-content.page-content--messages {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .account-layout--messages {
+    gap: 40px;
+    grid-template-columns: 302px minmax(0, 1fr);
+    max-width: none;
+    margin: 0;
+  }
+}
+
+.guest-host-chat {
+  display: grid;
+  grid-template-columns: minmax(280px, 34%) minmax(0, 1fr);
+  width: 100%;
+  min-height: clamp(460px, 58vh, 680px);
+  background: #fff;
+}
+
+.guest-host-chat__list {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e8edf5;
+  background: #f8fafc;
+  min-height: 0;
+}
+
+.guest-host-chat__list-head {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e8edf5;
+  background: #fff;
+}
+
+.guest-host-chat__search {
+  position: relative;
+}
+
+.guest-host-chat__search i {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.guest-host-chat__search input {
+  width: 100%;
+  padding: 0.75rem 0.875rem 0.75rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f1f5f9;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.guest-host-chat__search input:focus {
+  outline: none;
+  border-color: var(--rovva-blue);
+  background: #fff;
+}
+
+.guest-host-chat__unread-pill {
+  display: inline-flex;
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.guest-host-chat__threads {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.guest-host-chat__thread {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e8edf5;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.guest-host-chat__thread:hover {
+  background: #f1f5f9;
+}
+
+.guest-host-chat__thread.is-active {
+  background: #eef6ff;
+  border-left: 4px solid #1ee4fd;
+  padding-left: calc(1.25rem - 4px);
+}
+
+.guest-host-chat__thread.has-unread .guest-host-chat__thread-name {
+  color: #0058be;
+}
+
+.guest-host-chat__avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.guest-host-chat__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.guest-host-chat__avatar--lg {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.guest-host-chat__thread-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.guest-host-chat__thread-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.guest-host-chat__thread-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f294d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guest-host-chat__thread-time {
+  font-size: 0.875rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.guest-host-chat__thread-host {
+  font-size: 0.9375rem;
+  color: #424754;
+  margin-top: 0.125rem;
+}
+
+.guest-host-chat__thread-preview {
+  margin: 0.375rem 0 0;
+  font-size: 0.9375rem;
+  color: #64748b;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guest-host-chat__dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: #ef4444;
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+}
+
+.guest-host-chat__empty-list {
+  padding: 2rem 1.25rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.guest-host-chat__empty-list i {
+  font-size: 2.25rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.guest-host-chat__panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.guest-host-chat__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e8edf5;
+  background: #fff;
+}
+
+.guest-host-chat__panel-host {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.guest-host-chat__panel-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f294d;
+  line-height: 1.3;
+}
+
+.guest-host-chat__panel-sub {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  color: #424754;
+  line-height: 1.4;
+}
+
+.guest-host-chat__booking-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #0058be;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.guest-host-chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #f8fafc;
+}
+
+.guest-host-chat__msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+}
+
+.guest-host-chat__msg--in {
+  align-self: flex-start;
+}
+
+.guest-host-chat__msg--out {
+  align-self: flex-end;
+}
+
+.guest-host-chat__bubble {
+  padding: 0.875rem 1.125rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.guest-host-chat__msg--in .guest-host-chat__bubble {
+  background: #fff;
+  color: #191c20;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 4px;
+}
+
+.guest-host-chat__msg--out .guest-host-chat__bubble {
+  background: var(--rovva-blue);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.guest-host-chat__msg-time {
+  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.guest-host-chat__msg--out .guest-host-chat__msg-time {
+  text-align: right;
+}
+
+.guest-host-chat__msg-empty {
+  margin: auto;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.guest-host-chat__composer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #e8edf5;
+  background: #fff;
+}
+
+.guest-host-chat__input-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.guest-host-chat__input-wrap textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 1rem 1.125rem;
+  min-height: 5rem;
+  resize: vertical;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.guest-host-chat__input-wrap textarea:focus {
+  outline: none;
+}
+
+.guest-host-chat__composer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.guest-host-chat__tools {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.guest-host-chat__tool {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+}
+
+.guest-host-chat__send {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 0.625rem 1.125rem;
+  border-radius: 8px;
+}
+
+.guest-host-chat__placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  color: #64748b;
+  text-align: center;
+  padding: 1.5rem;
+  background: #f8fafc;
+}
+
+.guest-host-chat__placeholder i {
+  font-size: 2.75rem;
+  color: #94a3b8;
+}
+
+.guest-host-chat__placeholder h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f294d;
+}
+
+.guest-host-chat__placeholder p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 360px;
+  color: #424754;
+}
+
+@media (max-width: 991.98px) {
+  body[data-page="account"] .page-content.page-content--messages {
+    padding-bottom: 2rem;
+  }
+
+  .guest-host-chat {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .guest-host-chat__list {
+    max-height: 280px;
+    border-right: none;
+    border-bottom: 1px solid #e8edf5;
+  }
+
+  .guest-host-chat__messages {
+    min-height: 300px;
+  }
 }
 
 .account-content-box__title {
@@ -8660,6 +9137,16 @@ body[data-page="trip"] .page-content {
 .security-box__text {
   margin: 0 0 1.25rem;
   color: #424754;
+}
+
+.security-form-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.9rem;
 }
 
 .page-empty {
@@ -10801,6 +11288,7 @@ body[data-page="trip"] .page-content {
 }
 
 .page-accommodation__host-contact {
+  display: inline-block;
   margin-top: 1.5rem;
   border: 0;
   border-radius: 12px;
@@ -10810,6 +11298,13 @@ body[data-page="trip"] .page-content {
   font-size: 0.875rem;
   padding: 0.75rem 2.75rem;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  text-align: center;
+}
+
+.page-accommodation__host-contact:hover {
+  color: #004494;
+  text-decoration: none;
 }
 
 .page-accommodation__host-rating span {
@@ -11085,6 +11580,13 @@ body[data-page="trip"] .page-content {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
+}
+
+.booking-panel__unit-summary {
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e8ecf1;
 }
 
 .booking-panel__summary {

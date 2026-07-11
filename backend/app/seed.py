@@ -38,6 +38,7 @@ def seed_database():
         phone="0901111111",
         avatar="shared/images/avatars/Hinh_avata.jpg",
         role="admin",
+        admin_role="super",
         is_email_verified=True,
     )
     admin.set_password("admin123")
@@ -341,7 +342,7 @@ def seed_database():
             guest_id=guest.id,
             guest_name=guest_names[idx],
             guest_phone=f"0901 234 {500 + idx}",
-            guest_email=f"guest{idx}@email.com",
+            guest_email=guest.email if idx == 0 else f"guest{idx}@email.com",
             guest_count=1 + (idx % 4),
             guest_note="Vui lòng chuẩn bị thêm một bộ chăn gối." if idx % 3 == 0 else "",
             check_in=check_in,
@@ -470,14 +471,14 @@ def seed_database():
     from backend.app.models import Conversation, Message
     
     # --- Conversation Seed ---
-    c1 = Conversation(host_id=host.id, guest_name="Nguyễn Văn A", guest_email="guest0@email.com", guest_phone="0901 234 500", created_at=today - timedelta(days=2))
+    c1 = Conversation(host_id=host.id, guest_id=guest.id, guest_name=guest.full_name, guest_email=guest.email, guest_phone=guest.phone or "0909999999", created_at=today - timedelta(days=2))
     c2 = Conversation(host_id=host.id, guest_name="Trần Thị B", guest_email="guest1@email.com", guest_phone="0901 234 501", created_at=today - timedelta(days=5))
     c3 = Conversation(host_id=host.id, guest_name="Lê Duy", guest_email="guest2@email.com", guest_phone="0901 234 502", created_at=today - timedelta(days=10))
     db.session.add_all([c1, c2, c3])
     db.session.flush()
     
     m1 = Message(conversation_id=c1.id, sender_type="host", content="Chào anh A, rất vui được đón tiếp anh! Thông thường thời gian check-in là 14:00 để bên em chuẩn bị phòng sạch sẽ nhất. Tuy nhiên, nếu ngày 11 không có khách trả phòng muộn, bên em sẽ hỗ trợ anh check-in sớm từ 11:00 hoàn toàn miễn phí ạ.", is_read=True, created_at=datetime.utcnow() - timedelta(minutes=60))
-    m2 = Message(conversation_id=c1.id, sender_type="guest", content="Chào chủ nhà, tôi muốn hỏi về thời gian check-in của homestay mình vào ngày 12 tới ạ? Liệu tôi có thể đến sớm lúc 10h sáng được không?", is_read=False, created_at=datetime.utcnow() - timedelta(minutes=9))
+    m2 = Message(conversation_id=c1.id, sender_type="guest", content="Chào chủ nhà, tôi muốn hỏi về thời gian check-in của homestay mình vào ngày 12 tới ạ? Liệu tôi có thể đến sớm lúc 10h sáng được không?", is_read=True, created_at=datetime.utcnow() - timedelta(minutes=9))
     
     m3 = Message(conversation_id=c2.id, sender_type="host", content="Dạ vâng, cảm ơn chị đã ủng hộ.", is_read=True, created_at=today - timedelta(days=1))
     m4 = Message(conversation_id=c2.id, sender_type="guest", content="Cảm ơn bạn đã hỗ trợ!", is_read=True, created_at=today - timedelta(days=1))
@@ -591,6 +592,116 @@ def patch_host_payment_demo():
 
     rows[0].amount = 4000000
     rows[1].amount = 3500000
+    db.session.commit()
+
+
+def patch_admin_schema():
+    """Thêm cột admin_role cho bảng users (DB cũ)."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "users" not in inspector.get_table_names():
+        return
+
+    columns = {col["name"] for col in inspector.get_columns("users")}
+    if "admin_role" not in columns:
+        db.session.execute(text("ALTER TABLE users ADD COLUMN admin_role VARCHAR(20)"))
+        db.session.commit()
+
+    for admin in User.query.filter_by(role="admin").all():
+        if not admin.admin_role:
+            admin.admin_role = "super" if admin.email == "admin@rova.vn" else "admin"
+    db.session.commit()
+
+
+def patch_guest_messages_demo():
+    """Đảm bảo khách demo (1@ss) có hội thoại mẫu với host để test chat 2 chiều."""
+    from datetime import datetime, timedelta
+
+    from backend.app.models import Conversation, Message
+
+    guest = User.query.filter_by(email="1@ss").first()
+    host = User.query.filter_by(email="van.quangia@rova.vn").first()
+    if not guest or not host:
+        return
+
+    legacy_emails = {"guest0@email.com", "1@ss", guest.email}
+    for conv in Conversation.query.filter(Conversation.guest_email.in_(legacy_emails)).all():
+        if conv.host_id == host.id:
+            conv.guest_id = guest.id
+            conv.guest_email = guest.email
+            conv.guest_name = guest.full_name
+            conv.guest_phone = guest.phone or conv.guest_phone
+
+    conv = (
+        Conversation.query.filter_by(host_id=host.id, guest_id=guest.id).first()
+        or Conversation.query.filter_by(host_id=host.id, guest_email=guest.email).first()
+    )
+
+    if not conv:
+        conv = Conversation(
+            host_id=host.id,
+            guest_id=guest.id,
+            guest_name=guest.full_name,
+            guest_email=guest.email,
+            guest_phone=guest.phone or "0909999999",
+        )
+        db.session.add(conv)
+        db.session.flush()
+
+    if conv.messages.count() == 0:
+        now = datetime.utcnow()
+        db.session.add_all([
+            Message(
+                conversation_id=conv.id,
+                sender_type="host",
+                content=(
+                    "Chào bạn, rất vui được đón tiếp bạn! Thông thường thời gian check-in là 14:00. "
+                    "Nếu không có khách trả phòng muộn, bên em có thể hỗ trợ check-in sớm từ 11:00 ạ."
+                ),
+                is_read=True,
+                created_at=now - timedelta(minutes=60),
+            ),
+            Message(
+                conversation_id=conv.id,
+                sender_type="guest",
+                content=(
+                    "Chào chủ nhà, tôi muốn hỏi về thời gian check-in vào ngày 12 tới ạ? "
+                    "Liệu tôi có thể đến sớm lúc 10h sáng được không?"
+                ),
+                is_read=True,
+                created_at=now - timedelta(minutes=9),
+            ),
+        ])
+        conv.updated_at = now - timedelta(minutes=9)
+
+    if not conv.guest_id:
+        conv.guest_id = guest.id
+    db.session.commit()
+
+
+def patch_conversation_schema():
+    """Thêm cột guest_id cho bảng conversations (DB cũ)."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "conversations" not in inspector.get_table_names():
+        return
+
+    columns = {col["name"] for col in inspector.get_columns("conversations")}
+    if "guest_id" not in columns:
+        db.session.execute(text("ALTER TABLE conversations ADD COLUMN guest_id INTEGER"))
+        db.session.commit()
+
+    guest = User.query.filter_by(email="1@ss").first()
+    if not guest:
+        return
+
+    from backend.app.models import Conversation
+
+    for conv in Conversation.query.filter_by(guest_email=guest.email).all():
+        if not conv.guest_id:
+            conv.guest_id = guest.id
     db.session.commit()
 
 

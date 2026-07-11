@@ -2,12 +2,12 @@
           <div class="page-title-area page-title-area-with-filter">
             <div class="page-title-text">
               <h1 class="page-title">Tổng quan</h1>
-              <p class="page-subtitle">Thống kê và phân tích hoạt động hệ thống theo thời gian thực</p>
+              <p class="page-subtitle">Thống kê và phân tích hoạt động hệ thống</p>
             </div>
             <div class="dashboard-filter-compact">
               <select id="dashboard-filter-type" class="filter-select filter-select-sm" title="Lọc theo">
-                <option value="month" selected>Theo Tháng</option>
-                <option value="year">Cả Năm</option>
+                <option value="month" selected>Tháng</option>
+                <option value="year">Năm</option>
               </select>
               <select id="dashboard-filter-month" class="filter-select filter-select-sm" title="Chọn tháng">
                 {% for m in range(1, 13) %}
@@ -34,7 +34,7 @@
             </div>
             <div class="stat-card">
               <div class="stat-info">
-                <span class="stat-label" id="dash-label-bookings">Booking trong tháng</span>
+                <span class="stat-label" id="dash-label-bookings">Đặt phòng trong tháng</span>
                 <span class="stat-value" id="dash-stat-bookings">{{ kpis.booking_count }}</span>
               </div>
               <div class="stat-icon-wrapper bg-grad-cyan">
@@ -79,27 +79,27 @@
             </div>
           </div>
 
-          <div class="dashboard-grid" style="margin-bottom: 24px;">
-            <div class="card" style="grid-column: span 2;">
-              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="dashboard-grid dashboard-grid--full">
+            <div class="card">
+              <div class="card-header card-header--row">
                 <h2 class="card-title">Phân tích chuỗi thời gian: Lượt đặt phòng & Doanh thu</h2>
               </div>
-              <div class="card-body" style="position: relative; height: 300px;">
+              <div class="card-body dashboard-chart-body">
                 <canvas id="revenueBookingChart"></canvas>
               </div>
             </div>
           </div>
 
-          <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); margin-bottom: 24px;">
+          <div class="dashboard-grid dashboard-grid--charts">
             <div class="card">
-              <div class="card-header"><h2 class="card-title">Tỷ lệ trạng thái booking</h2></div>
-              <div class="card-body" style="position: relative; height: 280px; display: flex; justify-content: center;">
+              <div class="card-header"><h2 class="card-title">Tỷ lệ trạng thái đặt phòng</h2></div>
+              <div class="card-body dashboard-chart-body dashboard-chart-body--sm dashboard-chart-body--center">
                 <canvas id="bookingStatusChart"></canvas>
               </div>
             </div>
             <div class="card">
               <div class="card-header"><h2 class="card-title">Top 5 đơn vị lưu trú doanh thu cao nhất</h2></div>
-              <div class="card-body" style="position: relative; height: 280px;">
+              <div class="card-body dashboard-chart-body dashboard-chart-body--sm">
                 <canvas id="topHotelsChart"></canvas>
               </div>
             </div>

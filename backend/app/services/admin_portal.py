@@ -26,6 +26,60 @@ def _fmt_m(amount):
     return _fmt_money(amount)
 
 
+from backend.app.utils.admin_roles import (
+    ADMIN_ROLE_CHOICES,
+    ADMIN_ROLE_LABELS,
+    admin_role_label,
+    admin_status_from_locked,
+    admin_status_label,
+)
+
+BOOKING_STATUS_LABELS = {
+    "pending": "Chờ xác nhận",
+    "holding": "Đang giữ chỗ",
+    "confirmed": "Đã xác nhận",
+    "completed": "Đã hoàn thành",
+    "cancelled": "Đã hủy",
+}
+
+DISPUTE_STATUS_LABELS = {
+    "needs_response": "Chờ phản hồi",
+    "processing": "Đang xử lý",
+    "resolved": "Đã giải quyết",
+}
+
+PROMO_TYPE_LABELS = {
+    "Flash Sale": "Giảm giá nhanh",
+    "Promo": "Khuyến mãi",
+    "Phiếu giảm giá": "Phiếu giảm giá",
+}
+
+ROOM_STATUS_LABELS = {
+    "active": "Hoạt động",
+    "pending": "Chờ duyệt",
+    "paused": "Tạm ngưng",
+    "draft": "Nháp",
+}
+
+
+def _booking_status_label(status):
+    return BOOKING_STATUS_LABELS.get(status, status or "—")
+
+
+def _dispute_status_label(status):
+    return DISPUTE_STATUS_LABELS.get(status, status or "—")
+
+
+def _promo_type_label(type_):
+    return PROMO_TYPE_LABELS.get(type_, type_ or "—")
+
+
+def _payment_status_label(status):
+    if status == "paid":
+        return "Đã thanh toán"
+    return "Chờ xử lý"
+
+
 def _serialize_period(kpis, charts):
     return {
         "kpis": {
@@ -68,19 +122,19 @@ def _activity_items():
     for b in Booking.query.order_by(Booking.created_at.desc()).limit(3).all():
         items.append({
             "type": "success",
-            "text": f"Đơn đặt phòng {b.booking_code} — {b.status}",
+            "text": f"Đơn đặt phòng {b.booking_code} — {_booking_status_label(b.status)}",
             "sub": b.created_at.strftime("%d/%m/%Y %H:%M") if b.created_at else "",
         })
     for d in Dispute.query.order_by(Dispute.created_at.desc()).limit(2).all():
         items.append({
             "type": "warning",
-            "text": f"Tranh chấp {d.dispute_code} — {d.status}",
+            "text": f"Tranh chấp {d.dispute_code} — {_dispute_status_label(d.status)}",
             "sub": d.created_at.strftime("%d/%m/%Y %H:%M") if d.created_at else "",
         })
     return items[:5]
 
 
-def build_entity_catalog(booking_counts, acc_stats):
+def build_entity_catalog(booking_counts, acc_stats, current_user_id=None):
     catalog = {
         "user": {},
         "host": {},
@@ -106,7 +160,7 @@ def build_entity_catalog(booking_counts, acc_stats):
                 ("Tên", user.full_name),
                 ("Email", user.email),
                 ("SĐT", user.phone or "—"),
-                ("Số booking", str(bc)),
+                ("Số đặt phòng", str(bc)),
                 ("Trạng thái", status),
                 ("Ngày tạo", user.created_at.strftime("%d/%m/%Y") if user.created_at else "—"),
             ],
@@ -150,21 +204,21 @@ def build_entity_catalog(booking_counts, acc_stats):
 
     for b in Booking.query.all():
         catalog["booking"][f"bk{b.id}"] = {
-            "title": "Chi tiết booking",
+            "title": "Chi tiết đặt phòng",
             "id": b.id,
             "status": b.status,
             "fields": [
-                ("Mã booking", b.booking_code),
+                ("Mã đặt phòng", b.booking_code),
                 ("Khách hàng", b.guest_name),
                 ("Email", b.guest_email or "—"),
                 ("SĐT", b.guest_phone or "—"),
-                ("Khách sạn", b.room.accommodation.name if b.room and b.room.accommodation else "—"),
+                ("Cơ sở lưu trú", b.room.accommodation.name if b.room and b.room.accommodation else "—"),
                 ("Phòng", b.room.name if b.room else "—"),
-                ("Check-in", b.check_in.strftime("%Y-%m-%d") if b.check_in else "—"),
-                ("Check-out", b.check_out.strftime("%Y-%m-%d") if b.check_out else "—"),
+                ("Nhận phòng", b.check_in.strftime("%d/%m/%Y") if b.check_in else "—"),
+                ("Trả phòng", b.check_out.strftime("%d/%m/%Y") if b.check_out else "—"),
                 ("Tổng tiền", _fmt_money(b.total_amount or 0)),
-                ("Trạng thái", b.status),
-                ("Thanh toán", b.payment_status),
+                ("Trạng thái", _booking_status_label(b.status)),
+                ("Thanh toán", _payment_status_label(b.payment_status)),
             ],
         }
         catalog["payment"][f"tx{b.id}"] = {
@@ -173,10 +227,10 @@ def build_entity_catalog(booking_counts, acc_stats):
             "paid": b.payment_status == "paid",
             "fields": [
                 ("Mã giao dịch", f"TXN{b.id:03d}"),
-                ("Booking", b.booking_code),
+                ("Đặt phòng", b.booking_code),
                 ("Số tiền", _fmt_money(b.total_amount or 0)),
                 ("Phương thức", b.payment_method or "—"),
-                ("Trạng thái", "Hoàn thành" if b.payment_status == "paid" else "Chờ xử lý"),
+                ("Trạng thái", _payment_status_label(b.payment_status)),
                 ("Ngày", b.created_at.strftime("%d/%m/%Y") if b.created_at else "—"),
             ],
         }
@@ -189,12 +243,12 @@ def build_entity_catalog(booking_counts, acc_stats):
             "status": d.status,
             "fields": [
                 ("Mã tranh chấp", d.dispute_code),
-                ("Booking", booking.booking_code if booking else "—"),
+                ("Đặt phòng", booking.booking_code if booking else "—"),
                 ("Khiếu nại", d.guest_complaint or "—"),
-                ("Phản hồi host", d.host_response or "—"),
-                ("Giải pháp admin", d.admin_resolution or "—"),
+                ("Phản hồi chủ lưu trú", d.host_response or "—"),
+                ("Giải pháp quản trị", d.admin_resolution or "—"),
                 ("Hoàn tiền", _fmt_money(d.refund_amount or 0)),
-                ("Trạng thái", d.status),
+                ("Trạng thái", _dispute_status_label(d.status)),
             ],
         }
 
@@ -203,7 +257,7 @@ def build_entity_catalog(booking_counts, acc_stats):
             "title": "Chi tiết khuyến mãi",
             "fields": [
                 ("Tên", p.name),
-                ("Loại", p.type),
+                ("Loại", _promo_type_label(p.type)),
                 ("Giảm giá", p.discount_value or "—"),
                 ("Từ ngày", p.start_date or "—"),
                 ("Đến ngày", p.end_date or "—"),
@@ -213,19 +267,29 @@ def build_entity_catalog(booking_counts, acc_stats):
 
     for admin in User.query.filter_by(role="admin").all():
         catalog["admin"][f"ad{admin.id}"] = {
-            "title": "Chi tiết quản trị viên",
+            "title": "Chỉnh sửa quản trị viên",
+            "id": admin.id,
             "fields": [
                 ("Tên", admin.full_name),
                 ("Email", admin.email),
                 ("SĐT", admin.phone or "—"),
-                ("Trạng thái", "Không hoạt động" if admin.is_locked else "Hoạt động"),
+                ("Trạng thái", admin_status_label(admin.is_locked)),
+                ("Phân quyền", admin_role_label(admin.admin_role)),
             ],
+            "edit": {
+                "full_name": admin.full_name,
+                "email": admin.email,
+                "phone": admin.phone or "",
+                "is_locked": admin.is_locked,
+                "admin_role": admin.admin_role or "admin",
+                "is_self": admin.id == current_user_id if current_user_id else False,
+            },
         }
 
     return catalog
 
 
-def build_portal_context(active_view="dashboard"):
+def build_portal_context(active_view="dashboard", current_user_id=None):
     today = date.today()
     year = today.year
     month = today.month
@@ -275,7 +339,7 @@ def build_portal_context(active_view="dashboard"):
     refund_total = sum(d.refund_amount or 0 for d in disputes if d.refund_amount)
 
     host_users = User.query.filter_by(role="host").order_by(User.full_name).all()
-    entity_catalog = build_entity_catalog(booking_counts, acc_stats)
+    entity_catalog = build_entity_catalog(booking_counts, acc_stats, current_user_id)
 
     return {
         "active_view": active_view,
@@ -309,6 +373,11 @@ def build_portal_context(active_view="dashboard"):
         "fmt_vnd": _fmt_vnd,
         "fmt_m": _fmt_money,
         "fmt_money": _fmt_money,
+        "booking_status_label": _booking_status_label,
+        "promo_type_label": _promo_type_label,
+        "admin_role_label": admin_role_label,
+        "admin_status_label": admin_status_label,
+        "admin_role_choices": ADMIN_ROLE_CHOICES,
     }
 
 
