@@ -1,368 +1,133 @@
-{% extends 'auth/base_auth.html' %}
+{% extends 'customer/base.html' %}
 {% block title %}Đăng ký - Rovva{% endblock %}
-
-{% block extra_css %}
-<style>
-  /* Left Panel - Branding */
-  .auth-brand {
-    flex: 1;
-    background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
-    padding: 60px 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    color: white;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .auth-brand::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80') center/cover;
-    opacity: 0.2;
-    mix-blend-mode: overlay;
-  }
-
-  .auth-brand-content {
-    position: relative;
-    z-index: 2;
-  }
-
-  .auth-logo {
-    font-family: 'Outfit', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .auth-logo i {
-    font-size: 2rem;
-  }
-
-  .auth-brand h1 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 2.2rem;
-    font-weight: 600;
-    line-height: 1.3;
-    margin-bottom: 1.5rem;
-  }
-
-  .auth-brand p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    line-height: 1.6;
-    margin-bottom: 2.5rem;
-  }
-
-  .social-proof {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .avatars {
-    display: flex;
-  }
-
-  .avatars img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #1e40af;
-    margin-left: -10px;
-  }
-
-  .avatars img:first-child {
-    margin-left: 0;
-  }
-
-  /* Right Panel - Form */
-  .auth-form-wrap {
-    flex: 1;
-    padding: 50px 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.9);
-    overflow-y: auto;
-  }
-
-  .auth-form-head {
-    margin-bottom: 1.5rem;
-  }
-
-  .auth-form-head h2 {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-  }
-
-  .auth-form-head p {
-    color: var(--text-muted);
-  }
-
-  .form-group {
-    margin-bottom: 1.2rem;
-  }
-
-  .form-label {
-    font-weight: 500;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-  }
-
-  .form-control {
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    transition: all 0.3s;
-  }
-
-  .form-control:focus {
-    background: #fff;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-  }
-
-  .input-group-text {
-    background: transparent;
-    border-color: #e2e8f0;
-    color: var(--text-muted);
-    cursor: pointer;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    border: none;
-    padding: 0.8rem;
-    border-radius: 10px;
-    font-weight: 600;
-    width: 100%;
-    margin-top: 1rem;
-    transition: all 0.3s;
-  }
-
-  .btn-primary:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px -10px rgba(59, 130, 246, 0.5);
-  }
-
-  .auth-divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin: 1.5rem 0;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-  }
-
-  .auth-divider::before,
-  .auth-divider::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .auth-divider span {
-    padding: 0 1rem;
-  }
-
-  .social-login {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .btn-social {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    background: #fff;
-    color: var(--text-dark);
-    font-weight: 500;
-    transition: all 0.3s;
-    text-decoration: none;
-  }
-
-  .btn-social:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
-
-  .auth-footer {
-    margin-top: 1.5rem;
-    text-align: center;
-    color: var(--text-muted);
-  }
-
-  .auth-footer a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .auth-footer a:hover {
-    text-decoration: underline;
-  }
-
-  @media (max-width: 991px) {
-    .auth-brand {
-      padding: 40px 30px;
-      text-align: center;
-    }
-
-    .auth-logo {
-      justify-content: center;
-    }
-
-    .social-proof {
-      justify-content: center;
-    }
-
-    .auth-form-wrap {
-      padding: 40px 30px;
-    }
-  }
-</style>
-{% endblock %}
+{% block body_class %}auth-page-layout auth-page auth-page--split auth-page--register{% endblock %}
 
 {% block content %}
-<div class="auth-brand">
-  <div class="auth-brand-content">
-    <div class="auth-logo">
-      <i class="bi bi-house-heart-fill"></i> Rovva
-    </div>
-    <h1>Bắt đầu hành trình nghỉ dưỡng của bạn.</h1>
-    <p>Đăng ký ngay để nhận ưu đãi thành viên độc quyền và bắt đầu trải nghiệm dịch vụ lưu trú đẳng cấp.</p>
-    <div class="social-proof mt-4">
-      <div class="avatars">
-        <img src="https://i.pravatar.cc/100?img=4" alt="User">
-        <img src="https://i.pravatar.cc/100?img=5" alt="User">
-        <img src="https://i.pravatar.cc/100?img=6" alt="User">
-      </div>
-      <span>Tham gia cùng hàng triệu thành viên</span>
-    </div>
-  </div>
-</div>
-
-<div class="auth-form-wrap">
-  <div class="auth-form-head">
-    <h2>Đăng ký tài khoản</h2>
-    <p>Vui lòng điền thông tin để tạo tài khoản mới.</p>
-  </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                {% set alert_class = 'alert-danger' %}
-                {% set border_class = 'border-danger' %}
-                {% set icon_class = 'bi-exclamation-circle-fill' %}
-                
-                {% if category == 'success' %}
-                    {% set alert_class = 'alert-success' %}
-                    {% set border_class = 'border-success' %}
-                    {% set icon_class = 'bi-check-circle-fill' %}
-                {% elif category == 'info' %}
-                    {% set alert_class = 'alert-info' %}
-                    {% set border_class = 'border-info' %}
-                    {% set icon_class = 'bi-info-circle-fill' %}
-                {% endif %}
-                
-                <div class="alert {{ alert_class }} shadow-sm rounded-3 mb-4 border-0 border-start border-4 {{ border_class }}">
-                    <i class="bi {{ icon_class }} me-2"></i>{{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-  <form method="POST" action="{{ url_for('auth.register') }}">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="name" class="form-label">Họ và tên</label>
-          <input type="text" class="form-control" id="name" name="name" placeholder="Nguyễn Văn A" required>
+<section class="auth-page auth-page--split auth-page--register">
+  <div class="auth-page__canvas">
+    <div class="auth-page__promo">
+      <div class="auth-page__brand">Rovva</div>
+      <h2 class="auth-page__promo-title auth-page__promo-title--register">Bắt đầu hành trình nghỉ dưỡng thông minh của bạn</h2>
+      <p class="auth-page__promo-text">Tham gia cùng hàng nghìn khách hàng để trải nghiệm dịch vụ lưu trú đẳng cấp, cá nhân hóa và quản lý đặt phòng dễ dàng nhất.</p>
+      <div class="auth-page__benefits">
+        <div class="auth-page__benefit">
+          <i class="bi bi-shield-lock-fill"></i>
+          <span>Bảo mật thông tin tuyệt đối</span>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="phone" class="form-label">Số điện thoại</label>
-          <input type="tel" class="form-control" id="phone" name="phone" placeholder="0912 345 678">
+        <div class="auth-page__benefit">
+          <i class="bi bi-gift-fill"></i>
+          <span>Nhận ưu đãi độc quyền ngay khi đăng ký</span>
         </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="email" class="form-label">Địa chỉ Email</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="example@smartstay.com" required>
-    </div>
+    <div class="auth-card auth-card--panel auth-card--register">
+      <div class="auth-card__head">
+        <h1 class="auth-card__title">Đăng ký</h1>
+        <p class="auth-card__subtitle">Vui lòng điền thông tin bên dưới để đăng ký.</p>
+      </div>
 
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="password" class="form-label">Mật khẩu</label>
-          <div class="input-group">
-            <input type="password" class="form-control border-end-0" id="password" name="password"
-              placeholder="••••••••" required>
-            <span class="input-group-text toggle-password bg-white" data-target="#password">
-              <i class="bi bi-eye"></i>
-            </span>
+      {% include 'auth/_auth_flash.html' %}
+
+      <form method="POST" action="{{ url_for('auth.register') }}" class="auth-card__form">
+        <div class="auth-card__field">
+          <label class="auth-card__label" for="name">Họ và tên</label>
+          <div class="auth-card__input-wrap">
+            <i class="bi bi-person"></i>
+            <input type="text" class="auth-card__input" id="name" name="name"
+              placeholder="Ví dụ: Nguyễn Văn A" required autocomplete="name">
           </div>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="confirm_password" class="form-label">Xác nhận MK</label>
-          <div class="input-group">
-            <input type="password" class="form-control border-end-0" id="confirm_password" name="confirm_password"
-              placeholder="••••••••" required>
-            <span class="input-group-text toggle-password bg-white" data-target="#confirm_password">
-              <i class="bi bi-eye"></i>
-            </span>
+
+        <div class="auth-card__field">
+          <label class="auth-card__label" for="email">Email</label>
+          <div class="auth-card__input-wrap">
+            <i class="bi bi-envelope"></i>
+            <input type="email" class="auth-card__input" id="email" name="email"
+              placeholder="email@example.com" required autocomplete="email">
           </div>
         </div>
-      </div>
+
+        <div class="auth-card__field">
+          <label class="auth-card__label" for="phone">Số điện thoại</label>
+          <div class="auth-card__input-wrap">
+            <i class="bi bi-telephone"></i>
+            <input type="tel" class="auth-card__input" id="phone" name="phone"
+              placeholder="Ví dụ: 0912 345 678" autocomplete="tel">
+          </div>
+        </div>
+
+        <div class="auth-card__field">
+          <label class="auth-card__label" for="password">Mật khẩu</label>
+          <div class="auth-card__input-wrap auth-card__password">
+            <i class="bi bi-lock"></i>
+            <input type="password" class="auth-card__input" id="password" name="password"
+              placeholder="••••••••" required autocomplete="new-password">
+            <button type="button" class="auth-card__toggle toggle-password" data-target="#password" aria-label="Hiện mật khẩu">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-card__field">
+          <label class="auth-card__label" for="confirm_password">Xác nhận mật khẩu</label>
+          <div class="auth-card__input-wrap auth-card__password">
+            <i class="bi bi-shield-lock"></i>
+            <input type="password" class="auth-card__input" id="confirm_password" name="confirm_password"
+              placeholder="••••••••" required autocomplete="new-password">
+            <button type="button" class="auth-card__toggle toggle-password" data-target="#confirm_password" aria-label="Hiện mật khẩu">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <label class="auth-card__terms">
+          <input type="checkbox" name="terms" id="terms" required>
+          <span>
+            Tôi đồng ý với
+            <a href="{{ url_for('customer.show_page', page_path='pages/support/terms.html') }}">Điều khoản &amp; Điều kiện</a>
+            và
+            <a href="{{ url_for('customer.show_page', page_path='pages/support/privacy.html') }}">Chính sách bảo mật</a>
+            của Rovva.
+          </span>
+        </label>
+
+        <div class="auth-card__submit-wrap">
+          <button type="submit" class="auth-card__submit">Đăng ký</button>
+        </div>
+
+        <div class="auth-card__divider auth-card__divider--register"><span>HOẶC ĐĂNG KÝ BẰNG</span></div>
+
+        <div class="auth-card__social">
+          <a href="#" class="auth-card__social-btn" aria-label="Đăng ký bằng Google">
+            {% include 'auth/_google_icon.html' %} Google
+          </a>
+          <a href="#" class="auth-card__social-btn" aria-label="Đăng ký bằng Apple">
+            <i class="bi bi-apple"></i> Apple
+          </a>
+        </div>
+
+        <p class="auth-card__footer">
+          Đã có tài khoản? <a href="{{ url_for('auth.login') }}">Đăng nhập ngay</a>
+        </p>
+      </form>
     </div>
+  </div>
+</section>
+{% endblock %}
 
-    <div class="form-check mt-2 mb-3">
-      <input class="form-check-input" type="checkbox" name="terms" id="terms" required>
-      <label class="form-check-label text-muted small" for="terms">
-        Tôi đồng ý với <a href="#" class="text-primary text-decoration-none">Điều khoản</a> và <a href="#"
-          class="text-primary text-decoration-none">Chính sách bảo mật</a>
-      </label>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-0">Tạo tài khoản</button>
-
-    <div class="auth-divider"><span>HOẶC ĐĂNG KÝ BẰNG</span></div>
-
-    <div class="social-login">
-      <a href="#" class="btn-social">
-        <i class="bi bi-google text-danger"></i> Google
-      </a>
-      <a href="#" class="btn-social">
-        <i class="bi bi-apple text-dark"></i> Apple
-      </a>
-    </div>
-
-    <div class="auth-footer">
-      Đã có tài khoản? <a href="{{ url_for('auth.login') }}">Đăng nhập ngay</a>
-    </div>
-  </form>
-</div>
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.toggle-password').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var input = document.querySelector(btn.getAttribute('data-target'));
+      var icon = btn.querySelector('i');
+      if (!input || !icon) return;
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      icon.classList.toggle('bi-eye', !show);
+      icon.classList.toggle('bi-eye-slash', show);
+    });
+  });
+</script>
 {% endblock %}

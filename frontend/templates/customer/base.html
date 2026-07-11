@@ -45,11 +45,7 @@
 
     {% include 'customer/includes/layout/footer.html' ignore missing %}
 
-    {% if request.endpoint and request.endpoint.startswith('customer.') and request.endpoint != 'customer.ai_chat' %}
-    <a class="rova-ai-fab" href="{{ url_for('customer.ai_chat') }}" aria-label="Trợ lý Rovva AI" title="Trợ lý Rovva AI">
-      <i class="bi bi-robot"></i>
-    </a>
-    {% endif %}
+    {% include 'customer/includes/layout/ai-bubble.html' ignore missing %}
 
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

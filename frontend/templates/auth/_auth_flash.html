@@ -1,0 +1,13 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="auth-card__alerts">
+  {% for category, message in messages %}
+  {% set cls = 'danger' if category in ('error', 'danger') else category %}
+  <div class="alert alert-{{ cls }} alert-dismissible fade show py-2 px-3 small mb-2" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Đóng"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}

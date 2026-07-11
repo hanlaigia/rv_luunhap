@@ -3,42 +3,65 @@
 {% block breadcrumb %}Quản trị viên{% endblock %}
 
 {% block content %}
-<div class="admin-page-head">
-  <h1>Quản lý quản trị viên</h1>
-  <p>Tài khoản có quyền truy cập khu vực Admin</p>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Quản lý quản trị viên</h1>
+    <p>Tài khoản có quyền truy cập khu vực Admin</p>
+  </div>
 </div>
 
-<div class="admin-panel">
-  <div class="admin-panel__head">
-    <h2 class="admin-panel__title"><i class="bi bi-shield-lock-fill"></i> Danh sách Admin</h2>
+<div class="admin-grid-admins">
+  <div class="admin-panel">
+    <div class="admin-panel__head"><h2 class="admin-panel__title"><i class="bi bi-shield-lock-fill"></i> Danh sách Admin</h2></div>
+    <div class="admin-panel__body admin-panel__body--padded">
+      <div class="admin-toolbar">
+        <div class="admin-toolbar__search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Tìm kiếm quản trị viên..." data-admin-filter="admins-table">
+        </div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="admins-table">
+          <thead><tr><th>Quản trị viên</th><th>Email</th><th>SĐT</th><th>Ngày tạo</th><th>Trạng thái</th></tr></thead>
+          <tbody>
+            {% for u in admins %}
+            <tr>
+              <td>
+                <div class="admin-user-cell">
+                  <div class="admin-user-cell__avatar">{{ u.full_name[:2]|upper }}</div>
+                  <span class="admin-user-cell__name">
+                    {{ u.full_name }}
+                    {% if u.id == current_user.id %}<span class="admin-badge admin-badge--primary ms-1">Bạn</span>{% endif %}
+                  </span>
+                </div>
+              </td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.phone or '—' }}</td>
+              <td>{{ u.created_at.strftime('%d/%m/%Y') if u.created_at else '—' }}</td>
+              <td><span class="admin-badge admin-badge--success">Hoạt động</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5"><div class="admin-empty"><i class="bi bi-shield"></i><p>Chưa có quản trị viên.</p></div></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-  <div class="admin-panel__body">
-    <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead><tr><th>Quản trị viên</th><th>Email</th><th>SĐT</th><th>Ngày tạo</th></tr></thead>
-        <tbody>
-          {% for u in admins %}
-          <tr>
-            <td>
-              <div class="admin-user-cell">
-                <div class="admin-user-cell__avatar">{{ u.full_name[:2]|upper }}</div>
-                <span class="admin-user-cell__name">
-                  {{ u.full_name }}
-                  {% if u.id == current_user.id %}
-                  <span class="admin-badge admin-badge--primary ms-1">Bạn</span>
-                  {% endif %}
-                </span>
-              </div>
-            </td>
-            <td>{{ u.email }}</td>
-            <td>{{ u.phone or '—' }}</td>
-            <td>{{ u.created_at.strftime('%d/%m/%Y') if u.created_at else '—' }}</td>
-          </tr>
-          {% else %}
-          <tr><td colspan="4"><div class="admin-empty"><i class="bi bi-shield"></i><p>Chưa có quản trị viên.</p></div></td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+
+  <div class="admin-panel">
+    <div class="admin-panel__head"><h2 class="admin-panel__title">Hoạt động gần đây</h2></div>
+    <div class="admin-panel__body admin-panel__body--padded">
+      <div class="admin-activity-feed">
+        {% for b in recent_activity %}
+        <div class="admin-activity-item">
+          <strong>Booking mới {{ b.booking_code }}</strong>
+          <span>{{ b.guest_name }} • {{ b.created_at.strftime('%d/%m/%Y %H:%M') if b.created_at else '' }}</span>
+        </div>
+        {% else %}
+        <div class="admin-empty"><i class="bi bi-clock"></i><p>Chưa có hoạt động.</p></div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>

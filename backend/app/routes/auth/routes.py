@@ -8,13 +8,34 @@ from backend.app.extensions import db
 
 auth_bp = Blueprint("auth", __name__)
 
+
+def _is_customer_role(user):
+    return user.role in ("guest", "customer")
+
+
+def _redirect_after_login(user):
+    """Điều hướng sau đăng nhập theo vai trò; chặn next trỏ sai portal."""
+    next_page = request.args.get("next") or request.form.get("next")
+    if next_page and next_page.startswith("/") and not next_page.startswith("//"):
+        if _is_customer_role(user) and (
+            next_page.startswith("/admin") or next_page.startswith("/host")
+        ):
+            next_page = None
+        elif user.role == "host" and next_page.startswith("/admin"):
+            next_page = None
+        if next_page:
+            return redirect(next_page)
+
+    if user.role == "admin":
+        return redirect(url_for("admin.index"))
+    if user.role == "host":
+        return redirect(url_for("main.index"))
+    return redirect(url_for("customer.index"))
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if current_user.is_authenticated:
-        if current_user.role == "admin":
-            return redirect(url_for("admin.index"))
-        if current_user.role == "host":
-            return redirect(url_for("main.index"))
+    if current_user.is_authenticated and _is_customer_role(current_user):
         return redirect(url_for("customer.index"))
             
     if request.method == "POST":
@@ -32,19 +53,11 @@ def login():
                 return redirect(url_for("auth.login"))
                 
             if user.check_password(password):
-                # Reset login attempts on success
                 user.failed_login_attempts = 0
                 db.session.commit()
                 
                 login_user(user)
-                next_page = request.args.get("next")
-                if next_page:
-                    return redirect(next_page)
-                if user.role == "admin":
-                    return redirect(url_for("admin.index"))
-                if user.role == "host":
-                    return redirect(url_for("main.index"))
-                return redirect(url_for("customer.index"))
+                return _redirect_after_login(user)
             else:
                 user.failed_login_attempts += 1
                 if user.failed_login_attempts >= 5:
@@ -57,11 +70,7 @@ def login():
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
-    if current_user.is_authenticated:
-        if current_user.role == "admin":
-            return redirect(url_for("admin.index"))
-        if current_user.role == "host":
-            return redirect(url_for("main.index"))
+    if current_user.is_authenticated and _is_customer_role(current_user):
         return redirect(url_for("customer.index"))
             
     if request.method == "POST":

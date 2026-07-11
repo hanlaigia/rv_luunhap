@@ -4,7 +4,7 @@
 {% block content %}
 <main>
   <!-- Welcome & Search -->
-  <section class="home-hero home-hero--member mb-5">
+  <section class="home-hero home-hero--member">
     <div class="container home-hero__inner px-3 px-lg-4">
       <div class="home-hero__content text-center">
         <h1 class="home-hero__title home-hero__title--welcome">Chào mừng trở lại, <span data-rova-welcome-name>Lại Gia Hân</span>!</h1>
@@ -17,9 +17,9 @@
   </section>
 
   <!-- Quà tặng dành riêng cho bạn -->
-  <section class="home-section mb-5">
+  <section class="home-section">
     <div class="container px-3 px-lg-4">
-      <div class="mb-4">
+      <div class="mb-3">
         <h2 class="fw-bold m-0" style="color: #0F294D; font-size: 20px;">Quà tặng dành riêng cho bạn</h2>
         <p class="text-muted small m-0">Ưu đãi đặc biệt dành cho mọi thành viên của Smart Stay</p>
       </div>
@@ -56,9 +56,9 @@
   </section>
 
   <!-- Điểm đến xu hướng -->
-  <section class="home-section mb-5">
+  <section class="home-section">
     <div class="container px-3 px-lg-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="fw-bold m-0" style="color: #0F294D; font-size: 20px;">Điểm đến xu hướng</h2>
         <div>
           <button class="btn btn-light rounded-circle p-2 me-2 shadow-sm"><i class="bi bi-chevron-left"></i></button>
@@ -84,9 +84,9 @@
   </section>
 
   <!-- Lưu trú nổi bật tại TP HCM -->
-  <section class="home-section mb-5">
+  <section class="home-section">
     <div class="container px-3 px-lg-4">
-      <div class="d-flex align-items-center mb-4 gap-3">
+      <div class="d-flex align-items-center mb-3 gap-3">
         <h2 class="fw-bold m-0" style="color: #0F294D; font-size: 20px;">Lưu trú nổi bật tại Thành phố Hồ Chí Minh</h2>
         <button class="btn btn-light rounded-circle p-2 shadow-sm ms-auto"><i class="bi bi-chevron-left"></i></button>
         <button class="btn btn-light rounded-circle p-2 shadow-sm"><i class="bi bi-chevron-right"></i></button>
@@ -129,9 +129,9 @@
   </section>
 
   <!-- Nơi lưu trú được ưa chuộng tại Đà Nẵng -->
-  <section class="home-section mb-5">
+  <section class="home-section">
     <div class="container px-3 px-lg-4">
-      <div class="d-flex align-items-center mb-4 gap-3">
+      <div class="d-flex align-items-center mb-3 gap-3">
         <h2 class="fw-bold m-0" style="color: #0F294D; font-size: 20px;">Nơi lưu trú được ưa chuộng tại Đà Nẵng</h2>
         <button class="btn btn-light rounded-circle p-2 shadow-sm ms-auto"><i class="bi bi-chevron-left"></i></button>
         <button class="btn btn-light rounded-circle p-2 shadow-sm"><i class="bi bi-chevron-right"></i></button>
@@ -174,9 +174,9 @@
   </section>
 
   <!-- Nơi lưu trú được ưa chuộng tại Đà Lạt -->
-  <section class="home-section mb-5">
+  <section class="home-section">
     <div class="container px-3 px-lg-4">
-      <div class="d-flex align-items-center mb-4 gap-3">
+      <div class="d-flex align-items-center mb-3 gap-3">
         <h2 class="fw-bold m-0" style="color: #0F294D; font-size: 20px;">Nơi lưu trú được ưa chuộng tại Đà Lạt</h2>
         <button class="btn btn-light rounded-circle p-2 shadow-sm ms-auto"><i class="bi bi-chevron-left"></i></button>
         <button class="btn btn-light rounded-circle p-2 shadow-sm"><i class="bi bi-chevron-right"></i></button>
@@ -219,7 +219,7 @@
   </section>
 
   <!-- Banner Wishlist -->
-  <section class="home-section mb-5">
+  <section class="home-section">
     <div class="container px-3 px-lg-4">
       <div
         class="wishlist-banner bg-primary bg-opacity-10 rounded-4 p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
@@ -235,7 +235,7 @@
               ngay!</p>
           </div>
         </div>
-        <a href="#" class="btn btn-primary px-4 py-2 fw-medium">Truy cập Wishlist</a>
+        <a href="{{ url_for('customer.account_favorites') }}" class="btn btn-primary px-4 py-2 fw-medium">Truy cập Wishlist</a>
       </div>
     </div>
   </section>

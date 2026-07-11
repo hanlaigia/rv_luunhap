@@ -1,0 +1,133 @@
+{% extends 'customer/base.html' %}
+{% block title %}Chi tiết đặt phòng {{ booking.booking_code }} — Rovva{% endblock %}
+{% block body_class %}page-booking-detail-shell{% endblock %}
+
+{% block content %}
+{% set room = booking.room %}
+{% set acc = room.accommodation %}
+<main class="page-booking-detail">
+  <div class="bd-toolbar">
+    <a class="bd-download-btn" href="{{ url_for('customer.index') }}">
+      <i class="bi bi-house"></i> Về trang chủ
+    </a>
+  </div>
+
+  <header class="bd-page-header">
+    <h1>Chi tiết đặt phòng</h1>
+  </header>
+
+  {% if email_meta %}
+  <div class="alert alert-success d-flex align-items-start gap-2 mb-4" role="alert">
+    <i class="bi bi-envelope-check fs-5"></i>
+    <div>
+      <strong>Email xác nhận đã được gửi (mô phỏng)</strong>
+      <div class="small">Tới: {{ email_meta.to }} · Tiêu đề: {{ email_meta.subject }}</div>
+      <div class="small">Link chi tiết trong email: {{ request.url_root.rstrip('/') }}{{ email_meta.detail_url }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="bd-meta">
+    <div class="bd-meta__left">
+      <span class="bd-badge bd-badge--confirmed"><i class="bi bi-check-circle-fill"></i> Đã xác nhận</span>
+      <span class="bd-meta__time">Đặt lúc {{ booking.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+    </div>
+    <div class="bd-meta__code">
+      Mã đặt phòng: <strong>{{ booking.booking_code }}</strong>
+      <button type="button" class="bd-copy-icon" data-copy="{{ booking.booking_code }}" title="Sao chép">
+        <i class="bi bi-clipboard"></i>
+      </button>
+    </div>
+    <p class="bd-meta__hint">Xuất trình mã này khi nhận phòng. Lưu email xác nhận để đối chiếu.</p>
+  </div>
+
+  <div class="bd-layout">
+    <div class="bd-main">
+      <section class="bd-card">
+        <h2>Thông tin chỗ nghỉ</h2>
+        <div class="d-flex gap-3 flex-wrap">
+          <img src="{{ acc.cover_url }}" alt="{{ acc.name }}" class="rounded-3" style="width:140px;height:100px;object-fit:cover;">
+          <div>
+            <h3 class="h5 fw-bold mb-1">{{ acc.name }}</h3>
+            <p class="text-secondary mb-1"><i class="bi bi-geo-alt"></i> {{ acc.address or acc.city }}</p>
+            <p class="mb-0"><strong>{{ room.name }}</strong> · {{ booking.guest_count }} khách</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bd-card">
+        <h2>Thông tin khách hàng</h2>
+        <ul class="booking-info-list">
+          <li><span>Họ và tên</span><span>{{ booking.guest_name }}</span></li>
+          <li><span>Email</span><span>{{ booking.guest_email or '—' }}</span></li>
+          <li><span>Điện thoại</span><span>{{ booking.guest_phone or '—' }}</span></li>
+          {% if booking.guest_note %}
+          <li><span>Ghi chú</span><span>{{ booking.guest_note }}</span></li>
+          {% endif %}
+        </ul>
+      </section>
+
+      <section class="bd-card">
+        <h2>Lịch trình lưu trú</h2>
+        <ul class="booking-info-list">
+          <li><span>Nhận phòng</span><span>{{ booking.check_in.strftime('%d/%m/%Y') }} (từ 14:00)</span></li>
+          <li><span>Trả phòng</span><span>{{ booking.check_out.strftime('%d/%m/%Y') }} (trước 12:00)</span></li>
+          <li><span>Số đêm</span><span>{{ booking.nights }} đêm</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <aside class="bd-side">
+      <section class="bd-card">
+        <h2>Thanh toán</h2>
+        <ul class="booking-info-list mb-3">
+          <li><span>Phương thức</span>
+            <span>{{ 'Thanh toán online' if booking.payment_method == 'online' else 'Tiền mặt khi nhận phòng' }}</span>
+          </li>
+          <li><span>Trạng thái</span>
+            <span>{{ 'Đã thanh toán' if booking.payment_status == 'paid' else 'Chờ thanh toán' }}</span>
+          </li>
+          {% if booking.payment_gateway_ref %}
+          <li><span>Mã giao dịch</span><span>{{ booking.payment_gateway_ref }}</span></li>
+          {% endif %}
+          <li><span>Tổng cộng</span><span class="text-primary">{{ "{:,.0f}".format(booking.total_amount) }}đ</span></li>
+        </ul>
+
+        {% if current_user.is_authenticated and not is_guest_order %}
+        <a href="{{ url_for('customer.trips') }}" class="btn btn-primary w-100 mb-2">
+          <i class="bi bi-suitcase-lg"></i> Xem chuyến đi của tôi
+        </a>
+        {% else %}
+        <p class="small text-secondary mb-2">
+          <i class="bi bi-info-circle"></i> Bạn đặt phòng với tư cách khách vãng lai.
+          <a href="{{ url_for('auth.register') }}">Đăng ký</a> để quản lý đơn dễ hơn.
+        </p>
+        {% endif %}
+
+        <a href="{{ url_for('customer.ai_chat') }}" class="btn btn-outline-primary w-100">
+          <i class="bi bi-robot"></i> Hỏi Trợ lý AI
+        </a>
+      </section>
+
+      <section class="bd-card">
+        <h2>QR Check-in</h2>
+        <div class="text-center">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ booking.booking_code }}"
+               alt="QR Check-in" class="rounded-3 border">
+          <p class="small text-secondary mt-2 mb-0">Đưa mã QR cho Host khi nhận phòng</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      navigator.clipboard.writeText(btn.getAttribute('data-copy') || '');
+    });
+  });
+</script>
+{% endblock %}

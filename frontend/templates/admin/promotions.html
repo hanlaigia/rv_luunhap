@@ -3,33 +3,45 @@
 {% block breadcrumb %}Khuyến mãi{% endblock %}
 
 {% block content %}
-<div class="admin-page-head">
-  <h1>Quản lý khuyến mãi</h1>
-  <p>Chương trình khuyến mãi do Host tạo</p>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Quản lý khuyến mãi</h1>
+    <p>Chương trình khuyến mãi do Host tạo trên hệ thống</p>
+  </div>
+</div>
+
+<div class="admin-mini-stats">
+  <div class="admin-mini-stat"><span class="admin-mini-stat__label">Tổng khuyến mãi</span><span class="admin-mini-stat__value">{{ promotions|length }}</span></div>
+  <div class="admin-mini-stat admin-mini-stat--success"><span class="admin-mini-stat__label">Đang hoạt động</span><span class="admin-mini-stat__value">{{ active_count }}</span></div>
 </div>
 
 <div class="admin-panel">
-  <div class="admin-panel__head">
-    <h2 class="admin-panel__title"><i class="bi bi-tag-fill"></i> Danh sách khuyến mãi</h2>
-  </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm khuyến mãi..." data-admin-filter="promotions-table">
+      </div>
+      <select class="admin-toolbar__select" data-admin-status-filter="promotions-table">
+        <option value="">Trạng thái (Tất cả)</option>
+        <option value="active">Hoạt động</option>
+        <option value="inactive">Tắt</option>
+      </select>
+    </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead><tr><th>Tên</th><th>Host</th><th>Loại</th><th>Giá trị</th><th>Thời gian</th><th>Trạng thái</th></tr></thead>
+      <table class="admin-table" id="promotions-table">
+        <thead><tr><th>Tên</th><th>Host</th><th>Loại</th><th>Giảm giá</th><th>Thời gian</th><th>Trạng thái</th></tr></thead>
         <tbody>
           {% for p in promotions %}
-          <tr>
+          <tr data-status="{{ 'active' if p.status else 'inactive' }}">
             <td><strong>{{ p.name }}</strong></td>
             <td>{{ p.host.full_name if p.host else '—' }}</td>
             <td><span class="admin-badge admin-badge--purple">{{ p.type }}</span></td>
-            <td><strong>{{ p.discount_value }}</strong></td>
+            <td class="text-primary"><strong>{{ p.discount_value }}</strong></td>
             <td>{{ p.start_date or '—' }} → {{ p.end_date or '—' }}</td>
             <td>
-              {% if p.status %}
-              <span class="admin-badge admin-badge--success">Hoạt động</span>
-              {% else %}
-              <span class="admin-badge admin-badge--neutral">Tắt</span>
-              {% endif %}
+              {% if p.status %}<span class="admin-badge admin-badge--success">Hoạt động</span>
+              {% else %}<span class="admin-badge admin-badge--neutral">Tắt</span>{% endif %}
             </td>
           </tr>
           {% else %}

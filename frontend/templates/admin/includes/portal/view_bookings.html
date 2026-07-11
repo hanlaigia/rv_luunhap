@@ -1,0 +1,104 @@
+        <section class="view-container{% if active_view == 'bookings' %} active{% endif %}" id="view-bookings">
+          <div class="page-title-area">
+            <h1 class="page-title">Quản lý booking</h1>
+            <p class="page-subtitle">Theo dõi và quản lý các đơn đặt phòng</p>
+          </div>
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="stat-card" style="padding: 16px;">
+              <div class="stat-info"><span class="stat-label">Tổng booking</span><span class="stat-value">{{ booking_counts_stat.total }}</span></div>
+            </div>
+            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--warning);">
+              <div class="stat-info"><span class="stat-label">Chờ xác nhận</span><span class="stat-value">{{ booking_counts_stat.pending }}</span></div>
+            </div>
+            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--success);">
+              <div class="stat-info"><span class="stat-label">Đã hoàn thành</span><span class="stat-value">{{ booking_counts_stat.completed }}</span></div>
+            </div>
+            <div class="stat-card" style="padding: 16px; border-left: 4px solid var(--danger);">
+              <div class="stat-info"><span class="stat-label">Đã hủy</span><span class="stat-value">{{ booking_counts_stat.cancelled }}</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="table-filter-bar">
+                <div class="search-box-wrapper" style="flex: 1; min-width: 250px;">
+                  <span class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  </span>
+                  <input type="text" class="search-input" data-search-for="bookings-table" placeholder="Tìm kiếm booking..." onkeyup="filterTable('bookings-table', this.value)">
+                </div>
+                <div class="filter-group">
+                  <select class="filter-select" data-filter-for="bookings-table" data-filter-attr="data-filter-status">
+                    <option value="">Trạng thái (Tất cả)</option>
+                    <option value="confirmed">Xác nhận</option>
+                    <option value="pending">Chờ xác nhận</option>
+                    <option value="completed">Hoàn thành</option>
+                    <option value="cancelled">Đã hủy</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table" id="bookings-table">
+                  <thead>
+                    <tr>
+                      <th>ID Booking</th><th>Khách hàng</th><th>Khách sạn</th><th>Check-in</th><th>Check-out</th><th>Giá trị</th><th>Trạng thái</th><th>Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for b in bookings %}
+                    {% set booking_filter_status = 'pending' if b.status in ['pending', 'holding'] else b.status %}
+                    <tr data-id="bk{{ b.id }}" data-filter-status="{{ booking_filter_status }}">
+                      <td class="cell-highlight">{{ b.booking_code }}</td>
+                      <td class="cell-bold">{{ b.guest_name }}</td>
+                      <td>{{ b.room.accommodation.name if b.room and b.room.accommodation else '—' }}</td>
+                      <td>{{ b.check_in.strftime('%Y-%m-%d') if b.check_in else '—' }}</td>
+                      <td>{{ b.check_out.strftime('%Y-%m-%d') if b.check_out else '—' }}</td>
+                      <td class="cell-bold">{{ fmt_m(b.total_amount or 0) }}</td>
+                      <td>
+                        {% if b.status == 'confirmed' %}
+                        <span class="badge badge-success">Xác nhận</span>
+                        {% elif b.status in ['pending', 'holding'] %}
+                        <span class="badge badge-warning">Chờ xác nhận</span>
+                        {% elif b.status == 'completed' %}
+                        <span class="badge badge-info">Hoàn thành</span>
+                        {% elif b.status == 'cancelled' %}
+                        <span class="badge badge-danger">Đã hủy</span>
+                        {% else %}
+                        <span class="badge badge-info">{{ b.status }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="flex-align-center">
+                          <button class="btn-icon" title="Chi tiết" onclick="viewDetails('booking', 'bk{{ b.id }}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                          </button>
+                          {% if b.status in ['pending', 'holding'] %}
+                          <form class="inline-form" method="post" action="{{ url_for('admin.update_booking_status', booking_id=b.id) }}">
+                            <input type="hidden" name="status" value="confirmed">
+                            <button class="btn-icon text-success" title="Xác nhận" type="submit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 8 8 12 12 16"></polyline><line x1="16" y1="12" x2="8" y2="12"></line></svg>
+                            </button>
+                          </form>
+                          {% endif %}
+                          {% if b.status not in ['cancelled', 'completed'] %}
+                          <form class="inline-form" method="post" action="{{ url_for('admin.update_booking_status', booking_id=b.id) }}">
+                            <input type="hidden" name="status" value="cancelled">
+                            <button class="btn-icon text-danger" title="Hủy" type="submit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            </button>
+                          </form>
+                          {% endif %}
+                        </div>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8">Chưa có booking</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination-area">
+                <p class="pagination-info">Hiển thị {{ bookings|length }} booking</p>
+              </div>
+            </div>
+          </div>
+        </section>

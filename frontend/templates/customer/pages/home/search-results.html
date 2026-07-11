@@ -1,9 +1,10 @@
 {% extends 'customer/base.html' %}
 {% block title %}Tìm kiếm nơi lưu trú — Rovva{% endblock %}
+{% block body_attrs %}data-page="search"{% endblock %}
 
 {% block content %}
-<main class="page-content">
-  <section class="home-hero home-hero--compact home-hero--accommodation">
+<main>
+  <section class="home-hero home-hero--compact home-hero--accommodation search-results-hero">
     <div class="container-xxl home-hero__inner px-3 px-lg-4">
       <h1 class="home-hero__title home-hero__title--search">Tìm và đặt nơi lưu trú lý tưởng</h1>
       <p class="home-hero__subtitle">Từ homestay ấm cúng đến khách sạn sang trọng – tất cả đều có trên Rovva</p>
@@ -11,7 +12,7 @@
     </div>
   </section>
 
-  <div class="container-xxl px-3 px-lg-4 py-4">
+  <div class="container-xxl px-3 px-lg-4 py-4 search-results-body">
     <div class="row g-4">
       <!-- Filter column -->
       <div class="col-12 col-lg-3">

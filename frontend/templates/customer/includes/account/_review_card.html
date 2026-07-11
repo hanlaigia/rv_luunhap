@@ -1,0 +1,76 @@
+{% from 'customer/includes/account/_review_stars.html' import review_stars %}
+
+{% macro review_card_head(booking) %}
+{% set acc = booking.room.accommodation %}
+<div class="review-card__head">
+  <div class="review-card__media">
+    <img src="{{ acc.cover_url }}" alt="{{ acc.name }}">
+  </div>
+  <div class="review-card__info">
+    <p class="review-card__code">
+      MÃ đơn đặt: <strong>#{{ booking.booking_code.lstrip('#') }}</strong>
+    </p>
+    <h3 class="review-card__title">{{ acc.name }}</h3>
+    <p class="review-card__meta">
+      <i class="bi bi-calendar3" aria-hidden="true"></i>
+      <span>{{ format_stay_range(booking.check_in, booking.check_out) }}</span>
+    </p>
+    <div class="review-card__price-row">
+      <span class="review-card__price-label">Tổng tiền:</span>
+      <p class="review-card__price">{{ format_vnd(booking.total_amount) }}</p>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro review_card_reviewed(booking, review) %}
+<article class="review-card">
+  {{ review_card_head(booking) }}
+  <div class="review-card__divider" role="presentation"></div>
+  <div class="review-card__footer">
+    <div class="review-card__rating-block">
+      {{ review_stars(review.rating) }}
+      <p class="review-card__rating-title">{{ rating_label(review.rating) }}</p>
+      <p class="review-card__date">{{ format_review_datetime(review.created_at) }}</p>
+    </div>
+    <div class="review-card__sub-ratings">
+      {% for label in sub_rating_labels %}
+      {% set key = sub_rating_keys[loop.index0] %}
+      <div class="review-card__sub-row">
+        <span>{{ label }}</span>
+        {{ review_stars(review.detail_rating(key), 'sm') }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% if review.content %}
+  <div class="review-card__comment-box">
+    <p class="review-card__comment">"{{ review.content }}"</p>
+  </div>
+  {% endif %}
+  {% if review.images %}
+  <div class="review-card__photos">
+    <p class="review-card__photos-label">Hình ảnh đính kèm</p>
+    <div class="review-card__photo-grid">
+      {% for photo in review.images %}
+      <img src="{{ photo }}" alt="Hình ảnh đính kèm đánh giá">
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</article>
+{% endmacro %}
+
+{% macro review_card_pending(booking) %}
+<article class="review-card">
+  {{ review_card_head(booking) }}
+  <div class="review-card__divider" role="presentation"></div>
+  <div class="review-card__footer review-card__footer--pending">
+    <p class="review-card__pending-note">Chia sẻ trải nghiệm lưu trú để giúp khách khác và nhận thêm xu thưởng.</p>
+    <a href="{{ url_for('customer.account_review_write', booking_id=booking.id) }}"
+       class="review-card__btn">
+      <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Viết đánh giá
+    </a>
+  </div>
+</article>
+{% endmacro %}

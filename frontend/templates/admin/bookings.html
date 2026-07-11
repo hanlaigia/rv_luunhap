@@ -3,51 +3,63 @@
 {% block breadcrumb %}Booking{% endblock %}
 
 {% block content %}
-<div class="admin-page-head">
-  <h1>Quản lý booking</h1>
-  <p>{{ bookings|length }} đơn đặt phòng trên hệ thống</p>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Quản lý booking</h1>
+    <p>Theo dõi và quản lý các đơn đặt phòng</p>
+  </div>
+</div>
+
+<div class="admin-mini-stats">
+  <div class="admin-mini-stat"><span class="admin-mini-stat__label">Tổng booking</span><span class="admin-mini-stat__value">{{ counts.total }}</span></div>
+  <div class="admin-mini-stat admin-mini-stat--warning"><span class="admin-mini-stat__label">Chờ xác nhận</span><span class="admin-mini-stat__value">{{ counts.pending }}</span></div>
+  <div class="admin-mini-stat admin-mini-stat--success"><span class="admin-mini-stat__label">Đã hoàn thành</span><span class="admin-mini-stat__value">{{ counts.completed }}</span></div>
+  <div class="admin-mini-stat admin-mini-stat--danger"><span class="admin-mini-stat__label">Đã hủy</span><span class="admin-mini-stat__value">{{ counts.cancelled }}</span></div>
 </div>
 
 <div class="admin-panel">
-  <div class="admin-panel__head">
-    <h2 class="admin-panel__title"><i class="bi bi-calendar-check-fill"></i> Tất cả booking</h2>
-  </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm booking..." data-admin-filter="bookings-table">
+      </div>
+      <select class="admin-toolbar__select" data-admin-status-filter="bookings-table">
+        <option value="">Trạng thái (Tất cả)</option>
+        <option value="confirmed">Đã xác nhận</option>
+        <option value="completed">Hoàn thành</option>
+        <option value="cancelled">Đã hủy</option>
+        <option value="holding">Giữ chỗ</option>
+        <option value="pending">Chờ xử lý</option>
+      </select>
+    </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
+      <table class="admin-table" id="bookings-table">
         <thead>
           <tr><th>Mã</th><th>Khách</th><th>Phòng / CSLT</th><th>Check-in</th><th>Check-out</th><th>Trạng thái</th><th>Tổng tiền</th></tr>
         </thead>
         <tbody>
           {% for b in bookings %}
-          <tr>
-            <td><strong>{{ b.booking_code }}</strong></td>
+          <tr data-status="{{ b.status }}">
+            <td><strong class="text-primary">{{ b.booking_code }}</strong></td>
             <td>
               {{ b.guest_name }}
               {% if b.guest_email %}<span class="text-sub">{{ b.guest_email }}</span>{% endif %}
             </td>
             <td>
               {{ b.room.name if b.room else '—' }}
-              {% if b.room and b.room.accommodation %}
-              <span class="text-sub">{{ b.room.accommodation.name }}</span>
-              {% endif %}
+              {% if b.room and b.room.accommodation %}<span class="text-sub">{{ b.room.accommodation.name }}</span>{% endif %}
             </td>
             <td>{{ b.check_in.strftime('%d/%m/%Y') }}</td>
             <td>{{ b.check_out.strftime('%d/%m/%Y') }}</td>
             <td>
-              {% if b.status == 'completed' %}
-              <span class="admin-badge admin-badge--success">Hoàn thành</span>
-              {% elif b.status == 'confirmed' %}
-              <span class="admin-badge admin-badge--primary">Đã xác nhận</span>
-              {% elif b.status == 'cancelled' %}
-              <span class="admin-badge admin-badge--danger">Đã hủy</span>
-              {% elif b.status == 'holding' %}
-              <span class="admin-badge admin-badge--warning">Giữ chỗ</span>
-              {% else %}
-              <span class="admin-badge admin-badge--neutral">{{ b.status }}</span>
-              {% endif %}
+              {% if b.status == 'completed' %}<span class="admin-badge admin-badge--success">Hoàn thành</span>
+              {% elif b.status == 'confirmed' %}<span class="admin-badge admin-badge--primary">Đã xác nhận</span>
+              {% elif b.status == 'cancelled' %}<span class="admin-badge admin-badge--danger">Đã hủy</span>
+              {% elif b.status == 'holding' %}<span class="admin-badge admin-badge--warning">Giữ chỗ</span>
+              {% else %}<span class="admin-badge admin-badge--neutral">{{ b.status }}</span>{% endif %}
             </td>
-            <td><strong>{{ "{:,.0f}".format(b.total_amount) }}đ</strong></td>
+            <td><strong>{{ "{:,.0f}".format(b.total_amount).replace(',', '.') }}₫</strong></td>
           </tr>
           {% else %}
           <tr><td colspan="7"><div class="admin-empty"><i class="bi bi-calendar-x"></i><p>Chưa có booking.</p></div></td></tr>

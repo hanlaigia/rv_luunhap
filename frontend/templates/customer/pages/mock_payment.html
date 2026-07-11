@@ -26,11 +26,11 @@
             </div>
 
             <div class="d-grid gap-2">
-              <a href="{{ url_for('customer_booking.payment_callback', booking_code=booking.booking_code, status='success') }}"
+              <a href="{{ url_for('customer_booking.payment_callback', booking_code=booking.booking_code.lstrip('#'), status='success') }}"
                  class="btn btn-success btn-lg">
                 <i class="bi bi-check-circle me-1"></i> Thanh toán thành công
               </a>
-              <a href="{{ url_for('customer_booking.payment_callback', booking_code=booking.booking_code, status='fail') }}"
+              <a href="{{ url_for('customer_booking.payment_callback', booking_code=booking.booking_code.lstrip('#'), status='fail') }}"
                  class="btn btn-outline-danger">
                 Mô phỏng thất bại / Hủy
               </a>

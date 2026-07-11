@@ -7,52 +7,42 @@
     <div class="admin-sidebar__logo-fallback" style="display:none"><i class="bi bi-house-heart-fill"></i></div>
     <div class="admin-sidebar__brand-text">
       <span class="admin-sidebar__brand-name">Rovva</span>
-      <span class="admin-sidebar__brand-sub">Admin Console</span>
+      <span class="admin-sidebar__brand-sub">QUẢN TRỊ</span>
     </div>
   </a>
 
   <div class="admin-sidebar__scroll">
     {% set ep = request.endpoint %}
-
-    <div class="admin-sidebar__section">Menu</div>
     <nav class="admin-sidebar__nav" aria-label="Menu quản trị">
       <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.index' else '' }}" href="{{ url_for('admin.index') }}">
-        <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        <i class="bi bi-bar-chart-line-fill"></i> Tổng quan
       </a>
-      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.bookings' else '' }}" href="{{ url_for('admin.bookings') }}">
-        <i class="bi bi-calendar-check-fill"></i> Booking
-      </a>
-      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.payments' else '' }}" href="{{ url_for('admin.payments') }}">
-        <i class="bi bi-credit-card-fill"></i> Thanh toán
-      </a>
-      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.disputes' else '' }}" href="{{ url_for('admin.disputes') }}">
-        <i class="bi bi-shield-exclamation"></i> Tranh chấp
-      </a>
-    </nav>
-
-    <div class="admin-sidebar__section">Nội dung</div>
-    <nav class="admin-sidebar__nav">
       <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.customers' else '' }}" href="{{ url_for('admin.customers') }}">
-        <i class="bi bi-people-fill"></i> Khách hàng
-      </a>
-      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.hosts' else '' }}" href="{{ url_for('admin.hosts') }}">
-        <i class="bi bi-person-badge-fill"></i> Host
+        <i class="bi bi-people-fill"></i> Quản lý khách hàng
       </a>
       <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.accommodations' else '' }}" href="{{ url_for('admin.accommodations') }}">
-        <i class="bi bi-buildings-fill"></i> Cơ sở lưu trú
+        <i class="bi bi-buildings-fill"></i> Quản lý đơn vị lưu trú
       </a>
       <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.rooms' else '' }}" href="{{ url_for('admin.rooms') }}">
-        <i class="bi bi-door-open-fill"></i> Phòng
+        <i class="bi bi-door-open-fill"></i> Quản lý phòng
+      </a>
+      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.bookings' else '' }}" href="{{ url_for('admin.bookings') }}">
+        <i class="bi bi-bookmark-fill"></i> Quản lý booking
+      </a>
+      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.disputes' else '' }}" href="{{ url_for('admin.disputes') }}">
+        <i class="bi bi-exclamation-circle-fill"></i> Quản lý tranh chấp
+      </a>
+      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.payments' else '' }}" href="{{ url_for('admin.payments') }}">
+        <i class="bi bi-credit-card-fill"></i> Quản lý thanh toán
       </a>
       <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.promotions' else '' }}" href="{{ url_for('admin.promotions') }}">
-        <i class="bi bi-tag-fill"></i> Khuyến mãi
+        <i class="bi bi-gift-fill"></i> Quản lý khuyến mãi
       </a>
-    </nav>
-
-    <div class="admin-sidebar__section">Hệ thống</div>
-    <nav class="admin-sidebar__nav">
+      <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.hosts' else '' }}" href="{{ url_for('admin.hosts') }}">
+        <i class="bi bi-person-badge-fill"></i> Duyệt Host
+      </a>
       <a class="admin-sidebar__link {{ 'is-active' if ep == 'admin.admins' else '' }}" href="{{ url_for('admin.admins') }}">
-        <i class="bi bi-shield-lock-fill"></i> Quản trị viên
+        <i class="bi bi-shield-lock-fill"></i> Quản lý quản trị viên
       </a>
     </nav>
   </div>

@@ -1,24 +1,29 @@
 {% extends 'admin/layout/base.html' %}
 {% block title %}Host — Rovva Admin{% endblock %}
-{% block breadcrumb %}Host{% endblock %}
+{% block breadcrumb %}Duyệt Host{% endblock %}
 
 {% block content %}
-<div class="admin-page-head">
-  <h1>Quản lý Host</h1>
-  <p>Duyệt hoặc từ chối yêu cầu đăng ký Host</p>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Duyệt tài khoản Host</h1>
+    <p>Quản lý đơn đăng ký và duyệt các chủ nhà</p>
+  </div>
 </div>
 
 <div class="admin-panel">
   <div class="admin-panel__head">
-    <h2 class="admin-panel__title">
-      <i class="bi bi-hourglass-split text-warning"></i> Chờ duyệt
-      <span class="badge bg-warning text-dark">{{ pending|length }}</span>
-    </h2>
+    <h2 class="admin-panel__title"><i class="bi bi-hourglass-split text-warning"></i> Chờ duyệt <span class="badge bg-warning text-dark">{{ pending|length }}</span></h2>
   </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm host chờ duyệt..." data-admin-filter="pending-hosts-table">
+      </div>
+    </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead><tr><th>Host</th><th>Email</th><th>SĐT</th><th>Giới thiệu</th><th></th></tr></thead>
+      <table class="admin-table" id="pending-hosts-table">
+        <thead><tr><th>Host</th><th>Email</th><th>SĐT</th><th>Giới thiệu</th><th>Hành động</th></tr></thead>
         <tbody>
           {% for u in pending %}
           <tr>
@@ -30,7 +35,7 @@
             </td>
             <td>{{ u.email }}</td>
             <td>{{ u.phone or '—' }}</td>
-            <td class="text-sub" style="max-width:200px">{{ u.introduction or '—' }}</td>
+            <td class="text-sub" style="max-width:220px">{{ u.introduction or '—' }}</td>
             <td>
               <div class="admin-btn-group">
                 <form method="POST" action="{{ url_for('admin.approve_host', user_id=u.id) }}">
@@ -53,15 +58,18 @@
 
 <div class="admin-panel">
   <div class="admin-panel__head">
-    <h2 class="admin-panel__title">
-      <i class="bi bi-person-check-fill text-success"></i> Đã duyệt
-      <span class="badge bg-success">{{ approved|length }}</span>
-    </h2>
+    <h2 class="admin-panel__title"><i class="bi bi-person-check-fill text-success"></i> Đã duyệt <span class="badge bg-success">{{ approved|length }}</span></h2>
   </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm host..." data-admin-filter="approved-hosts-table">
+      </div>
+    </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead><tr><th>Host</th><th>Email</th><th>SĐT</th><th>Tham gia</th></tr></thead>
+      <table class="admin-table" id="approved-hosts-table">
+        <thead><tr><th>Host</th><th>Email</th><th>SĐT</th><th>Tham gia</th><th>Trạng thái</th></tr></thead>
         <tbody>
           {% for u in approved %}
           <tr>
@@ -74,6 +82,7 @@
             <td>{{ u.email }}</td>
             <td>{{ u.phone or '—' }}</td>
             <td>{{ u.created_at.strftime('%d/%m/%Y') if u.created_at else '—' }}</td>
+            <td><span class="admin-badge admin-badge--success">Đã duyệt</span></td>
           </tr>
           {% endfor %}
         </tbody>

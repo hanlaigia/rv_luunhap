@@ -3,57 +3,69 @@
 {% block breadcrumb %}Tranh chấp{% endblock %}
 
 {% block content %}
-<div class="admin-page-head">
-  <h1>Quản lý tranh chấp</h1>
-  <p>Xử lý khiếu nại giữa khách hàng và chủ nhà</p>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Quản lý tranh chấp</h1>
+    <p>Xử lý khiếu nại giữa khách hàng và chủ nhà</p>
+  </div>
+</div>
+
+<div class="admin-mini-stats">
+  <div class="admin-mini-stat admin-mini-stat--info"><span class="admin-mini-stat__label">Tổng tranh chấp</span><span class="admin-mini-stat__value">{{ counts.total }}</span></div>
+  <div class="admin-mini-stat admin-mini-stat--danger"><span class="admin-mini-stat__label">Chưa xử lý</span><span class="admin-mini-stat__value">{{ counts.open }}</span></div>
+  <div class="admin-mini-stat admin-mini-stat--success"><span class="admin-mini-stat__label">Đã giải quyết</span><span class="admin-mini-stat__value">{{ counts.resolved }}</span></div>
 </div>
 
 <div class="admin-panel">
-  <div class="admin-panel__head">
-    <h2 class="admin-panel__title">
-      <i class="bi bi-exclamation-triangle-fill text-danger"></i> Danh sách tranh chấp
-      <span class="badge bg-danger">{{ disputes|length }}</span>
-    </h2>
-  </div>
   <div class="admin-panel__body admin-panel__body--padded">
-    {% for d in disputes %}
-    <div class="admin-dispute-card">
-      <div class="admin-dispute-card__head">
-        <div>
-          <span class="admin-dispute-card__code">{{ d.dispute_code }}</span>
-          {% if d.status == 'resolved' %}
-          <span class="admin-badge admin-badge--success ms-2">Đã xử lý</span>
-          {% elif d.status == 'open' %}
-          <span class="admin-badge admin-badge--danger ms-2">Đang mở</span>
-          {% else %}
-          <span class="admin-badge admin-badge--warning ms-2">{{ d.status }}</span>
-          {% endif %}
-        </div>
-        <span class="admin-dispute-card__time">{{ d.created_at.strftime('%d/%m/%Y %H:%M') if d.created_at else '' }}</span>
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm tranh chấp..." data-admin-filter="disputes-list">
       </div>
-      <p class="admin-dispute-card__text"><strong>Khiếu nại:</strong> {{ d.guest_complaint }}</p>
-      {% if d.host_response %}
-      <p class="admin-dispute-card__text text-muted"><strong>Phản hồi Host:</strong> {{ d.host_response }}</p>
-      {% endif %}
-      {% if d.admin_resolution %}
-      <p class="admin-dispute-card__text" style="color:var(--adm-success)">
-        <strong><i class="bi bi-check-circle-fill"></i> Quyết định:</strong>
-        {{ d.admin_resolution }} — Hoàn <strong>{{ "{:,.0f}".format(d.refund_amount or 0) }}đ</strong>
-      </p>
-      {% elif d.status != 'resolved' %}
-      <form method="POST" action="{{ url_for('admin.resolve_dispute', dispute_id=d.id) }}" class="admin-dispute-card__resolve">
-        <input type="text" name="admin_resolution" placeholder="Nội dung quyết định..." required>
-        <input type="number" name="refund_amount" placeholder="Hoàn tiền (đ)" min="0" style="max-width:140px">
-        <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm"><i class="bi bi-check-lg"></i> Xử lý</button>
-      </form>
-      {% endif %}
     </div>
-    {% else %}
-    <div class="admin-empty">
-      <i class="bi bi-emoji-smile"></i>
-      <p>Không có tranh chấp nào.</p>
+    <div id="disputes-list">
+      {% for d in disputes %}
+      <div class="admin-dispute-card" data-status="{{ d.status }}">
+        <div class="admin-dispute-card__head">
+          <div>
+            <span class="admin-dispute-card__code">{{ d.dispute_code }}</span>
+            {% if d.status == 'resolved' %}
+            <span class="admin-badge admin-badge--success ms-2">Đã giải quyết</span>
+            {% elif d.status == 'needs_response' %}
+            <span class="admin-badge admin-badge--danger ms-2">Chưa xử lý</span>
+            {% elif d.status == 'processing' %}
+            <span class="admin-badge admin-badge--warning ms-2">Đang xem xét</span>
+            {% else %}
+            <span class="admin-badge admin-badge--neutral ms-2">{{ d.status }}</span>
+            {% endif %}
+            {% if d.booking %}
+            <span class="admin-badge admin-badge--neutral ms-1">Booking: {{ d.booking.booking_code }}</span>
+            {% endif %}
+          </div>
+          <span class="admin-dispute-card__time">{{ d.created_at.strftime('%d/%m/%Y %H:%M') if d.created_at else '' }}</span>
+        </div>
+        <p class="admin-dispute-card__text"><strong>Khiếu nại:</strong> {{ d.guest_complaint }}</p>
+        {% if d.host_response %}
+        <p class="admin-dispute-card__text text-muted"><strong>Phản hồi Host:</strong> {{ d.host_response }}</p>
+        {% endif %}
+        {% if d.admin_resolution %}
+        <p class="admin-dispute-card__text" style="color:var(--adm-success)">
+          <strong><i class="bi bi-check-circle-fill"></i> Quyết định:</strong>
+          {{ d.admin_resolution }} — Hoàn <strong>{{ "{:,.0f}".format(d.refund_amount or 0).replace(',', '.') }}₫</strong>
+        </p>
+        {% elif d.status != 'resolved' %}
+        <form method="POST" action="{{ url_for('admin.resolve_dispute', dispute_id=d.id) }}" class="admin-dispute-card__resolve">
+          <input type="text" name="admin_resolution" placeholder="Nội dung quyết định..." required>
+          <input type="number" name="refund_amount" placeholder="Hoàn tiền (đ)" min="0" style="max-width:140px">
+          <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm"><i class="bi bi-check-lg"></i> Xử lý</button>
+        </form>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="admin-empty"><i class="bi bi-emoji-smile"></i><p>Không có tranh chấp nào.</p></div>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
 </div>
 {% endblock %}

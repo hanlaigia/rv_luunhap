@@ -1,0 +1,15 @@
+<div class="admin-toolbar">
+  <div class="admin-toolbar__search">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="{{ placeholder|default('Tìm kiếm...') }}"
+           data-admin-filter="{{ table_id }}" aria-label="Tìm kiếm bảng">
+  </div>
+  {% if status_options %}
+  <select class="admin-toolbar__select" data-admin-status-filter="{{ table_id }}" aria-label="Lọc trạng thái">
+    <option value="">Trạng thái (Tất cả)</option>
+    {% for value, label in status_options %}
+    <option value="{{ value }}">{{ label }}</option>
+    {% endfor %}
+  </select>
+  {% endif %}
+</div>

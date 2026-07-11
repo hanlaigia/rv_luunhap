@@ -1,0 +1,94 @@
+        <section class="view-container{% if active_view == 'admins' %} active{% endif %}" id="view-admins">
+          <div class="page-title-area">
+            <h1 class="page-title">Quản lý quản trị viên</h1>
+            <p class="page-subtitle">Quản lý các tài khoản quản trị và phân quyền của nhân viên</p>
+          </div>
+          <div class="dashboard-grid admins-page-grid">
+            <div class="card admin-list-card">
+              <div class="card-header">
+                <h3 class="card-title">Danh sách Quản trị viên</h3>
+                <button class="btn btn-primary" onclick="openAddModal('admin')" style="padding: 6px 12px; font-size: 0.8rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  Tạo tài khoản
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="table-filter-bar">
+                  <div class="search-box-wrapper" style="max-width: 100%;">
+                    <span class="search-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
+                    <input type="text" class="search-input" data-search-for="admins-table" placeholder="Tìm kiếm quản trị viên..." onkeyup="filterTable('admins-table', this.value)">
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="data-table" id="admins-table">
+                    <thead>
+                      <tr><th>Tên</th><th>Vai trò</th><th>Trạng thái</th><th>Hành động</th></tr>
+                    </thead>
+                    <tbody>
+                      {% for admin in admins %}
+                      <tr data-id="ad{{ admin.id }}">
+                        <td class="cell-bold">{{ admin.full_name }}</td>
+                        <td>
+                          <span class="badge" style="background-color:var(--bg-muted); color:var(--primary); font-size:0.7rem; display:inline-flex; align-items:center; gap:3px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            {% if admin.id == current_user.id %}Super Quản trị{% else %}Quản trị viên{% endif %}
+                          </span>
+                        </td>
+                        <td>
+                          {% if admin.is_locked %}
+                          <span class="badge badge-warning">Không hoạt động</span>
+                          {% else %}
+                          <span class="badge badge-success">Hoạt động</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <div class="flex-align-center">
+                            <button class="btn-icon" title="Chi tiết" onclick="viewDetails('admin', 'ad{{ admin.id }}')">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                            {% if admin.id != current_user.id %}
+                            <form class="inline-form" method="post" action="{{ url_for('admin.toggle_admin_lock', admin_id=admin.id) }}">
+                              <button class="btn-icon" title="{{ 'Mở khóa' if admin.is_locked else 'Khóa' }}" type="submit">
+                                {% if admin.is_locked %}
+                                <svg class="text-success" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+                                {% else %}
+                                <svg class="text-danger" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                {% endif %}
+                              </button>
+                            </form>
+                            {% endif %}
+                          </div>
+                        </td>
+                      </tr>
+                      {% else %}
+                      <tr><td colspan="4">Chưa có quản trị viên</td></tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="pagination-area" style="font-size: 0.8rem;">
+                  <p class="pagination-info">Hiển thị {{ admins|length }} admin</p>
+                </div>
+              </div>
+            </div>
+            <div class="card admin-activity-card" style="background: linear-gradient(to bottom right, rgba(52,116,255,0.06), rgba(75,189,255,0.06)); border-color: rgba(52,116,255,0.15);">
+              <div class="card-header" style="background:transparent; border-bottom-color: rgba(52,116,255,0.15);">
+                <h3 class="card-title">Nhật ký hoạt động</h3>
+              </div>
+              <div class="card-body">
+                <div class="list-container" style="gap:16px;">
+                  {% for b in recent_bookings %}
+                  <div class="list-item" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); flex-direction:column; align-items:flex-start; gap:4px; padding:12px;">
+                    <div class="list-item-text">Booking {{ b.booking_code }} — {{ b.status }}</div>
+                    <div class="list-item-subtext">{{ b.created_at.strftime('%d/%m/%Y %H:%M') if b.created_at else '' }}</div>
+                  </div>
+                  {% else %}
+                  <div class="list-item" style="padding:12px;"><div class="list-item-text">Chưa có hoạt động</div></div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>

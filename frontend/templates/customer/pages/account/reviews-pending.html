@@ -1,46 +1,78 @@
 {% extends 'customer/base.html' %}
+{% from 'customer/includes/account/_review_card.html' import review_card_reviewed, review_card_pending %}
 {% block body_attrs %}data-page="account"{% endblock %}
 
 {% block content %}
 <main class="page-content">
-    <div class="account-layout">
-      {% include 'customer/includes/account/_sidebar.html' %}
-      <div class="account-main">
-        <div class="account-page-head">
-          <h1 class="account-page-title">Đánh giá của tôi</h1>
-          <p class="account-page-subtitle">Chia sẻ trải nghiệm của bạn về các chuyến đi đã hoàn thành.</p>
+  <div class="account-layout">
+    {% include 'customer/includes/account/_sidebar.html' %}
+    <div class="account-main">
+      <div class="account-page-head">
+        <h1 class="account-page-title">Đánh giá của tôi</h1>
+        <p class="account-page-subtitle">
+          Sau mỗi chuyến đi <strong>hoàn thành</strong>, bạn có thể đánh giá để chia sẻ trải nghiệm và giúp cộng đồng chọn chỗ ở phù hợp.
+        </p>
+      </div>
+
+      <div class="reviews-howto" role="note">
+        <div class="reviews-howto__step">
+          <span class="reviews-howto__num">1</span>
+          <p>Vào tab <strong>Chưa đánh giá</strong> → chọn chuyến đi cần gửi nhận xét.</p>
         </div>
-        <div class="account-content-box">
-          <div class="account-content-box__body">
-            {% if completed %}
-            <div class="row g-3">
-              {% for b in completed %}
-              {% set acc = b.room.accommodation %}
-              <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                  <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <div class="d-flex align-items-center gap-3">
-                      <img src="{{ acc.cover_url }}" alt="{{ acc.name }}"
-                           class="rounded-3" style="width:72px;height:72px;object-fit:cover;">
-                      <div>
-                        <h3 class="h6 fw-semibold mb-1">{{ acc.name }}</h3>
-                        <p class="text-secondary small mb-0">{{ b.room.name }} • {{ b.check_out.strftime('%d/%m/%Y') }}</p>
-                      </div>
-                    </div>
-                    <button type="button" class="btn btn-outline-primary btn-sm" disabled>
-                      <i class="bi bi-star"></i> Viết đánh giá
-                    </button>
-                  </div>
-                </div>
-              </div>
+        <div class="reviews-howto__step">
+          <span class="reviews-howto__num">2</span>
+          <p>Bấm <strong>Viết đánh giá</strong> → chọn sao, điền nhận xét và gửi.</p>
+        </div>
+        <div class="reviews-howto__step">
+          <span class="reviews-howto__num">3</span>
+          <p>Xem lại đánh giá đã gửi tại tab <strong>Đã đánh giá</strong>.</p>
+        </div>
+      </div>
+
+      <div class="account-content-box account-content-box--reviews">
+        <nav class="account-tabs" aria-label="Trạng thái đánh giá">
+          <a class="account-tabs__link {{ 'is-active' if tab == 'reviewed' else '' }}"
+             href="{{ url_for('customer.account_reviews', tab='reviewed') }}">
+            Đã đánh giá{% if counts.reviewed %} ({{ counts.reviewed }}){% endif %}
+          </a>
+          <a class="account-tabs__link {{ 'is-active' if tab == 'pending' else '' }}"
+             href="{{ url_for('customer.account_reviews', tab='pending') }}">
+            Chưa đánh giá{% if counts.pending %} ({{ counts.pending }}){% endif %}
+          </a>
+        </nav>
+
+        <div class="account-content-box__body">
+          {% if tab == 'reviewed' %}
+            {% if reviewed %}
+              {% for item in reviewed %}
+              {{ review_card_reviewed(item.booking, item.review) }}
               {% endfor %}
-            </div>
             {% else %}
-            <p class="text-secondary text-center py-4">Bạn chưa có chuyến đi hoàn thành nào để đánh giá.</p>
+            <div class="page-empty">
+              <i class="bi bi-chat-square-text d-block" aria-hidden="true"></i>
+              <p class="mb-2">Bạn chưa gửi đánh giá nào.</p>
+              <p class="text-secondary small mb-3">Hoàn thành chuyến đi rồi quay lại tab <strong>Chưa đánh giá</strong> để viết nhận xét đầu tiên.</p>
+              {% if counts.pending %}
+              <a href="{{ url_for('customer.account_reviews', tab='pending') }}" class="review-card__btn">Viết đánh giá ngay</a>
+              {% endif %}
+            </div>
             {% endif %}
-          </div>
+          {% else %}
+            {% if pending %}
+              {% for booking in pending %}
+              {{ review_card_pending(booking) }}
+              {% endfor %}
+            {% else %}
+            <div class="page-empty">
+              <i class="bi bi-star d-block" aria-hidden="true"></i>
+              <p class="mb-2">Không còn chuyến đi nào chờ đánh giá.</p>
+              <p class="text-secondary small mb-0">Các đơn đặt phòng ở trạng thái <strong>Hoàn thành</strong> mà bạn chưa gửi nhận xét sẽ hiện ở đây.</p>
+            </div>
+            {% endif %}
+          {% endif %}
         </div>
       </div>
     </div>
-  </main>
+  </div>
+</main>
 {% endblock %}

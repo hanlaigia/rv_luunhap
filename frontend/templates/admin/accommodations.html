@@ -1,24 +1,29 @@
 {% extends 'admin/layout/base.html' %}
 {% block title %}Cơ sở lưu trú — Rovva Admin{% endblock %}
-{% block breadcrumb %}Cơ sở lưu trú{% endblock %}
+{% block breadcrumb %}Đơn vị lưu trú{% endblock %}
 
 {% block content %}
-<div class="admin-page-head">
-  <h1>Quản lý cơ sở lưu trú</h1>
-  <p>Duyệt và theo dõi toàn bộ đơn vị lưu trú trên nền tảng</p>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Quản lý đơn vị lưu trú</h1>
+    <p>Duyệt và theo dõi toàn bộ chỗ nghỉ trên nền tảng</p>
+  </div>
 </div>
 
 <div class="admin-panel">
   <div class="admin-panel__head">
-    <h2 class="admin-panel__title">
-      <i class="bi bi-hourglass-split text-warning"></i> Chờ duyệt
-      <span class="badge bg-warning text-dark">{{ pending|length }}</span>
-    </h2>
+    <h2 class="admin-panel__title"><i class="bi bi-hourglass-split text-warning"></i> Chờ duyệt <span class="badge bg-warning text-dark">{{ pending|length }}</span></h2>
   </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm CSLT chờ duyệt..." data-admin-filter="pending-accs-table">
+      </div>
+    </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead><tr><th>Tên</th><th>Loại</th><th>Địa điểm</th><th>Host</th><th></th></tr></thead>
+      <table class="admin-table" id="pending-accs-table">
+        <thead><tr><th>Tên</th><th>Loại</th><th>Địa điểm</th><th>Host</th><th>Phòng</th><th></th></tr></thead>
         <tbody>
           {% for acc in pending %}
           <tr>
@@ -26,6 +31,7 @@
             <td><span class="admin-badge admin-badge--info">{{ acc.type }}</span></td>
             <td>{{ acc.city or acc.location }}</td>
             <td>{{ acc.host.full_name if acc.host else '—' }}</td>
+            <td>{{ acc.total_rooms }} phòng</td>
             <td>
               <div class="admin-btn-group">
                 <form method="POST" action="{{ url_for('admin.approve_accommodation', acc_id=acc.id) }}">
@@ -38,7 +44,7 @@
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="5"><div class="admin-empty"><i class="bi bi-check-circle"></i><p>Không có CSLT chờ duyệt.</p></div></td></tr>
+          <tr><td colspan="6"><div class="admin-empty"><i class="bi bi-check-circle"></i><p>Không có CSLT chờ duyệt.</p></div></td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -48,23 +54,28 @@
 
 <div class="admin-panel">
   <div class="admin-panel__head">
-    <h2 class="admin-panel__title">
-      <i class="bi bi-building-check text-success"></i> Đang hoạt động
-      <span class="badge bg-success">{{ active|length }}</span>
-    </h2>
+    <h2 class="admin-panel__title"><i class="bi bi-building-check text-success"></i> Đang hoạt động <span class="badge bg-success">{{ active|length }}</span></h2>
   </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm CSLT..." data-admin-filter="active-accs-table">
+      </div>
+    </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead><tr><th>Tên</th><th>Loại</th><th>Địa điểm</th><th>Phòng</th><th>Giá từ</th></tr></thead>
+      <table class="admin-table" id="active-accs-table">
+        <thead><tr><th>Tên</th><th>Chủ sở hữu</th><th>Phòng</th><th>Doanh thu</th><th>Đánh giá</th><th>Giá từ</th></tr></thead>
         <tbody>
           {% for acc in active %}
+          {% set st = acc_stats.get(acc.id, {}) %}
           <tr>
-            <td><strong>{{ acc.name }}</strong></td>
-            <td><span class="admin-badge admin-badge--neutral">{{ acc.type }}</span></td>
-            <td>{{ acc.city or acc.location }}</td>
-            <td>{{ acc.total_rooms }} phòng</td>
-            <td><strong class="text-primary">{{ "{:,.0f}".format(acc.min_price) }}đ</strong></td>
+            <td><strong><i class="bi bi-building text-primary me-1"></i>{{ acc.name }}</strong></td>
+            <td>{{ acc.host.full_name if acc.host else '—' }}</td>
+            <td><strong>{{ acc.total_rooms }}</strong></td>
+            <td class="text-primary"><strong>{{ "{:,.0f}".format(st.get('revenue', 0)).replace(',', '.') }}₫</strong></td>
+            <td>{% if st.get('rating') %}{{ st.rating }} ⭐{% else %}—{% endif %}</td>
+            <td><strong>{{ "{:,.0f}".format(acc.min_price).replace(',', '.') }}₫</strong></td>
           </tr>
           {% endfor %}
         </tbody>

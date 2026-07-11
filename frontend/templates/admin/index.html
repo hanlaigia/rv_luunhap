@@ -1,161 +1,134 @@
 {% extends 'admin/layout/base.html' %}
-{% block title %}Dashboard — Rovva Admin{% endblock %}
-{% block breadcrumb %}Dashboard{% endblock %}
+{% block title %}Tổng quan — Rovva Admin{% endblock %}
+{% block breadcrumb %}Tổng quan{% endblock %}
 
 {% block content %}
-<div class="admin-welcome">
-  <div class="admin-welcome__inner">
-    <div>
-      <h1>Xin chào, {{ current_user.full_name }} 👋</h1>
-      <p>Tổng quan hoạt động nền tảng Rovva hôm nay</p>
-    </div>
-    <div class="admin-welcome__actions">
-      <a href="{{ url_for('admin.hosts') }}" class="admin-welcome__chip">
-        <i class="bi bi-person-badge"></i> Duyệt Host
-        {% if stats.pending_hosts %}<strong>({{ stats.pending_hosts }})</strong>{% endif %}
-      </a>
-      <a href="{{ url_for('admin.accommodations') }}" class="admin-welcome__chip">
-        <i class="bi bi-building"></i> Duyệt CSLT
-        {% if stats.pending_accs %}<strong>({{ stats.pending_accs }})</strong>{% endif %}
-      </a>
-      <a href="{{ url_for('admin.bookings') }}" class="admin-welcome__chip admin-welcome__chip--solid">
-        <i class="bi bi-calendar-check"></i> Xem booking
-      </a>
-    </div>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Tổng quan</h1>
+    <p>Thống kê và phân tích hoạt động hệ thống theo dữ liệu thực</p>
   </div>
+  <form class="admin-filter-group" method="get" action="{{ url_for('admin.index') }}">
+    <select class="admin-filter-select" name="period" onchange="this.form.submit()">
+      <option value="month" {{ 'selected' if period == 'month' else '' }}>Theo tháng</option>
+      <option value="year" {{ 'selected' if period == 'year' else '' }}>Cả năm</option>
+    </select>
+    {% if period == 'month' %}
+    <select class="admin-filter-select" name="month" onchange="this.form.submit()">
+      {% for m in range(1, 13) %}
+      <option value="{{ m }}" {{ 'selected' if month == m else '' }}>Tháng {{ m }}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
+    <select class="admin-filter-select" name="year" onchange="this.form.submit()">
+      {% for y in years %}
+      <option value="{{ y }}" {{ 'selected' if year == y else '' }}>{{ y }}</option>
+      {% endfor %}
+    </select>
+  </form>
 </div>
 
 <div class="admin-stat-grid">
   <div class="admin-stat-card admin-stat-card--blue">
-    <div class="admin-stat-card__top">
-      <div class="admin-stat-card__icon"><i class="bi bi-cash-stack"></i></div>
-    </div>
+    <div class="admin-stat-card__top"><div class="admin-stat-card__icon"><i class="bi bi-cash-stack"></i></div></div>
     <div class="admin-stat-card__label">Tổng doanh thu</div>
-    <div class="admin-stat-card__value">{{ "{:,.0f}".format(stats.revenue) }}đ</div>
+    <div class="admin-stat-card__value">{{ format_vnd(stats.revenue) }}₫</div>
   </div>
   <div class="admin-stat-card admin-stat-card--teal">
-    <div class="admin-stat-card__top">
-      <div class="admin-stat-card__icon"><i class="bi bi-calendar-check"></i></div>
-    </div>
-    <div class="admin-stat-card__label">Tổng booking</div>
+    <div class="admin-stat-card__top"><div class="admin-stat-card__icon"><i class="bi bi-bookmark-check"></i></div></div>
+    <div class="admin-stat-card__label">{{ 'Booking trong năm' if period == 'year' else 'Booking trong tháng' }}</div>
     <div class="admin-stat-card__value">{{ stats.booking_count }}</div>
   </div>
   <div class="admin-stat-card admin-stat-card--green">
-    <div class="admin-stat-card__top">
-      <div class="admin-stat-card__icon"><i class="bi bi-people"></i></div>
-    </div>
-    <div class="admin-stat-card__label">Khách hàng</div>
+    <div class="admin-stat-card__top"><div class="admin-stat-card__icon"><i class="bi bi-people"></i></div></div>
+    <div class="admin-stat-card__label">Người dùng</div>
     <div class="admin-stat-card__value">{{ stats.customer_count }}</div>
   </div>
   <div class="admin-stat-card admin-stat-card--purple">
-    <div class="admin-stat-card__top">
-      <div class="admin-stat-card__icon"><i class="bi bi-person-badge"></i></div>
-    </div>
-    <div class="admin-stat-card__label">Chủ cơ sở</div>
+    <div class="admin-stat-card__top"><div class="admin-stat-card__icon"><i class="bi bi-building"></i></div></div>
+    <div class="admin-stat-card__label">Chủ cơ sở hoạt động</div>
     <div class="admin-stat-card__value">{{ stats.host_count }}</div>
   </div>
   <div class="admin-stat-card admin-stat-card--red">
-    <div class="admin-stat-card__top">
-      <div class="admin-stat-card__icon"><i class="bi bi-exclamation-triangle"></i></div>
-    </div>
-    <div class="admin-stat-card__label">Tranh chấp mở</div>
+    <div class="admin-stat-card__top"><div class="admin-stat-card__icon"><i class="bi bi-exclamation-triangle"></i></div></div>
+    <div class="admin-stat-card__label">Tranh chấp</div>
     <div class="admin-stat-card__value admin-stat-card__value--danger">{{ stats.dispute_count }}</div>
   </div>
   <div class="admin-stat-card admin-stat-card--amber">
-    <div class="admin-stat-card__top">
-      <div class="admin-stat-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
-    </div>
+    <div class="admin-stat-card__top"><div class="admin-stat-card__icon"><i class="bi bi-graph-up-arrow"></i></div></div>
     <div class="admin-stat-card__label">Tỷ lệ hoàn thành</div>
     <div class="admin-stat-card__value admin-stat-card__value--success">{{ stats.completion_rate }}%</div>
   </div>
 </div>
 
-<div class="admin-grid-3">
-  <div class="admin-panel">
-    <div class="admin-panel__head">
-      <h2 class="admin-panel__title"><i class="bi bi-bar-chart-fill" style="color:var(--adm-blue)"></i> Hoạt động booking</h2>
-    </div>
-    <div class="admin-panel__body admin-panel__body--padded">
-      <div class="admin-chart" aria-hidden="true">
-        {% set bars = [40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88] %}
-        {% for h in bars %}
-        <div class="admin-chart__bar" style="height:{{ h }}%"></div>
-        {% endfor %}
-      </div>
-      <p class="text-muted small mb-0 mt-2">Biểu đồ hoạt động 12 tháng gần nhất (demo)</p>
+<div class="admin-panel" style="margin-bottom:1.25rem">
+  <div class="admin-panel__head">
+    <h2 class="admin-panel__title">Phân tích: Lượt đặt phòng &amp; Doanh thu</h2>
+  </div>
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-chart-wrap">
+      <canvas id="adminRevenueBookingChart"></canvas>
     </div>
   </div>
+</div>
 
+<div class="admin-grid-2">
   <div class="admin-panel">
-    <div class="admin-panel__head">
-      <h2 class="admin-panel__title"><i class="bi bi-hourglass-split" style="color:var(--adm-warning)"></i> Chờ duyệt</h2>
-    </div>
-    <div class="admin-panel__body">
-      <div class="admin-queue-item">
-        <span class="admin-queue-item__label">Host mới</span>
-        <a href="{{ url_for('admin.hosts') }}"
-           class="admin-queue-item__count {{ 'admin-queue-item__count--zero' if not stats.pending_hosts else '' }}">
-          {{ stats.pending_hosts }}
-        </a>
+    <div class="admin-panel__head"><h2 class="admin-panel__title">Tỷ lệ trạng thái booking</h2></div>
+    <div class="admin-panel__body admin-panel__body--padded">
+      <div class="admin-chart-wrap admin-chart-wrap--sm">
+        <canvas id="adminBookingStatusChart"></canvas>
       </div>
-      <div class="admin-queue-item">
-        <span class="admin-queue-item__label">CSLT mới</span>
-        <a href="{{ url_for('admin.accommodations') }}"
-           class="admin-queue-item__count {{ 'admin-queue-item__count--zero' if not stats.pending_accs else '' }}">
-          {{ stats.pending_accs }}
-        </a>
+    </div>
+  </div>
+  <div class="admin-panel">
+    <div class="admin-panel__head"><h2 class="admin-panel__title">Top 5 đơn vị doanh thu cao</h2></div>
+    <div class="admin-panel__body admin-panel__body--padded">
+      <div class="admin-chart-wrap admin-chart-wrap--sm">
+        <canvas id="adminTopHotelsChart"></canvas>
       </div>
     </div>
   </div>
 </div>
 
 <div class="admin-grid-2">
-  <div class="admin-panel h-100">
-    <div class="admin-panel__head">
-      <h2 class="admin-panel__title"><i class="bi bi-trophy-fill" style="color:#f59e0b"></i> Top doanh thu</h2>
-    </div>
-    <div class="admin-panel__body">
-      {% if top_accs %}
-        {% for name, total in top_accs %}
-        <div class="admin-rank-item">
-          <span class="admin-rank-item__pos {{ 'admin-rank-item__pos--top' if loop.index <= 3 else '' }}">{{ loop.index }}</span>
-          <span class="admin-rank-item__name">{{ name }}</span>
-          <span class="admin-rank-item__value">{{ "{:,.0f}".format(total or 0) }}đ</span>
+  <div class="admin-panel">
+    <div class="admin-panel__head"><h2 class="admin-panel__title">Chi tiết Top đơn vị lưu trú</h2></div>
+    <div class="admin-panel__body admin-panel__body--padded">
+      <div class="admin-list">
+        {% for hotel in charts.top_hotels %}
+        <div class="admin-list__item">
+          <div>
+            <div class="admin-list__title">{{ hotel.name }}</div>
+            <div class="admin-list__sub">{{ hotel.bookings }} đơn đặt</div>
+          </div>
+          <div class="admin-list__value">{{ hotel.revenue }}M ₫</div>
         </div>
-        {% endfor %}
-      {% else %}
+        {% else %}
         <div class="admin-empty"><i class="bi bi-bar-chart"></i><p>Chưa có dữ liệu.</p></div>
-      {% endif %}
+        {% endfor %}
+      </div>
     </div>
   </div>
-
-  <div class="admin-panel h-100">
+  <div class="admin-panel">
     <div class="admin-panel__head">
-      <h2 class="admin-panel__title"><i class="bi bi-clock-history" style="color:var(--adm-info)"></i> Booking mới</h2>
+      <h2 class="admin-panel__title">Hoạt động gần đây</h2>
       <a href="{{ url_for('admin.bookings') }}" class="admin-btn admin-btn--primary admin-btn--sm">Tất cả</a>
     </div>
-    <div class="admin-panel__body">
-      {% for b in stats.recent_bookings %}
-      <div class="admin-queue-item">
-        <div>
-          <strong style="font-size:0.85rem">{{ b.booking_code }}</strong>
-          <span class="text-sub">{{ b.guest_name }}</span>
+    <div class="admin-panel__body admin-panel__body--padded">
+      <div class="admin-activity-feed">
+        {% for b in stats.recent_bookings %}
+        <div class="admin-activity-item">
+          <strong>Đơn {{ b.booking_code }} — {{ b.guest_name }}</strong>
+          <span>{{ b.created_at.strftime('%d/%m/%Y %H:%M') if b.created_at else '' }} • {{ format_vnd(b.total_amount) }}₫</span>
         </div>
-        <div class="text-end">
-          <strong style="color:var(--adm-blue);font-size:0.85rem">{{ "{:,.0f}".format(b.total_amount) }}đ</strong>
-          {% if b.status == 'completed' %}
-          <span class="admin-badge admin-badge--success">Xong</span>
-          {% elif b.status == 'confirmed' %}
-          <span class="admin-badge admin-badge--primary">OK</span>
-          {% else %}
-          <span class="admin-badge admin-badge--neutral">{{ b.status }}</span>
-          {% endif %}
-        </div>
+        {% else %}
+        <div class="admin-empty"><i class="bi bi-inbox"></i><p>Chưa có hoạt động.</p></div>
+        {% endfor %}
       </div>
-      {% else %}
-      <div class="admin-empty"><i class="bi bi-inbox"></i><p>Chưa có booking.</p></div>
-      {% endfor %}
     </div>
   </div>
 </div>
+
+<script type="application/json" id="admin-dashboard-charts">{{ chart_json|safe }}</script>
 {% endblock %}

@@ -48,14 +48,37 @@ def create_app(config_name="default"):
 
         return {"resolve_media": resolve_media}
 
+    from backend.app.utils.reviews import (
+        SUB_RATING_LABELS,
+        SUB_RATING_KEYS,
+        format_review_datetime,
+        format_stay_range,
+        format_vnd,
+        rating_label,
+    )
+
+    app.add_template_global(format_stay_range, "format_stay_range")
+    app.add_template_global(format_vnd, "format_vnd")
+    app.add_template_global(rating_label, "rating_label")
+    app.add_template_global(format_review_datetime, "format_review_datetime")
+    app.add_template_global(SUB_RATING_LABELS, "sub_rating_labels")
+    app.add_template_global(SUB_RATING_KEYS, "sub_rating_keys")
+
     with app.app_context():
         from backend.app import models  # noqa: F401
 
         db.create_all()
-        from backend.app.seed import patch_host_payment_demo, seed_database
+        from backend.app.seed import (
+            patch_guest_review_demo,
+            patch_host_payment_demo,
+            patch_review_schema,
+            seed_database,
+        )
 
+        patch_review_schema()
         seed_database()
         patch_host_payment_demo()
+        patch_guest_review_demo()
 
     return app
 

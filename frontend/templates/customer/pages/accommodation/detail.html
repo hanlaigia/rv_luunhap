@@ -7,8 +7,8 @@
         <header class="page-accommodation__header">
           <div class="page-accommodation__title-row">
             <h1 class="page-accommodation__title">{{ acc.name }}</h1>
-            <button type="button" class="page-accommodation__save" data-rova-action="favorite" data-rova-id="{{ acc.id }}">
-              <i class="bi bi-bookmark"></i> Lưu
+            <button type="button" class="page-accommodation__save{{ ' is-active' if is_favorited else '' }}" data-rova-action="favorite" data-rova-id="{{ acc.id }}" aria-pressed="{{ 'true' if is_favorited else 'false' }}">
+              <i class="bi {{ 'bi-heart-fill' if is_favorited else 'bi-heart' }}"></i> Lưu
             </button>
           </div>
           <p class="page-accommodation__location">

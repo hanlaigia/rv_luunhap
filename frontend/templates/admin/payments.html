@@ -3,21 +3,31 @@
 {% block breadcrumb %}Thanh toán{% endblock %}
 
 {% block content %}
-<div class="admin-page-head">
-  <h1>Quản lý thanh toán</h1>
-  <p>Theo dõi giao dịch thanh toán booking</p>
+<div class="admin-page-head--row">
+  <div>
+    <h1>Quản lý thanh toán</h1>
+    <p>Theo dõi giao dịch thanh toán booking từ dữ liệu đặt phòng</p>
+  </div>
+</div>
+
+<div class="admin-mini-stats">
+  <div class="admin-mini-stat"><span class="admin-mini-stat__label">Đã thanh toán</span><span class="admin-mini-stat__value">{{ "{:,.0f}".format(paid_total).replace(',', '.') }}₫</span></div>
+  <div class="admin-mini-stat admin-mini-stat--warning"><span class="admin-mini-stat__label">Đang chờ</span><span class="admin-mini-stat__value">{{ "{:,.0f}".format(pending_total).replace(',', '.') }}₫</span></div>
+  <div class="admin-mini-stat admin-mini-stat--success"><span class="admin-mini-stat__label">Giao dịch paid</span><span class="admin-mini-stat__value">{{ paid|length }}</span></div>
+  <div class="admin-mini-stat admin-mini-stat--danger"><span class="admin-mini-stat__label">Giao dịch chờ</span><span class="admin-mini-stat__value">{{ pending|length }}</span></div>
 </div>
 
 <div class="admin-panel">
-  <div class="admin-panel__head">
-    <h2 class="admin-panel__title">
-      <i class="bi bi-check-circle-fill text-success"></i> Đã thanh toán
-      <span class="badge bg-success">{{ paid|length }}</span>
-    </h2>
-  </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__head"><h2 class="admin-panel__title"><i class="bi bi-check-circle-fill text-success"></i> Đã thanh toán</h2></div>
+  <div class="admin-panel__body admin-panel__body--padded">
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Tìm kiếm giao dịch..." data-admin-filter="paid-table">
+      </div>
+    </div>
     <div class="admin-table-wrap">
-      <table class="admin-table">
+      <table class="admin-table" id="paid-table">
         <thead><tr><th>Mã booking</th><th>Phương thức</th><th>Mã GD</th><th>Số tiền</th><th>Ngày</th></tr></thead>
         <tbody>
           {% for b in paid %}
@@ -25,7 +35,7 @@
             <td><strong>{{ b.booking_code }}</strong></td>
             <td><span class="admin-badge admin-badge--info">{{ b.payment_method or '—' }}</span></td>
             <td>{{ b.payment_gateway_ref or '—' }}</td>
-            <td><strong class="text-success">{{ "{:,.0f}".format(b.total_amount) }}đ</strong></td>
+            <td class="text-success"><strong>{{ "{:,.0f}".format(b.total_amount).replace(',', '.') }}₫</strong></td>
             <td>{{ b.created_at.strftime('%d/%m/%Y') if b.created_at else '—' }}</td>
           </tr>
           {% else %}
@@ -38,15 +48,10 @@
 </div>
 
 <div class="admin-panel">
-  <div class="admin-panel__head">
-    <h2 class="admin-panel__title">
-      <i class="bi bi-hourglass-split text-warning"></i> Chờ thanh toán
-      <span class="badge bg-warning text-dark">{{ pending|length }}</span>
-    </h2>
-  </div>
-  <div class="admin-panel__body">
+  <div class="admin-panel__head"><h2 class="admin-panel__title"><i class="bi bi-hourglass-split text-warning"></i> Chờ thanh toán</h2></div>
+  <div class="admin-panel__body admin-panel__body--padded">
     <div class="admin-table-wrap">
-      <table class="admin-table">
+      <table class="admin-table" id="pending-table">
         <thead><tr><th>Mã booking</th><th>Khách</th><th>Trạng thái</th><th>Số tiền</th></tr></thead>
         <tbody>
           {% for b in pending %}
@@ -54,7 +59,7 @@
             <td><strong>{{ b.booking_code }}</strong></td>
             <td>{{ b.guest_name }}</td>
             <td><span class="admin-badge admin-badge--warning">{{ b.status }}</span></td>
-            <td><strong>{{ "{:,.0f}".format(b.total_amount) }}đ</strong></td>
+            <td><strong>{{ "{:,.0f}".format(b.total_amount).replace(',', '.') }}₫</strong></td>
           </tr>
           {% else %}
           <tr><td colspan="4"><div class="admin-empty"><i class="bi bi-check-circle"></i><p>Không có giao dịch chờ.</p></div></td></tr>

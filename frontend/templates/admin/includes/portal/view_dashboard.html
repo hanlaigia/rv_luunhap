@@ -1,0 +1,167 @@
+        <section class="view-container{% if active_view == 'dashboard' %} active{% endif %}" id="view-dashboard">
+          <div class="page-title-area page-title-area-with-filter">
+            <div class="page-title-text">
+              <h1 class="page-title">Tổng quan</h1>
+              <p class="page-subtitle">Thống kê và phân tích hoạt động hệ thống theo thời gian thực</p>
+            </div>
+            <div class="dashboard-filter-compact">
+              <select id="dashboard-filter-type" class="filter-select filter-select-sm" title="Lọc theo">
+                <option value="month" selected>Theo Tháng</option>
+                <option value="year">Cả Năm</option>
+              </select>
+              <select id="dashboard-filter-month" class="filter-select filter-select-sm" title="Chọn tháng">
+                {% for m in range(1, 13) %}
+                <option value="{{ m }}"{% if m == month %} selected{% endif %}>Tháng {{ m }}</option>
+                {% endfor %}
+              </select>
+              <select id="dashboard-filter-year" class="filter-select filter-select-sm" title="Chọn năm">
+                {% for y in range(year, year - 5, -1) %}
+                <option value="{{ y }}"{% if y == year %} selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="stats-grid" id="dashboard-stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <span class="stat-label">Tổng doanh thu</span>
+                <span class="stat-value" id="dash-stat-revenue">{{ fmt_m(kpis.revenue) }}</span>
+              </div>
+              <div class="stat-icon-wrapper bg-grad-blue">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <span class="stat-label" id="dash-label-bookings">Booking trong tháng</span>
+                <span class="stat-value" id="dash-stat-bookings">{{ kpis.booking_count }}</span>
+              </div>
+              <div class="stat-icon-wrapper bg-grad-cyan">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <span class="stat-label">Người dùng</span>
+                <span class="stat-value" id="dash-stat-users">{{ kpis.customer_count }}</span>
+              </div>
+              <div class="stat-icon-wrapper bg-grad-teal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <span class="stat-label">Chủ cơ sở lưu trú hoạt động</span>
+                <span class="stat-value" id="dash-stat-hosts">{{ kpis.host_count }}</span>
+              </div>
+              <div class="stat-icon-wrapper bg-grad-indigo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><path d="M9 22V12h6v10"></path></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <span class="stat-label">Tranh chấp</span>
+                <span class="stat-value" id="dash-stat-disputes">{{ kpis.dispute_count }}</span>
+              </div>
+              <div class="stat-icon-wrapper bg-grad-red">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <span class="stat-label">Tỷ lệ hoàn thành</span>
+                <span class="stat-value" id="dash-stat-completion">{{ kpis.completion_rate }}%</span>
+              </div>
+              <div class="stat-icon-wrapper bg-grad-emerald">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid" style="margin-bottom: 24px;">
+            <div class="card" style="grid-column: span 2;">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="card-title">Phân tích chuỗi thời gian: Lượt đặt phòng & Doanh thu</h2>
+              </div>
+              <div class="card-body" style="position: relative; height: 300px;">
+                <canvas id="revenueBookingChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); margin-bottom: 24px;">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">Tỷ lệ trạng thái booking</h2></div>
+              <div class="card-body" style="position: relative; height: 280px; display: flex; justify-content: center;">
+                <canvas id="bookingStatusChart"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">Top 5 đơn vị lưu trú doanh thu cao nhất</h2></div>
+              <div class="card-body" style="position: relative; height: 280px;">
+                <canvas id="topHotelsChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">Chi tiết Top đơn vị lưu trú</h2></div>
+              <div class="card-body">
+                <div class="list-container" id="dashboard-hotels-list">
+                  {% for hotel in charts.top_hotels %}
+                  <div class="list-item">
+                    <div class="list-item-content">
+                      <div class="list-item-text">{{ hotel.name }}</div>
+                      <div class="list-item-subtext">{{ hotel.bookings }} đơn đặt</div>
+                    </div>
+                    <div class="list-item-right cell-highlight">{{ fmt_money(hotel.revenue) }}</div>
+                  </div>
+                  {% else %}
+                  <div class="list-item"><div class="list-item-text">Chưa có dữ liệu</div></div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">Hoạt động gần đây</h2></div>
+              <div class="card-body">
+                <div class="list-container">
+                  {% for act in activities %}
+                  <div class="list-item">
+                    <div class="list-item-content">
+                      <span class="status-indicator {{ act.type }}"></span>
+                      <div>
+                        <div class="list-item-text">{{ act.text }}</div>
+                        <div class="list-item-subtext">{{ act.sub }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="list-item"><div class="list-item-text">Chưa có hoạt động</div></div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">Xuất báo cáo</h2></div>
+            <div class="card-body">
+              <div class="report-grid">
+                {% for title in ['Doanh thu', 'Tranh chấp', 'Đặt phòng', 'Vận hành'] %}
+                <div class="report-item" onclick="triggerReportExport('{{ title }}')">
+                  <div class="report-item-info">
+                    <p>Báo cáo {{ title|lower }}</p>
+                    <span>PDF, Excel{% if title != 'Tranh chấp' %}, CSV{% endif %}</span>
+                  </div>
+                  <span class="download-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  </span>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </section>

@@ -1,15 +1,138 @@
 {% extends 'customer/base.html' %}
-{% block body_attrs %}data-page="review"{% endblock %}
+{% block body_attrs %}data-page="account"{% endblock %}
+{% block title %}Viết đánh giá — Rovva{% endblock %}
 
 {% block content %}
-<main class="page-content page-content--narrow"><div class="page-card">
-      <h1 class="page-header__title">Đánh giá <span id="review-target-name">...</span></h1>
-      <form id="review-form" class="mt-4">
-        <div class="mb-3"><label class="form-label">Số sao</label>
-          <select class="form-select" name="rating" required><option value="">Chọn</option><option value="5">5 sao</option><option value="4">4 sao</option><option value="3">3 sao</option><option value="2">2 sao</option><option value="1">1 sao</option></select>
-        </div>
-        <div class="mb-3"><label class="form-label">Nhận xét</label><textarea class="form-control" name="comment" rows="4" required placeholder="Chia sẻ trải nghiệm của bạn..."></textarea></div>
-        <button type="submit" class="btn btn-rova-primary"><i class="bi bi-send"></i> Gửi đánh giá</button>
-      </form>
-    </div></main>
+<main class="page-content">
+  <div class="account-layout">
+    {% include 'customer/includes/account/_sidebar.html' %}
+    <div class="account-main">
+      <div class="account-page-head">
+        <a href="{{ url_for('customer.account_reviews', tab='pending') }}" class="review-write-back">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i> Quay lại danh sách
+        </a>
+        <h1 class="account-page-title">Viết đánh giá</h1>
+        <p class="account-page-subtitle">Đánh giá của bạn sẽ hiển thị công khai trên trang chỗ ở sau khi gửi.</p>
+      </div>
+
+      <div class="review-write-layout">
+        <aside class="review-write-summary">
+          <div class="review-write-summary__media">
+            <img src="{{ acc.cover_url }}" alt="{{ acc.name }}">
+          </div>
+          <p class="review-write-summary__code">Mã đơn: <strong>#{{ booking.booking_code.lstrip('#') }}</strong></p>
+          <h2 class="review-write-summary__title">{{ acc.name }}</h2>
+          <p class="review-write-summary__meta">
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            {{ format_stay_range(booking.check_in, booking.check_out) }}
+          </p>
+          <p class="review-write-summary__room text-secondary">{{ booking.room.name }}</p>
+        </aside>
+
+        <form class="review-write-form account-content-box" method="post"
+              action="{{ url_for('customer.account_review_write', booking_id=booking.id) }}">
+          <h2 class="review-write-form__title">Trải nghiệm của bạn</h2>
+
+          <div class="review-write-form__group">
+            <label class="review-write-form__label">Đánh giá chung <span class="text-danger">*</span></label>
+            <p class="review-write-form__hint">Chọn số sao tổng thể cho chuyến đi này.</p>
+            <div class="star-picker" data-star-picker data-star-name="rating" data-star-required="true">
+              <input type="hidden" name="rating" value="">
+              <div class="star-picker__stars" role="radiogroup" aria-label="Đánh giá chung">
+                {% for i in range(1, 6) %}
+                <button type="button" class="star-picker__btn" data-value="{{ i }}" aria-label="{{ i }} sao">
+                  <i class="bi bi-star-fill"></i>
+                </button>
+                {% endfor %}
+              </div>
+              <p class="star-picker__label" data-star-label>Chưa chọn</p>
+            </div>
+          </div>
+
+          <div class="review-write-form__group">
+            <label class="review-write-form__label">Chi tiết theo tiêu chí</label>
+            <p class="review-write-form__hint">Tùy chọn — mặc định theo đánh giá chung nếu bạn không chọn riêng.</p>
+            <div class="review-write-form__details">
+              {% for label in sub_rating_labels %}
+              {% set key = sub_rating_keys[loop.index0] %}
+              <div class="review-write-form__detail-row">
+                <span>{{ label }}</span>
+                <div class="star-picker star-picker--sm" data-star-picker data-star-name="detail_{{ key }}">
+                  <input type="hidden" name="detail_{{ key }}" value="">
+                  <div class="star-picker__stars" role="radiogroup" aria-label="{{ label }}">
+                    {% for i in range(1, 6) %}
+                    <button type="button" class="star-picker__btn" data-value="{{ i }}" aria-label="{{ i }} sao">
+                      <i class="bi bi-star-fill"></i>
+                    </button>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="review-write-form__group">
+            <label class="review-write-form__label" for="review-content">Nhận xét <span class="text-danger">*</span></label>
+            <textarea id="review-content" class="review-write-form__textarea" name="content" rows="5" required
+                      minlength="10" maxlength="2000"
+                      placeholder="Chia sẻ điều bạn thích, điểm cần cải thiện, hoặc mẹo cho khách sắp tới..."></textarea>
+            <p class="review-write-form__hint">Tối thiểu 10 ký tự.</p>
+          </div>
+
+          <div class="review-write-form__actions">
+            <a href="{{ url_for('customer.account_reviews', tab='pending') }}" class="btn btn-rova-outline">Hủy</a>
+            <button type="submit" class="review-card__btn">
+              <i class="bi bi-send me-2" aria-hidden="true"></i>Gửi đánh giá
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-star-picker]').forEach((picker) => {
+    const hidden = picker.querySelector('input[type="hidden"]');
+    const buttons = [...picker.querySelectorAll('.star-picker__btn')];
+    const label = picker.querySelector('[data-star-label]');
+    const labels = { 1: 'Rất không hài lòng', 2: 'Không hài lòng', 3: 'Bình thường', 4: 'Hài lòng', 5: 'Rất hài lòng' };
+
+    const paint = (value) => {
+      buttons.forEach((btn) => {
+        btn.classList.toggle('is-active', Number(btn.dataset.value) <= value);
+      });
+      if (hidden) hidden.value = value || '';
+      if (label) label.textContent = value ? labels[value] : 'Chưa chọn';
+    };
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const value = Number(btn.dataset.value);
+        paint(hidden.value === String(value) ? 0 : value);
+        if (picker.dataset.starName === 'rating') {
+          document.querySelectorAll('[data-star-picker][data-star-name^="detail_"]').forEach((detailPicker) => {
+            const detailHidden = detailPicker.querySelector('input[type="hidden"]');
+            if (!detailHidden.value) {
+              detailPicker.querySelectorAll('.star-picker__btn').forEach((b) => {
+                b.classList.toggle('is-active', Number(b.dataset.value) <= value);
+              });
+              detailHidden.value = value;
+            }
+          });
+        }
+      });
+    });
+
+    picker.closest('form')?.addEventListener('submit', (event) => {
+      if (picker.dataset.starRequired === 'true' && !hidden.value) {
+        event.preventDefault();
+        picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+</script>
 {% endblock %}

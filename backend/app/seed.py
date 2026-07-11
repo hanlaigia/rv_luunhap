@@ -591,3 +591,71 @@ def patch_host_payment_demo():
     rows[0].amount = 4000000
     rows[1].amount = 3500000
     db.session.commit()
+
+
+def patch_review_schema():
+    """Thêm cột detail_ratings, images cho bảng reviews (DB cũ)."""
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(db.engine)
+    if "reviews" not in inspector.get_table_names():
+        return
+
+    columns = {col["name"] for col in inspector.get_columns("reviews")}
+    statements = []
+    if "detail_ratings" not in columns:
+        statements.append("ALTER TABLE reviews ADD COLUMN detail_ratings TEXT")
+    if "images" not in columns:
+        statements.append("ALTER TABLE reviews ADD COLUMN images TEXT")
+
+    for stmt in statements:
+        db.session.execute(text(stmt))
+    if statements:
+        db.session.commit()
+
+
+def patch_guest_review_demo():
+    """Gắn một đánh giá mẫu cho booking hoàn thành của khách demo (1@ss)."""
+    from datetime import datetime
+
+    from backend.app.models import Review
+
+    guest = User.query.filter_by(email="1@ss").first()
+    if not guest:
+        return
+
+    booking = (
+        Booking.query.filter_by(guest_id=guest.id, status=Booking.STATUS_COMPLETED)
+        .order_by(Booking.check_out.desc())
+        .first()
+    )
+    if not booking or not booking.booking_code:
+        return
+
+    if Review.query.filter_by(booking_code=booking.booking_code).first():
+        return
+
+    reviewed_at = datetime.combine(
+        booking.check_out,
+        datetime.strptime("14:00", "%H:%M").time(),
+    )
+    review = Review(
+        room_id=booking.room_id,
+        guest_name=guest.full_name,
+        booking_code=booking.booking_code,
+        rating=5,
+        detail_ratings={
+            "location": 5,
+            "service": 5,
+            "cleanliness": 5,
+            "amenities": 5,
+        },
+        content=(
+            "Trải nghiệm tuyệt vời tại đây. Phòng ốc cực kỳ sang trọng, view hồ bơi vô cực "
+            "ngắm hoàng hôn rất đẹp. Dịch vụ chu đáo, nhân viên nhiệt tình hỗ trợ. "
+            "Chắc chắn sẽ quay lại!"
+        ),
+        created_at=reviewed_at,
+    )
+    db.session.add(review)
+    db.session.commit()

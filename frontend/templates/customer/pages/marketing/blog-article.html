@@ -1,0 +1,47 @@
+{% extends 'customer/base.html' %}
+{% block title %}{{ post.title }} — Rovva Blog{% endblock %}
+{% block body_attrs %}data-page="support"{% endblock %}
+
+{% block content %}
+<main class="page-content blog-article-page">
+
+  <section class="blog-article-banner">
+    <img class="blog-article-banner__img"
+         src="{{ url_for('static', filename=post.cover_path) }}"
+         alt="{{ post.title }}">
+    <div class="blog-article-banner__overlay"></div>
+  </section>
+
+  <article class="container-xxl blog-article">
+    <a class="blog-article__back" href="{{ url_for('customer.blog') }}">
+      <i class="bi bi-arrow-left" aria-hidden="true"></i> Quay lại Tin tức &amp; Blog
+    </a>
+
+    <span class="blog-page-tag">{{ post.category }}</span>
+    <h1 class="blog-article__title">{{ post.title }}</h1>
+
+    <div class="blog-article__meta">
+      <span><i class="bi bi-person" aria-hidden="true"></i> {{ post.author }}</span>
+      <span><i class="bi bi-calendar3" aria-hidden="true"></i> {{ post.date_display }}</span>
+      <span><i class="bi bi-clock" aria-hidden="true"></i> {{ post.read_time }}</span>
+    </div>
+
+    <div class="blog-article__content">
+      {% for block in post.content %}
+        {% if block.type == 'h2' %}
+        <h2>{{ block.text }}</h2>
+        {% else %}
+        <p>{{ block.text }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="blog-article__cta">
+      <a class="blog-article__cta-btn" href="{{ url_for('customer.ai_chat') }}">
+        <i class="bi bi-robot" aria-hidden="true"></i> Trải nghiệm Trợ lý Rovva AI
+      </a>
+    </div>
+  </article>
+
+</main>
+{% endblock %}

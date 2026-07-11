@@ -42,9 +42,7 @@
                 <h6>Ưu đãi</h6>
                 <ul>
                     <li><a href="{{ url_for('customer.show_page', page_path='pages/marketing/promotions.html') }}">Đặc quyền &amp; Khuyến mãi</a></li>
-                    {% if current_user.is_authenticated and current_user.role != 'guest' %}
                     <li><a href="{{ url_for('customer.show_page', page_path='pages/marketing/reward-points.html') }}">Chương trình Xu thưởng</a></li>
-                    {% endif %}
                 </ul>
             </div>
             
@@ -74,7 +72,7 @@
                 <h6>Về chúng tôi</h6>
                 <ul>
                     <li><a href="{{ url_for('customer.show_page', page_path='pages/marketing/introduction.html') }}">Giới thiệu Rovva</a></li>
-                    <li><a href="{{ url_for('customer.show_page', page_path='pages/marketing/news.html') }}">Tin tức và Blog</a></li>
+                    <li><a href="{{ url_for('customer.blog') }}">Tin tức và Blog</a></li>
                 </ul>
             </div>
             

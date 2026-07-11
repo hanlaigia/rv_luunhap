@@ -62,7 +62,7 @@ def index():
 
 @customer_bp.route("/accommodation/<int:id>")
 def accommodation_detail(id):
-    from backend.app.models import Accommodation, Review, Room
+    from backend.app.models import Accommodation, Favorite, Review, Room
 
     acc = Accommodation.query.get_or_404(id)
     reviews = (
@@ -72,9 +72,54 @@ def accommodation_detail(id):
         .limit(6)
         .all()
     )
+    is_favorited = False
+    if current_user.is_authenticated:
+        is_favorited = (
+            Favorite.query.filter_by(
+                user_id=current_user.id, accommodation_id=acc.id
+            ).first()
+            is not None
+        )
     return render_template(
-        "customer/pages/accommodation/detail.html", acc=acc, reviews=reviews
+        "customer/pages/accommodation/detail.html",
+        acc=acc,
+        reviews=reviews,
+        is_favorited=is_favorited,
     )
+
+
+@customer_bp.route("/favorites/toggle", methods=["POST"])
+def toggle_favorite():
+    from backend.app.models import Accommodation, Favorite
+    from backend.app.extensions import db
+
+    if not current_user.is_authenticated:
+        return {"error": "login_required"}, 401
+
+    payload = request.get_json(silent=True) or {}
+    acc_id = payload.get("accommodation_id") or request.form.get(
+        "accommodation_id", type=int
+    )
+    if not acc_id:
+        return {"error": "Thiếu accommodation_id"}, 400
+
+    Accommodation.query.get_or_404(acc_id)
+
+    existing = Favorite.query.filter_by(
+        user_id=current_user.id, accommodation_id=acc_id
+    ).first()
+
+    if existing:
+        db.session.delete(existing)
+        saved = False
+    else:
+        db.session.add(
+            Favorite(user_id=current_user.id, accommodation_id=acc_id)
+        )
+        saved = True
+
+    db.session.commit()
+    return {"saved": saved, "accommodation_id": acc_id}
 
 @customer_bp.route("/become-host", methods=["GET", "POST"])
 @login_required
@@ -352,15 +397,103 @@ def account_favorites():
 @customer_bp.route("/account/reviews")
 @login_required
 def account_reviews():
-    from backend.app.models import Booking
+    from backend.app.models import Booking, Review
 
-    completed = (
+    tab = request.args.get("tab", "pending")
+    if tab not in ("reviewed", "pending"):
+        tab = "pending"
+
+    completed_bookings = (
         Booking.query.filter_by(guest_id=current_user.id, status=Booking.STATUS_COMPLETED)
         .order_by(Booking.check_out.desc())
         .all()
     )
+
+    codes = [b.booking_code for b in completed_bookings if b.booking_code]
+    reviews_by_code = {}
+    if codes:
+        for review in Review.query.filter(Review.booking_code.in_(codes)).all():
+            reviews_by_code[review.booking_code] = review
+
+    reviewed = []
+    pending = []
+    for booking in completed_bookings:
+        review = reviews_by_code.get(booking.booking_code)
+        if review:
+            reviewed.append({"booking": booking, "review": review})
+        else:
+            pending.append(booking)
+
     return render_template(
-        "customer/pages/account/reviews-pending.html", completed=completed
+        "customer/pages/account/reviews-pending.html",
+        tab=tab,
+        reviewed=reviewed,
+        pending=pending,
+        counts={"reviewed": len(reviewed), "pending": len(pending)},
+    )
+
+
+def _booking_for_review(booking_id):
+    from backend.app.models import Booking
+
+    booking = Booking.query.get_or_404(booking_id)
+    if booking.guest_id != current_user.id:
+        abort(403)
+    if booking.status != Booking.STATUS_COMPLETED:
+        abort(404)
+    return booking
+
+
+@customer_bp.route("/account/reviews/write/<int:booking_id>", methods=["GET", "POST"])
+@login_required
+def account_review_write(booking_id):
+    from backend.app.models import Review
+
+    booking = _booking_for_review(booking_id)
+    existing = Review.query.filter_by(booking_code=booking.booking_code).first()
+    if existing:
+        flash("Đơn đặt này đã được đánh giá.", "info")
+        return redirect(url_for("customer.account_reviews", tab="reviewed"))
+
+    acc = booking.room.accommodation
+
+    if request.method == "POST":
+        rating = request.form.get("rating", type=int)
+        content = (request.form.get("content") or "").strip()
+        detail_ratings = {}
+        for key in Review.DETAIL_KEYS:
+            value = request.form.get(f"detail_{key}", type=int)
+            if value is not None:
+                detail_ratings[key] = max(1, min(5, value))
+
+        if not rating or rating < 1 or rating > 5:
+            flash("Vui lòng chọn số sao tổng thể.", "error")
+        elif len(content) < 10:
+            flash("Nhận xét cần ít nhất 10 ký tự.", "error")
+        else:
+            if not detail_ratings:
+                detail_ratings = {key: rating for key in Review.DETAIL_KEYS}
+
+            from backend.app.extensions import db
+
+            review = Review(
+                room_id=booking.room_id,
+                guest_name=current_user.full_name,
+                guest_avatar=current_user.avatar,
+                booking_code=booking.booking_code,
+                rating=rating,
+                detail_ratings=detail_ratings,
+                content=content,
+            )
+            db.session.add(review)
+            db.session.commit()
+            flash("Cảm ơn bạn! Đánh giá đã được gửi thành công.", "success")
+            return redirect(url_for("customer.account_reviews", tab="reviewed"))
+
+    return render_template(
+        "customer/pages/review/write.html",
+        booking=booking,
+        acc=acc,
     )
 
 
@@ -393,6 +526,7 @@ _SSR_REDIRECTS = {
     "pages/account/tier.html": "customer.account_tier",
     "pages/account/reviews-pending.html": "customer.account_reviews",
     "pages/account/reviews-completed.html": "customer.account_reviews",
+    "pages/review/write.html": "customer.account_reviews",
     "pages/trip/upcoming.html": "customer.trips",
 }
 
@@ -402,6 +536,34 @@ def ai_chat():
     if current_user.is_authenticated and current_user.role in ("customer", "guest"):
         return render_template("customer/pages/chat/member.html")
     return render_template("customer/pages/chat/guest.html")
+
+
+@customer_bp.route("/blog")
+def blog():
+    from backend.app.data.blog_posts import (
+        get_featured_main,
+        get_grid_posts,
+        get_popular_posts,
+        get_side_featured,
+    )
+
+    return render_template(
+        "customer/pages/marketing/news.html",
+        featured_main=get_featured_main(),
+        side_featured=get_side_featured(),
+        grid_posts=get_grid_posts(),
+        popular_posts=get_popular_posts(),
+    )
+
+
+@customer_bp.route("/blog/<slug>")
+def blog_article(slug):
+    from backend.app.data.blog_posts import get_post_by_slug
+
+    post = get_post_by_slug(slug)
+    if not post:
+        abort(404)
+    return render_template("customer/pages/marketing/blog-article.html", post=post)
 
 
 @customer_bp.route("/<path:page_path>")
@@ -416,6 +578,11 @@ def show_page(page_path):
         return redirect(url_for(_SSR_REDIRECTS[page_path]))
     if page_path.startswith(_SSR_ONLY_PREFIXES):
         return redirect(url_for("customer.account_profile"))
+
+    if page_path == "pages/marketing/news.html":
+        return redirect(url_for("customer.blog"))
+    if page_path == "pages/marketing/blog-article.html":
+        return redirect(url_for("customer.blog"))
 
     try:
         return render_template(f"customer/{page_path}")

@@ -1,0 +1,97 @@
+        <section class="view-container{% if active_view == 'hosts' %} active{% endif %}" id="view-hosts">
+          <div class="page-title-area">
+            <h1 class="page-title">Quản lý đơn vị lưu trú</h1>
+            <p class="page-subtitle">Quản lý đơn đăng ký và duyệt các chủ nhà</p>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="table-filter-bar">
+                <div class="search-box-wrapper" style="flex: 1; min-width: 250px;">
+                  <span class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  </span>
+                  <input type="text" class="search-input" data-search-for="hosts-table" placeholder="Tìm kiếm đơn vị lưu trú..." onkeyup="filterTable('hosts-table', this.value)">
+                </div>
+                <div class="filter-group">
+                  <select class="filter-select" data-filter-for="hosts-table" data-filter-attr="data-filter-status">
+                    <option value="">Trạng thái (Tất cả)</option>
+                    <option value="active">Đã duyệt</option>
+                    <option value="pending">Chờ duyệt</option>
+                    <option value="rejected">Đã từ chối</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table" id="hosts-table">
+                  <thead>
+                    <tr>
+                      <th>Tên khách sạn</th><th>Chủ sở hữu</th><th>Phòng</th><th>Doanh thu</th><th>Đánh giá</th><th>Trạng thái</th><th>Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for acc in accommodations %}
+                    {% set st = acc_stats.get(acc.id, {}) %}
+                    <tr data-id="h{{ acc.id }}" data-filter-status="{{ acc.status }}">
+                      <td class="cell-bold flex-align-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><path d="M9 22V12h6v10"></path></svg>
+                        {{ acc.name }}
+                      </td>
+                      <td>{{ acc.host.full_name if acc.host else '—' }}</td>
+                      <td class="cell-bold">{{ acc.total_rooms }}</td>
+                      <td class="cell-highlight">{{ fmt_m(st.get('revenue', 0)) }}</td>
+                      <td class="cell-bold">{% if st.get('rating') %}{{ st.rating }} ⭐{% else %}—{% endif %}</td>
+                      <td>
+                        {% if acc.status == 'active' %}
+                        <span class="badge badge-success">Duyệt</span>
+                        {% elif acc.status == 'pending' %}
+                        <span class="badge badge-warning">Chờ duyệt</span>
+                        {% elif acc.status == 'rejected' %}
+                        <span class="badge badge-danger">Từ chối</span>
+                        {% else %}
+                        <span class="badge badge-info">{{ acc.status_label }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="flex-align-center">
+                          <button class="btn-icon" title="Chi tiết" onclick="viewDetails('host', 'h{{ acc.id }}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                          </button>
+                          {% if acc.status == 'pending' %}
+                          <form class="inline-form" method="post" action="{{ url_for('admin.approve_accommodation', acc_id=acc.id) }}">
+                            <button class="btn btn-secondary btn-icon" title="Duyệt" type="submit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><circle cx="12" cy="12" r="10"></circle><polyline points="12 8 8 12 12 16"></polyline><line x1="16" y1="12" x2="8" y2="12"></line></svg>
+                            </button>
+                          </form>
+                          <form class="inline-form" method="post" action="{{ url_for('admin.reject_accommodation', acc_id=acc.id) }}">
+                            <button class="btn btn-secondary btn-icon" title="Từ chối" type="submit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-danger"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            </button>
+                          </form>
+                          {% elif acc.status == 'active' %}
+                          <form class="inline-form" method="post" action="{{ url_for('admin.reject_accommodation', acc_id=acc.id) }}">
+                            <button class="btn btn-secondary btn-icon" title="Từ chối" type="submit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-danger"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            </button>
+                          </form>
+                          {% elif acc.status == 'rejected' %}
+                          <form class="inline-form" method="post" action="{{ url_for('admin.approve_accommodation', acc_id=acc.id) }}">
+                            <button class="btn btn-secondary btn-icon" title="Duyệt lại" type="submit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><circle cx="12" cy="12" r="10"></circle><polyline points="12 8 8 12 12 16"></polyline><line x1="16" y1="12" x2="8" y2="12"></line></svg>
+                            </button>
+                          </form>
+                          {% endif %}
+                        </div>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7">Chưa có đơn vị lưu trú</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination-area">
+                <p class="pagination-info">Hiển thị {{ accommodations|length }} cơ sở lưu trú</p>
+              </div>
+            </div>
+          </div>
+        </section>

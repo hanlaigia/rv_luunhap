@@ -1,0 +1,42 @@
+{% if request.endpoint and request.endpoint.startswith('customer.') and request.endpoint != 'customer.ai_chat' %}
+<div class="rova-ai-widget" id="rova-ai-widget" data-chat-url="{{ url_for('customer.ai_chat') }}" data-api-url="{{ url_for('customer_booking.ai_chat_api') }}">
+  <div class="rova-ai-panel" id="rova-ai-panel" hidden>
+    <header class="rova-ai-panel__head">
+      <span class="rova-ai-panel__title">Trợ lý Rovva AI</span>
+      <div class="rova-ai-panel__actions">
+        <a class="rova-ai-panel__btn" href="{{ url_for('customer.ai_chat') }}" title="Toàn màn hình" aria-label="Mở toàn màn hình">
+          <i class="bi bi-arrows-fullscreen"></i>
+        </a>
+        <button type="button" class="rova-ai-panel__btn" id="rova-ai-panel-close" title="Đóng" aria-label="Đóng">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="rova-ai-panel__body" id="rova-ai-panel-messages">
+      <div class="rova-ai-panel__welcome" id="rova-ai-panel-welcome">
+        <div class="rova-ai-panel__bubble">👋 Chào bạn! Chào mừng đến với Rovva.</div>
+        <div class="rova-ai-panel__bubble">
+          Tôi là Trợ lý AI thông minh. Tôi có thể giúp bạn thiết kế lịch trình, tìm phòng giá tốt
+          hoặc hỗ trợ các vấn đề của Đối tác (Host). Bạn đang quan tâm đến điều gì?
+        </div>
+        <div class="rova-ai-panel__chips">
+          <button type="button" class="rova-ai-panel__chip ai-bubble-prompt" data-prompt="Gợi ý lịch trình du lịch 3 ngày 2 đêm">🗺️ Lên lịch trình du lịch</button>
+          <button type="button" class="rova-ai-panel__chip ai-bubble-prompt" data-prompt="Tìm phòng đang khuyến mãi trên Rovva">🏷️ Tìm phòng đang khuyến mãi</button>
+          <button type="button" class="rova-ai-panel__chip ai-bubble-prompt" data-prompt="Hướng dẫn thanh toán và hủy đặt phòng">💳 Hỗ trợ thanh toán/Hủy phòng</button>
+          <button type="button" class="rova-ai-panel__chip ai-bubble-prompt" data-prompt="Tôi là Host, cần trợ giúp quản lý phòng">🤝 Trợ giúp cho Host (Chủ nhà)</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="rova-ai-panel__foot" id="rova-ai-panel-form">
+      <input type="text" placeholder="Nhập câu hỏi của bạn vào đây..." aria-label="Nhập câu hỏi" required autocomplete="off">
+      <button type="submit" class="rova-ai-panel__send" aria-label="Gửi"><i class="bi bi-send-fill"></i></button>
+    </form>
+  </div>
+
+  <button type="button" class="rova-ai-fab" id="rova-ai-fab" aria-label="Trợ lý Rovva AI" title="Trợ lý Rovva AI">
+    <i class="bi bi-robot"></i>
+  </button>
+</div>
+{% endif %}

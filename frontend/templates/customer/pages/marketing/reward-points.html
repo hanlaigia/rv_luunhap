@@ -4,50 +4,44 @@
 {% block content %}
 <main class="page-content">
 
-    <section class="reward-promo-banner" style="--reward-promo-image: url('{{ url_for('static', filename='customer/images/accommodations/5/cover.jpg') }}')">
-      <div class="container-xxl reward-promo-banner__inner">
-        <p class="reward-promo-banner__eyebrow">Chương trình thành viên</p>
-        <h1 class="reward-promo-banner__title">XU THƯỞNG HẤP DẪN</h1>
-        <p class="reward-promo-banner__subtitle">Tích lũy Xu ngay — Giảm giá đặt phòng</p>
-        <a class="btn btn-reward-cta btn-lg" href="{{ url_for('auth.register') }}">Tham gia ngay</a>
-      </div>
-    </section>
-
-    <section class="reward-hero">
-      <div class="container-xxl">
-        <span class="reward-hero__rate"><i class="bi bi-coin"></i> Tỷ lệ quy đổi: 1 xu = 1.000 VNĐ</span>
-        <h1 class="reward-hero__title">Giá trị của Xu thưởng</h1>
-        <p class="reward-hero__desc">Khi trở thành Thành viên bạn có thể tích lũy và sử dụng Xu để khấu trừ trực tiếp vào hóa đơn khi đặt phòng trên Rovva. Mức Xu tối đa được phép sử dụng trong mỗi lần đặt phụ thuộc vào cấp hạng thành viên hiện tại của bạn.</p>
-      </div>
+    <section class="reward-page-banner">
+      <img class="reward-page-banner__img"
+           src="{{ url_for('static', filename='customer/images/banners/P_Xu_thuong.jpg') }}"
+           alt="Chương trình Xu thưởng">
     </section>
 
     <div class="container-xxl pb-5">
 
-      <section class="reward-banner-box">
-        <img src="{{ url_for('static', filename='customer/images/accommodations/5/cover.jpg') }}" alt="Chương trình Xu thưởng Rovva">
+      <section class="reward-value-panel">
+        <article class="reward-value-card">
+          <h2 class="reward-value-card__heading">Giá trị của Xu thưởng</h2>
+          <p class="reward-value-card__label">Tỷ lệ quy đổi</p>
+          <p class="reward-value-card__rate">1 xu = 1.000 VNĐ</p>
+          <p class="reward-value-card__desc">Khi trở thành Thành viên bạn có thể tích lũy và sử dụng Xu để khấu trừ trực tiếp vào hóa đơn khi đặt phòng trên Rovva. Mức Xu tối đa được phép sử dụng trong mỗi lần đặt phụ thuộc vào cấp hạng thành viên hiện tại của bạn.</p>
+        </article>
       </section>
 
       <section class="mb-5">
-        <h2 class="promo-section-title text-center">3 cách đơn giản để làm đầy Ví xu</h2>
-        <p class="text-center text-muted mb-4">Khám phá cách thức tích lũy thông minh cho mọi hành trình.</p>
+        <h2 class="promo-section-title text-center reward-section-title">3 cách đơn giản để làm đầy Ví xu</h2>
+        <p class="text-center reward-section-subtitle mb-4">Khám phá cách thức tích lũy thông minh cho mọi hành trình</p>
         <div class="row g-4">
           <div class="col-md-4">
-            <article class="reward-card">
-              <div class="reward-card__icon"><i class="bi bi-house-check"></i></div>
+            <article class="reward-card reward-card--booking">
+              <div class="reward-card__icon reward-card__icon--blue"><i class="bi bi-house-check"></i></div>
               <h3 class="reward-card__title">Đặt phòng</h3>
               <p class="reward-card__text">Nhận ngay một tỷ lệ Xu thưởng tương ứng với Hạng thành viên của bạn sau khi hoàn tất trả phòng. Đặt phòng giá trị càng cao, Xu hoàn về càng lớn.</p>
             </article>
           </div>
           <div class="col-md-4">
-            <article class="reward-card">
-              <div class="reward-card__icon"><i class="bi bi-star"></i></div>
+            <article class="reward-card reward-card--review">
+              <div class="reward-card__icon reward-card__icon--amber"><i class="bi bi-star"></i></div>
               <h3 class="reward-card__title">Viết đánh giá chân thực</h3>
               <p class="reward-card__text">Giúp đỡ cộng đồng du lịch bằng cách để lại đánh giá chi tiết kèm hình ảnh/video sau mỗi chuyến đi. Rovva sẽ tặng ngay Xu thưởng vào tài khoản của bạn như một lời cảm ơn.</p>
             </article>
           </div>
           <div class="col-md-4">
-            <article class="reward-card">
-              <div class="reward-card__icon"><i class="bi bi-gift"></i></div>
+            <article class="reward-card reward-card--event">
+              <div class="reward-card__icon reward-card__icon--rose"><i class="bi bi-gift"></i></div>
               <h3 class="reward-card__title">Sự kiện &amp; quà tặng</h3>
               <p class="reward-card__text">Thường xuyên đăng nhập và theo dõi các chương trình flash sale, ưu đãi ngày lễ, hoặc nhận Xu thưởng bất ngờ vào dịp sinh nhật của chính bạn.</p>
             </article>
@@ -56,31 +50,34 @@
       </section>
 
       <section class="mb-5">
-        <h2 class="promo-section-title text-center">Một vài lưu ý</h2>
-        <div class="row g-4">
-          <div class="col-md-4">
-            <div class="tier-rule">
-              <h3 class="tier-rule__title"><i class="bi bi-x-circle text-warning"></i> Không thể chuyển nhượng</h3>
-              <p class="tier-rule__text">Xu thưởng chỉ có giá trị sử dụng trên tài khoản của bạn và không thể chuyển hoặc tặng cho tài khoản khác.</p>
+        <h2 class="promo-section-title text-center reward-section-title">Một vài lưu ý</h2>
+        <div class="reward-notes">
+          <article class="reward-note">
+            <span class="reward-note__icon"><i class="bi bi-lock"></i></span>
+            <div class="reward-note__body">
+              <h3 class="reward-note__title">Không thể chuyển nhượng</h3>
+              <p class="reward-note__text">Xu thưởng chỉ có giá trị sử dụng trên tài khoản của bạn và không thể chuyển hoặc tặng cho tài khoản khác.</p>
             </div>
-          </div>
-          <div class="col-md-4">
-            <div class="tier-rule">
-              <h3 class="tier-rule__title"><i class="bi bi-infinity text-success"></i> Không giới hạn thời hạn</h3>
-              <p class="tier-rule__text">Xu thưởng tích lũy không có hạn sử dụng. Bạn có thể thoải mái lưu trữ trong tài khoản và sử dụng cho bất kỳ chuyến đi nào trong tương lai.</p>
+          </article>
+          <article class="reward-note">
+            <span class="reward-note__icon"><i class="bi bi-infinity"></i></span>
+            <div class="reward-note__body">
+              <h3 class="reward-note__title">Không giới hạn thời hạn sử dụng</h3>
+              <p class="reward-note__text">Xu thưởng tích lũy không có hạn sử dụng. Bạn có thể thoải mái lưu trữ trong tài khoản và sử dụng cho bất kỳ chuyến đi nào trong tương lai.</p>
             </div>
-          </div>
-          <div class="col-md-4">
-            <div class="tier-rule">
-              <h3 class="tier-rule__title"><i class="bi bi-cash-stack text-danger"></i> Không quy đổi tiền mặt</h3>
-              <p class="tier-rule__text">Xu thưởng được dùng để khấu trừ trực tiếp khi đặt phòng trên Rovva, không có giá trị rút thành tiền mặt.</p>
+          </article>
+          <article class="reward-note">
+            <span class="reward-note__icon"><i class="bi bi-cash-stack"></i></span>
+            <div class="reward-note__body">
+              <h3 class="reward-note__title">Không quy đổi thành tiền mặt</h3>
+              <p class="reward-note__text">Xu thưởng được dùng để khấu trừ trực tiếp khi đặt phòng trên Rovva, không có giá trị rút thành tiền mặt.</p>
             </div>
-          </div>
+          </article>
         </div>
       </section>
 
       <section>
-        <h2 class="promo-section-title text-center">Câu hỏi thường gặp (FAQ)</h2>
+        <h2 class="promo-section-title text-center reward-section-title">Câu hỏi thường gặp (FAQ)</h2>
 
         <div class="reward-faq">
           <div class="faq-group">
@@ -132,7 +129,7 @@
       </section>
 
       {% if not current_user.is_authenticated %}
-      <p class="text-center mt-4 mb-0">
+      <p class="reward-page-register text-center mt-4 mb-0">
         Bạn vẫn chưa là thành viên của Rovva?
         <a href="{{ url_for('auth.register') }}">Đăng ký ngay</a>
       </p>

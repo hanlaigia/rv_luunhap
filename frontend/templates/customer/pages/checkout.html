@@ -21,7 +21,7 @@
       <span class="small mb-0">Giữ chỗ trong 15 phút. Vui lòng hoàn tất thanh toán để xác nhận đặt phòng.</span>
     </div>
 
-    <form method="POST" action="{{ url_for('customer_booking.checkout', booking_code=booking.booking_code) }}"
+    <form method="POST" action="{{ url_for('customer_booking.checkout', booking_code=booking.booking_code.lstrip('#')) }}"
           id="checkout-form">
       <div class="row g-4">
         <!-- LEFT: info + services + payment method -->
@@ -29,18 +29,34 @@
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
               <h2 class="h5 fw-bold mb-3">Thông tin khách hàng</h2>
+              {% if is_guest_checkout %}
+              <p class="text-secondary small mb-3">
+                <i class="bi bi-person"></i> Bạn đang đặt phòng với tư cách <strong>khách vãng lai</strong>.
+                Vui lòng nhập thông tin liên hệ bên dưới.
+              </p>
+              {% else %}
+              <p class="text-secondary small mb-3">
+                <i class="bi bi-check-circle text-success"></i> Thông tin được điền tự động từ tài khoản của bạn. Bạn có thể chỉnh sửa nếu cần.
+              </p>
+              {% endif %}
               <div class="row g-3">
                 <div class="col-12">
-                  <label class="form-label small fw-semibold">Họ và tên</label>
-                  <input type="text" class="form-control" name="guest_name" value="{{ booking.guest_name }}" required>
+                  <label class="form-label small fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="guest_name"
+                         value="{{ '' if is_guest_checkout else booking.guest_name }}"
+                         placeholder="Nhập họ và tên" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Email</label>
-                  <input type="email" class="form-control" name="guest_email" value="{{ booking.guest_email or '' }}">
+                  <label class="form-label small fw-semibold">Email <span class="text-danger">*</span></label>
+                  <input type="email" class="form-control" name="guest_email"
+                         value="{{ '' if is_guest_checkout else (booking.guest_email or '') }}"
+                         placeholder="example@gmail.com" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Số điện thoại</label>
-                  <input type="tel" class="form-control" name="guest_phone" value="{{ booking.guest_phone or '' }}">
+                  <label class="form-label small fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
+                  <input type="tel" class="form-control" name="guest_phone"
+                         value="{{ '' if is_guest_checkout else (booking.guest_phone or '') }}"
+                         placeholder="09xx xxx xxx" required>
                 </div>
                 <div class="col-12">
                   <label class="form-label small fw-semibold">Ghi chú cho chủ nhà (tuỳ chọn)</label>
@@ -115,6 +131,7 @@
                 <div class="form-text" id="promo-msg">{{ pricing.promo_label or '' }}</div>
               </div>
 
+              {% if current_user.is_authenticated %}
               <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" name="use_xu" id="use-xu" value="1"
                        {{ 'checked' if pricing.use_xu else '' }}>
@@ -122,6 +139,7 @@
                   Đổi 50 xu để giảm <strong>50.000đ</strong>
                 </label>
               </div>
+              {% endif %}
 
               <hr>
               <h4 class="h6 fw-bold mb-2">Chi tiết giá</h4>
@@ -191,7 +209,7 @@
         msg = 'Mã không hợp lệ';
       }
 
-      var xuDiscount = document.getElementById('use-xu').checked ? XU : 0;
+      var xuDiscount = document.getElementById('use-xu') && document.getElementById('use-xu').checked ? XU : 0;
       var total = Math.max(0, roomSubtotal + servicesTotal - promoDiscount - xuDiscount);
 
       document.getElementById('row-services').textContent = fmt(servicesTotal);
