@@ -1,0 +1,8 @@
+<nav class="host-support-tabs" aria-label="Loại hướng dẫn">
+  <a class="host-support-tabs__item{% if active == 'accommodation' %} is-active{% endif %}"
+     href="{{ url_for('support.accommodation_guide') }}"
+     {% if active == 'accommodation' %}aria-current="page"{% endif %}>Đăng cơ sở lưu trú mới</a>
+  <a class="host-support-tabs__item{% if active == 'room' %} is-active{% endif %}"
+     href="{{ url_for('support.room_guide') }}"
+     {% if active == 'room' %}aria-current="page"{% endif %}>Đăng phòng mới cho CSLT đã có</a>
+</nav>

@@ -1,0 +1,131 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Câu hỏi thường gặp — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="faq">
+  <section class="host-support-hero">
+    <div class="host-support-hero__blobs" aria-hidden="true"></div>
+    <div class="host-support-hero__inner">
+      <aside class="host-support-toc">
+        <h2 class="host-support-toc__title">Nội dung chính</h2>
+        <ul class="host-support-toc__list">
+          <li><a class="host-support-toc__link" href="#faq-account">Tài khoản &amp; Xác minh</a></li>
+          <li><a class="host-support-toc__link" href="#faq-listing">Đăng phòng &amp; Quản lý</a></li>
+          <li><a class="host-support-toc__link" href="#faq-booking">Booking</a></li>
+          <li><a class="host-support-toc__link" href="#faq-payment">Thanh toán</a></li>
+          <li><a class="host-support-toc__link" href="#faq-dispute">Tranh chấp</a></li>
+        </ul>
+      </aside>
+      <div class="host-support-hero__center">
+        <h1 class="host-support-hero__title">Câu hỏi thường gặp</h1>
+        <p class="host-support-hero__subtitle">Tìm kiếm câu trả lời nhanh chóng cho mọi thắc mắc của bạn về việc vận hành và quản lý trên Rovva.</p>
+        <div class="host-support-search">
+          <i class="bi bi-search host-support-search__icon" aria-hidden="true"></i>
+          <input type="search" class="host-support-search__input" id="host-faq-search" placeholder="Nhập từ khóa để tìm câu hỏi…" autocomplete="off" aria-label="Tìm câu hỏi">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner" id="host-faq-sections">
+      <section class="host-support-section" id="faq-account" data-faq-section>
+        <header class="host-support-section__head">
+          <i class="bi bi-person-check" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Tài khoản &amp; Xác minh</h2>
+        </header>
+        <div class="host-support-faq-list">
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Tôi có cần đăng ký Host để đăng phòng không?</h3>
+            <p class="host-support-faq-item__a">Có. Chỉ tài khoản đã được Admin phê duyệt quyền Host mới được phép đăng phòng và quản lý phòng trên hệ thống.</p>
+          </article>
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Mất bao lâu để được phê duyệt Host?</h3>
+            <p class="host-support-faq-item__a">Thời gian xét duyệt thông thường: 1-3 ngày làm việc cho hồ sơ đầy đủ; hồ sơ thiếu sẽ được thông báo yêu cầu bổ sung.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="faq-listing" data-faq-section>
+        <header class="host-support-section__head">
+          <i class="bi bi-building" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Đăng phòng &amp; Quản lý</h2>
+        </header>
+        <div class="host-support-faq-list">
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Vì sao phòng của tôi chưa hiển thị trên kết quả tìm kiếm?</h3>
+            <p class="host-support-faq-item__a">Nguyên nhân: Chờ phê duyệt, tạm ngừng hoạt động, không có lịch trống, hoặc vi phạm chính sách.</p>
+          </article>
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Tôi có thể chỉnh sửa thông tin phòng sau khi đã đăng không?</h3>
+            <p class="host-support-faq-item__a">Có. Có thể cập nhật mô tả, giá, tiện ích, hình ảnh và trạng thái.</p>
+          </article>
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Tôi có được xóa phòng đã có booking không?</h3>
+            <p class="host-support-faq-item__a">Không. Chỉ có thể tạm ngừng hoạt động hoặc ẩn phòng để đảm bảo tính toàn vẹn dữ liệu.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="faq-booking" data-faq-section>
+        <header class="host-support-section__head">
+          <i class="bi bi-calendar-check" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Booking</h2>
+        </header>
+        <div class="host-support-faq-list">
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Tôi có bắt buộc phải xác nhận booking không?</h3>
+            <p class="host-support-faq-item__a">Có. Cần xác nhận/từ chối trong thời hạn quy định để tránh hệ thống tự động xử lý.</p>
+          </article>
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Tôi có thể từ chối booking không?</h3>
+            <p class="host-support-faq-item__a">Có, nhưng từ chối thường xuyên ảnh hưởng đến thứ hạng hiển thị.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="faq-payment" data-faq-section>
+        <header class="host-support-section__head">
+          <i class="bi bi-credit-card" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Thanh toán</h2>
+        </header>
+        <div class="host-support-faq-list">
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Tôi nhận tiền từ booking vào thời điểm nào?</h3>
+            <p class="host-support-faq-item__a">Sau khi khách hoàn tất lưu trú, đối soát, khấu trừ hoa hồng và chuyển khoản.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="faq-dispute" data-faq-section>
+        <header class="host-support-section__head">
+          <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Tranh chấp</h2>
+        </header>
+        <div class="host-support-faq-list">
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Khi nào tôi cần mở tranh chấp?</h3>
+            <p class="host-support-faq-item__a">Khi phát sinh mâu thuẫn về chất lượng, hoàn tiền mà hai bên không tự giải quyết được.</p>
+          </article>
+          <article class="host-support-faq-item" data-faq-item>
+            <h3 class="host-support-faq-item__q">Ai là người giải quyết tranh chấp?</h3>
+            <p class="host-support-faq-item__a">Admin hệ thống là bên trung gian đưa ra quyết định cuối cùng.</p>
+          </article>
+        </div>
+      </section>
+
+      <p class="host-support-empty" id="host-faq-empty">Không tìm thấy câu hỏi phù hợp. Hãy thử từ khóa khác hoặc hỏi trợ lý AI.</p>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='host/js/host-support.js') }}"></script>
+{% endblock %}

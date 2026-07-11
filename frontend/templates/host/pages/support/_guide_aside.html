@@ -1,0 +1,16 @@
+<aside class="host-support-aside">
+  <div class="host-support-help-card">
+    <div class="host-support-help-card__icon" aria-hidden="true">
+      <i class="bi bi-question-circle-fill"></i>
+    </div>
+    <h2 class="host-support-help-card__title">{{ help_title }}</h2>
+    <p class="host-support-help-card__text">{{ help_text }}</p>
+    <div class="pt-3">
+      <button type="button" class="btn host-support-btn" data-open-host-ai>Hỏi trợ lý AI</button>
+    </div>
+  </div>
+  <div class="host-support-tip-card">
+    <h2 class="host-support-tip-card__title">Mẹo nhỏ</h2>
+    <p class="host-support-tip-card__text">{{ tip_text | default('Cơ sở lưu trú có đầy đủ thông tin pháp lý thường được duyệt nhanh hơn và nhận được sự tin tưởng cao hơn từ khách hàng.') }}</p>
+  </div>
+</aside>

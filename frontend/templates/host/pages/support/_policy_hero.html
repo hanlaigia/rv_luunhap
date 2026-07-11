@@ -1,0 +1,27 @@
+<section class="host-support-hero">
+  <div class="host-support-hero__blobs" aria-hidden="true"></div>
+  <div class="host-support-hero__inner">
+    {% if toc_items %}
+    <aside class="host-support-toc">
+      <h2 class="host-support-toc__title">Nội dung chính</h2>
+      <ul class="host-support-toc__list">
+        {% for item in toc_items %}
+        <li><a class="host-support-toc__link" href="#{{ item.id }}">{{ item.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </aside>
+    {% endif %}
+    <div class="host-support-hero__center">
+      <h1 class="host-support-hero__title">{{ title }}</h1>
+      {% if subtitle %}
+      <p class="host-support-hero__subtitle">{{ subtitle }}</p>
+      {% endif %}
+      {% if show_search %}
+      <div class="host-support-search">
+        <i class="bi bi-search host-support-search__icon" aria-hidden="true"></i>
+        <input type="search" class="host-support-search__input host-policy-search" id="host-policy-search" placeholder="Nhập từ khóa để tìm câu hỏi…" autocomplete="off" aria-label="Tìm nội dung">
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

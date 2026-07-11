@@ -1,0 +1,83 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Gợi ý giá thông minh — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='host/js/host-support.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="policy">
+  {% set title = 'Gợi ý giá thông minh' %}
+  {% set subtitle = 'Tìm kiếm câu trả lời nhanh chóng cho mọi thắc mắc của bạn về việc vận hành và quản lý trên Rovva.' %}
+  {% set show_search = true %}
+  {% set toc_items = [
+    {'id': 'pricing-what', 'label': 'Gợi ý giá thông minh là gì?'},
+    {'id': 'pricing-steps', 'label': 'Các bước thực hiện'}
+  ] %}
+  {% include 'host/pages/support/_policy_hero.html' %}
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner">
+      <section class="host-support-section" id="pricing-what" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Gợi ý giá thông minh là gì?</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Gợi ý giá thông minh là công cụ phân tích tự động dựa trên thuật toán thông minh. Thay vì bạn phải đau đầu tính toán giá cho từng ngày, hệ thống sẽ tự động tổng hợp và đưa ra mức giá tối ưu nhất cho phòng của bạn tại từng thời điểm cụ thể.</p>
+          <p>Mức giá gợi ý này được tính toán dựa trên các dữ liệu thực tế chuyên sâu:</p>
+          <ul>
+            <li><strong>Dữ liệu lịch sử &amp; Hiệu suất phòng:</strong> Dựa trên lịch sử đặt phòng, doanh thu tháng hiện tại và tỷ lệ lấp đầy phòng trống thực tế của chính căn phòng đó.</li>
+            <li><strong>Xu hướng thị trường:</strong> So sánh và đối chiếu trực tiếp với mặt bằng giá chung của các đối thủ cạnh tranh cùng phân khúc trong khu vực.</li>
+            <li><strong>Yếu tố thời gian &amp; Sự kiện:</strong> Tự động nhận diện các ngày lễ lớn (Giáng sinh, Tết), ngày cuối tuần, hoặc các giai đoạn mùa cao điểm/thấp điểm tại địa phương để điều chỉnh tăng/giảm giá phù hợp.</li>
+          </ul>
+          <p><strong>Lợi ích cho Host:</strong> Quyết định giá nhanh gọn, khoa học, tăng tối đa khả năng cạnh tranh và tối ưu hóa doanh thu tối đa (tiềm năng tăng trưởng lên đến hơn +12.4M doanh thu như dự báo của hệ thống).</p>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="pricing-steps" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Các bước thực hiện</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <h3>Bước 1. Truy cập menu Quản lý giá &amp; Lịch</h3>
+          <ul>
+            <li>Trên thanh điều hướng chính, chọn Quản lý CSLT.</li>
+            <li>Chọn Cơ sở, sau đó chọn phòng cụ thể muốn chỉnh giá.</li>
+            <li>Chọn Quản lý giá &amp; Lịch.</li>
+          </ul>
+
+          <h3>Bước 2. Kích hoạt màn hình Gợi ý giá</h3>
+          <ul>
+            <li>Tại giao diện lịch Quản lý giá &amp; Lịch, bạn cuộn xuống phía dưới cùng của trang.</li>
+            <li>Bạn sẽ nhìn thấy một banner xanh có thông tin "Bạn khó lựa chọn giá? Hệ thống sẽ gợi ý giá tối ưu cho phòng này."</li>
+            <li>Hãy nhấn vào nút Xem gợi ý giá.</li>
+          </ul>
+
+          <h3>Bước 3. Xem phân tích và đưa ra quyết định</h3>
+          <p>Hệ thống sẽ chuyển bạn sang giao diện Gợi ý giá thông minh. Tại đây, bạn có thể quan sát:</p>
+          <ul>
+            <li><strong>Phân tích chi tiết từng ngày:</strong> Khi click vào một ngày cụ thể (ví dụ ngày 25/12), hệ thống sẽ hiển thị lý do điều chỉnh cụ thể (Ví dụ: Rơi vào ngày Giáng sinh, tỷ lệ lấp đầy khu vực đạt 91%, đối thủ đang bán tầm giá nào...).</li>
+            <li><strong>Quy tắc giá tự động:</strong> Bạn có thể bật/tắt các bộ quy tắc tự động hóa như giá Cuối tuần (+20%), Đặt muộn (-15%), Đặt sớm (-10%), hay Lễ tết (+50%).</li>
+            <li><strong>Biểu đồ xu hướng doanh thu:</strong> Xem dự báo doanh thu trong 30 ngày gần nhất nếu áp dụng giá thông minh.</li>
+          </ul>
+
+          <h3>Bước 4. Áp dụng mức giá</h3>
+          <p>Dựa trên các thông tin phân tích trực quan, bạn có 3 lựa chọn để áp dụng:</p>
+          <ul>
+            <li><strong>Áp dụng cho từng ngày cụ thể:</strong> Nhấp chọn ngày mong muốn và nhấn Áp dụng giá gợi ý ở khung phân tích bên phải.</li>
+            <li><strong>Áp dụng tự động cho cả tháng:</strong> Nếu bạn tin tưởng hoàn toàn vào dữ liệu của Rovva và muốn tiết kiệm thời gian, hãy nhấn nút Áp dụng tất cả gợi ý ở thanh công cụ dưới cùng. Hệ thống sẽ tự động cập nhật giá tối ưu cho toàn bộ các ngày trong tháng.</li>
+            <li><strong>Giữ nguyên giá cũ:</strong> Nếu chưa muốn thay đổi, bạn chỉ cần nhấn Quay lại quản lý giá.</li>
+          </ul>
+          <p><em>Lưu ý từ Rovva:</em> Giá gợi ý chỉ mang tính chất tham khảo dựa trên thuật toán thị trường. Host hoàn toàn có toàn quyền chủ động và có thể tự điều chỉnh chỉnh sửa thủ công bất kỳ lúc nào để phù hợp nhất với chiến lược kinh doanh cá nhân.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}

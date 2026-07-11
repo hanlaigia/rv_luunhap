@@ -34,10 +34,10 @@
             <div class="rovva-footer__col">
                 <h6>Hỗ trợ Host</h6>
                 <ul>
-                    <li><a href="#">Câu hỏi thường gặp (FAQ)</a></li>
-                    <li><a href="#">Hướng dẫn đăng phòng</a></li>
-                    <li><a href="#">Hướng dẫn quản lý booking</a></li>
-                    <li><a href="#">Chính sách hủy &amp; hoàn tiền</a></li>
+                    <li><a href="{{ url_for('support.faq') }}">Câu hỏi thường gặp (FAQ)</a></li>
+                    <li><a href="{{ url_for('support.room_guide') }}">Hướng dẫn đăng phòng</a></li>
+                    <li><a href="{{ url_for('support.booking_guide') }}">Hướng dẫn quản lý booking</a></li>
+                    <li><a href="{{ url_for('support.cancellation_policy') }}">Chính sách hủy &amp; hoàn tiền</a></li>
                 </ul>
             </div>
 
@@ -45,11 +45,11 @@
             <div class="rovva-footer__col">
                 <h6>Điều khoản và pháp lý</h6>
                 <ul>
-                    <li><a href="#">Điều khoản dịch vụ dành cho Host</a></li>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Quy định nội dung &amp; hình ảnh</a></li>
-                    <li><a href="#">Chính sách giải quyết tranh chấp</a></li>
-                    <li><a href="#">Chính sách thanh toán và giải ngân</a></li>
+                    <li><a href="{{ url_for('support.terms_of_service') }}">Điều khoản dịch vụ dành cho Host</a></li>
+                    <li><a href="{{ url_for('support.privacy_policy') }}">Chính sách bảo mật</a></li>
+                    <li><a href="{{ url_for('support.content_policy') }}">Quy định nội dung &amp; hình ảnh</a></li>
+                    <li><a href="{{ url_for('support.dispute_policy') }}">Chính sách giải quyết tranh chấp</a></li>
+                    <li><a href="{{ url_for('support.payment_policy') }}">Chính sách thanh toán và giải ngân</a></li>
                 </ul>
             </div>
 
@@ -58,7 +58,7 @@
                 <h6>Tính năng</h6>
                 <ul>
                     <li><a href="{{ url_for('main.ai_chat') }}">Trợ lý AI</a></li>
-                    <li><a href="#">Gợi ý giá thông minh</a></li>
+                    <li><a href="{{ url_for('support.smart_pricing') }}">Gợi ý giá thông minh</a></li>
                 </ul>
             </div>
 
@@ -66,8 +66,8 @@
             <div class="rovva-footer__col">
                 <h6>Về chúng tôi</h6>
                 <ul>
-                    <li><a href="#">Giới thiệu Rovva</a></li>
-                    <li><a href="#">Tin tức và Blog</a></li>
+                    <li><a href="{{ url_for('customer.show_page', page_path='pages/marketing/introduction.html') }}">Giới thiệu Rovva</a></li>
+                    <li><a href="{{ url_for('customer.blog') }}">Tin tức và Blog</a></li>
                 </ul>
             </div>
 

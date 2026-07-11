@@ -1,0 +1,139 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Điều khoản dịch vụ dành cho Host — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='host/js/host-support.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="policy">
+  {% set title = 'Điều khoản dịch vụ dành cho Host' %}
+  {% set subtitle = 'Tìm kiếm câu trả lời nhanh chóng cho mọi thắc mắc của bạn về việc vận hành và quản lý trên Rovva.' %}
+  {% set show_search = true %}
+  {% set toc_items = [
+    {'id': 'terms-intro', 'label': 'Giới thiệu'},
+    {'id': 'terms-account', 'label': 'Đăng ký và quản lý tài khoản Host'},
+    {'id': 'terms-rights', 'label': 'Quyền của Host'},
+    {'id': 'terms-obligations', 'label': 'Nghĩa vụ của Host'},
+    {'id': 'terms-booking', 'label': 'Booking và trách nhiệm cung cấp dịch vụ'},
+    {'id': 'terms-rovva', 'label': 'Quyền và giới hạn trách nhiệm của Rovva'}
+  ] %}
+  {% include 'host/pages/support/_policy_hero.html' %}
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner">
+      <section class="host-support-section" id="terms-intro" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Giới thiệu</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Chào mừng bạn đến với Rovva Smart Stay Platform (sau đây gọi tắt là "Rovva"), nền tảng công nghệ kết nối Khách hàng với các Nhà cung cấp dịch vụ lưu trú.</p>
+          <p>Bằng việc đăng ký tài khoản Host, đăng tải Cơ sở lưu trú (CSLT) hoặc sử dụng các tính năng dành cho Host trên nền tảng, bạn xác nhận đã đọc, hiểu và đồng ý tuân thủ toàn bộ Điều khoản dịch vụ này cùng các chính sách liên quan của Rovva.</p>
+          <p>Rovva là nền tảng trung gian kết nối giữa Khách hàng và Host. Rovva không trực tiếp sở hữu, quản lý hay vận hành các Cơ sở lưu trú được đăng tải trên nền tảng.</p>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="terms-account" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Đăng ký và quản lý tài khoản Host</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Host phải cung cấp đầy đủ, trung thực và chính xác các thông tin đăng ký.<br>
+          Mỗi email chỉ được đăng ký một tài khoản Host duy nhất.<br>
+          Host chịu trách nhiệm bảo mật tài khoản và mọi hoạt động phát sinh từ tài khoản của mình.<br>
+          Rovva có quyền tạm khóa hoặc chấm dứt tài khoản nếu phát hiện:</p>
+          <ul>
+            <li>Cung cấp thông tin giả mạo;</li>
+            <li>Đăng tải CSLT không có thật;</li>
+            <li>Gian lận giao dịch;</li>
+            <li>Vi phạm pháp luật hoặc Điều khoản sử dụng.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="terms-rights" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Quyền của Host</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Host có quyền:</p>
+          <ul>
+            <li>Đăng tải, chỉnh sửa và quản lý thông tin CSLT và phòng.</li>
+            <li>Thiết lập giá phòng, số lượng phòng và chính sách hủy.</li>
+            <li>Nhận thông báo về booking mới.</li>
+            <li>Theo dõi doanh thu và lịch sử booking.</li>
+            <li>Gửi yêu cầu hỗ trợ hoặc khiếu nại tới Rovva.</li>
+            <li>Được bảo vệ dữ liệu theo Chính sách bảo mật.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="terms-obligations" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Nghĩa vụ của Host</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Host cam kết:</p>
+          <ul>
+            <li>Chỉ đăng tải CSLT hợp pháp và có quyền kinh doanh.</li>
+            <li>Cung cấp thông tin phòng trung thực, chính xác.</li>
+            <li>Đảm bảo giá niêm yết rõ ràng, minh bạch.</li>
+            <li>Đảm bảo phòng đúng mô tả đã đăng tải.</li>
+            <li>Không có hành vi phân biệt đối xử hoặc từ chối phục vụ trái quy định.</li>
+            <li>Tuân thủ pháp luật Việt Nam về hoạt động lưu trú.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="terms-booking" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Booking và trách nhiệm cung cấp dịch vụ</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Host cam kết:</p>
+          <ul>
+            <li>Khi booking được xác nhận, Host có trách nhiệm cung cấp dịch vụ đúng như thông tin đã đăng.</li>
+            <li>Host không được tự ý thay đổi giá hoặc điều kiện lưu trú sau khi booking đã được xác nhận.</li>
+            <li>Trong trường hợp bất khả kháng dẫn đến việc không thể cung cấp phòng, Host phải thông báo ngay cho Rovva để phối hợp xử lý.</li>
+          </ul>
+          <p>Host chỉ được hủy booking trong các trường hợp được hệ thống cho phép.<br>
+          Khi hủy booking:</p>
+          <ul>
+            <li>Host phải cung cấp lý do hủy.</li>
+            <li>Khách hàng sẽ được thông báo tự động.</li>
+            <li>Việc hủy booking có thể ảnh hưởng đến hiệu suất hoạt động và thứ hạng hiển thị của Host trên nền tảng.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="terms-rovva" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Quyền và giới hạn trách nhiệm của Rovva</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Rovva có quyền:</p>
+          <ul>
+            <li>Kiểm duyệt nội dung CSLT trước khi hiển thị.</li>
+            <li>Từ chối hoặc gỡ bỏ nội dung vi phạm.</li>
+            <li>Tạm khóa hoặc chấm dứt tài khoản Host vi phạm.</li>
+            <li>Điều chỉnh và cập nhật Điều khoản khi cần thiết.</li>
+          </ul>
+          <p>Rovva là nền tảng trung gian công nghệ và không chịu trách nhiệm đối với:</p>
+          <ul>
+            <li>Chất lượng thực tế của CSLT;</li>
+            <li>Tranh chấp phát sinh trực tiếp giữa Host và Khách hàng;</li>
+            <li>Thiệt hại do thông tin sai lệch do Host cung cấp;</li>
+            <li>Các sự cố bất khả kháng ngoài phạm vi kiểm soát của nền tảng.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}

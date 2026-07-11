@@ -1,0 +1,197 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Chính sách thanh toán và giải ngân — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='host/js/host-support.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="policy">
+  {% set title = 'Chính sách thanh toán và giải ngân' %}
+  {% set subtitle = 'Tìm kiếm câu trả lời nhanh chóng cho mọi thắc mắc của bạn về việc vận hành và quản lý trên Rovva.' %}
+  {% set show_search = true %}
+  {% set toc_items = [
+    {'id': 'payment-principles', 'label': 'Nguyên tắc thanh toán'},
+    {'id': 'payment-online', 'label': 'Thanh toán trực tuyến'},
+    {'id': 'payment-cash', 'label': 'Thanh toán tiền mặt'},
+    {'id': 'payment-payout', 'label': 'Giải ngân doanh thu cho Host'},
+    {'id': 'payment-refund', 'label': 'Chính sách hoàn tiền'},
+    {'id': 'payment-dispute', 'label': 'Tranh chấp thanh toán'},
+    {'id': 'payment-records', 'label': 'Lưu trữ thông tin giao dịch'}
+  ] %}
+  {% include 'host/pages/support/_policy_hero.html' %}
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner">
+      <section class="host-support-section" id="payment-principles" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Nguyên tắc thanh toán</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Đối với các booking thanh toán trực tuyến, Rovva đóng vai trò trung gian tiếp nhận và tạm giữ khoản thanh toán của Khách hàng nhằm đảm bảo quyền lợi của cả Khách hàng và Host trong suốt quá trình lưu trú cũng như xử lý tranh chấp phát sinh (nếu có).</p>
+          <p>Host không nhận được tiền ngay tại thời điểm Khách hàng thanh toán thành công. Khoản thanh toán sẽ được Rovva quản lý tạm thời và thực hiện giải ngân theo quy định của nền tảng.</p>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="payment-online" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Thanh toán trực tuyến</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <h3>Khách hàng thanh toán thành công</h3>
+          <p>Khi Khách hàng hoàn tất thanh toán trực tuyến:</p>
+          <ul>
+            <li>Booking được cập nhật sang trạng thái Đã đặt phòng.</li>
+            <li>Host nhận được thông báo về booking mới.</li>
+            <li>Toàn bộ số tiền thanh toán được Rovva tạm giữ.</li>
+            <li>Host có thể xem khoản tiền này ở trạng thái Doanh thu chờ giải ngân.</li>
+          </ul>
+          <h3>Khách hàng thanh toán thất bại</h3>
+          <p>Nếu giao dịch thanh toán không thành công:</p>
+          <ul>
+            <li>Booking tiếp tục ở trạng thái Chờ thanh toán.</li>
+            <li>Hệ thống gửi thông báo lỗi cho Khách hàng.</li>
+            <li>Khách hàng có thể thực hiện lại giao dịch trong thời gian giữ phòng.</li>
+          </ul>
+          <p>Nếu quá thời gian giữ phòng mà Khách hàng chưa hoàn tất thanh toán:</p>
+          <ul>
+            <li>Booking sẽ tự động bị hủy.</li>
+            <li>Trạng thái phòng được cập nhật lại để tiếp tục nhận booking mới.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="payment-cash" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Thanh toán tiền mặt</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Trong trường hợp Host cho phép thanh toán khi nhận phòng:</p>
+          <ul>
+            <li>Khách hàng thực hiện đặt phòng trên hệ thống.</li>
+            <li>Booking được xác nhận theo chính sách của Host.</li>
+            <li>Khách thanh toán trực tiếp cho Host khi check-in.</li>
+            <li>Sau khi nhận tiền, Host xác nhận đã thanh toán trên hệ thống.</li>
+            <li>Booking được cập nhật trạng thái thanh toán tương ứng.</li>
+          </ul>
+          <p>Rovva không tham gia lưu giữ hoặc xử lý khoản tiền thanh toán trực tiếp giữa Khách hàng và Host.</p>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="payment-payout" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Giải ngân doanh thu cho Host</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <h3>Điều kiện giải ngân</h3>
+          <p>Host được nhận doanh thu khi đáp ứng đồng thời các điều kiện:</p>
+          <ul>
+            <li>Booking đã hoàn tất lưu trú và Khách hàng đã check-out thành công.</li>
+            <li>Không phát sinh tranh chấp trong vòng 07 ngày kể từ ngày check-out hoặc tranh chấp đã được Rovva giải quyết hoàn tất.</li>
+          </ul>
+          <h3>Thời điểm giải ngân</h3>
+          <p>Sau khi đủ điều kiện giải ngân:</p>
+          <ul>
+            <li>Rovva thực hiện đối soát giao dịch.</li>
+            <li>Khấu trừ phí hoa hồng theo chính sách hiện hành.</li>
+            <li>Chuyển phần doanh thu còn lại vào tài khoản thanh toán của Host.</li>
+          </ul>
+          <p>Host có thể theo dõi:</p>
+          <ul>
+            <li>Doanh thu chờ giải ngân;</li>
+            <li>Doanh thu đang tranh chấp;</li>
+            <li>Doanh thu có thể rút;</li>
+            <li>Lịch sử giải ngân.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="payment-refund" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Chính sách hoàn tiền</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <h3>Khách hàng hủy booking đúng chính sách</h3>
+          <p>Nếu Khách hàng hủy booking đúng điều kiện hoàn tiền:</p>
+          <ul>
+            <li>Rovva thực hiện hoàn tiền theo chính sách đã công bố.</li>
+            <li>Số tiền còn lại (nếu có) được xử lý theo quy định giữa Rovva và Host.</li>
+          </ul>
+          <h3>Khách hàng hủy booking không đủ điều kiện hoàn tiền</h3>
+          <p>Nếu Khách hàng hủy booking nhưng không thuộc diện hoàn tiền:</p>
+          <ul>
+            <li>Rovva xử lý khoản thanh toán theo chính sách hủy của Host.</li>
+            <li>Phần doanh thu thuộc về Host sẽ được giải ngân theo quy trình thông thường.</li>
+          </ul>
+          <h3>Host chủ động hủy booking</h3>
+          <p>Nếu Host chủ động hủy booking đã được xác nhận:</p>
+          <ul>
+            <li>Khách hàng được hoàn lại 100% số tiền đã thanh toán.</li>
+            <li>Host không được nhận doanh thu từ booking đó.</li>
+            <li>Rovva có quyền áp dụng các biện pháp xử lý bổ sung đối với Host theo chính sách vận hành của nền tảng.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="payment-dispute" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Tranh chấp thanh toán</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <h3>Thời hạn khiếu nại</h3>
+          <p>Khách hàng có quyền gửi yêu cầu tranh chấp trong vòng 07 ngày kể từ ngày check-out.</p>
+          <p>Sau thời gian này:</p>
+          <ul>
+            <li>Booking được xem là hoàn tất.</li>
+            <li>Host được giải ngân doanh thu theo quy định.</li>
+            <li>Rovva có quyền từ chối tiếp nhận các tranh chấp thông thường phát sinh sau thời hạn nêu trên.</li>
+          </ul>
+          <h3>Trạng thái tranh chấp</h3>
+          <p>Khi phát sinh tranh chấp, khoản doanh thu liên quan sẽ được chuyển sang trạng thái: <span class="text-highlight">Đang tranh chấp</span></p>
+          <p>Trong thời gian này:</p>
+          <ul>
+            <li>Rovva tạm dừng giải ngân cho Host.</li>
+            <li>Host có trách nhiệm cung cấp thông tin và bằng chứng theo yêu cầu.</li>
+            <li>Host không được rút khoản doanh thu đang tranh chấp cho đến khi có kết quả xử lý cuối cùng.</li>
+          </ul>
+          <h3>Thời gian xử lý tranh chấp</h3>
+          <p>Rovva sẽ xem xét hồ sơ tranh chấp và đưa ra kết quả xử lý trong vòng tối đa 03 ngày làm việc kể từ thời điểm nhận đầy đủ thông tin từ các bên.</p>
+          <h3>Kết quả giải quyết tranh chấp</h3>
+          <p>Sau khi hoàn tất xem xét, Rovva có thể đưa ra một trong các quyết định sau:</p>
+          <ul>
+            <li>Hoàn toàn bộ số tiền cho Khách hàng;</li>
+            <li>Hoàn một phần số tiền cho Khách hàng;</li>
+            <li>Giữ nguyên khoản thanh toán và giải ngân toàn bộ cho Host;</li>
+            <li>Áp dụng các biện pháp xử lý khác theo chính sách của nền tảng và quy định pháp luật.</li>
+          </ul>
+          <p>Kết quả giải quyết tranh chấp là căn cứ để Rovva thực hiện hoàn tiền hoặc giải ngân doanh thu tương ứng cho Host.</p>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="payment-records" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Lưu trữ thông tin giao dịch</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Rovva lưu trữ toàn bộ:</p>
+          <ul>
+            <li>Lịch sử thanh toán;</li>
+            <li>Trạng thái giao dịch;</li>
+            <li>Mã giao dịch;</li>
+            <li>Lịch sử hoàn tiền;</li>
+            <li>Lịch sử giải ngân;</li>
+            <li>Hồ sơ tranh chấp và kết quả xử lý.</li>
+          </ul>
+          <p>Các thông tin này được sử dụng cho mục đích đối soát, hỗ trợ khiếu nại và đáp ứng yêu cầu của cơ quan có thẩm quyền theo quy định pháp luật.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}

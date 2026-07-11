@@ -1,0 +1,81 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Chính sách giải quyết tranh chấp — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='host/js/host-support.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="policy">
+  {% set title = 'Chính sách giải quyết tranh chấp' %}
+  {% set subtitle = 'Tìm kiếm câu trả lời nhanh chóng cho mọi thắc mắc của bạn về việc vận hành và quản lý trên Rovva.' %}
+  {% set show_search = true %}
+  {% set toc_items = [
+    {'id': 'dispute-overview', 'label': 'Tổng quan'},
+    {'id': 'dispute-process', 'label': 'Quy trình giải quyết tranh chấp'}
+  ] %}
+  {% include 'host/pages/support/_policy_hero.html' %}
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner">
+      <section class="host-support-section" id="dispute-overview" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Tổng quan</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Rovva xây dựng cơ chế giải quyết tranh chấp nhằm đảm bảo quyền lợi hợp pháp của cả Host và Khách hàng trong quá trình sử dụng nền tảng. Khi phát sinh khiếu nại liên quan đến booking, thanh toán hoặc chất lượng dịch vụ lưu trú, Rovva sẽ đóng vai trò trung gian tiếp nhận, xác minh thông tin và đưa ra kết quả xử lý cuối cùng dựa trên các bằng chứng do các bên cung cấp.</p>
+          <p>Trong suốt quá trình giải quyết tranh chấp, Host có trách nhiệm phối hợp với Rovva bằng cách phản hồi đúng thời hạn, cung cấp thông tin trung thực và các tài liệu chứng minh liên quan. Mọi hồ sơ tranh chấp sẽ được quản lý theo ba trạng thái chính: Cần phản hồi, Đang xử lý và Đã giải quyết.</p>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="dispute-process" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Quy trình giải quyết tranh chấp</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <h3>Bước 1. Tiếp nhận tranh chấp</h3>
+          <p>Khi Khách hàng gửi khiếu nại hợp lệ, hệ thống sẽ tạo hồ sơ tranh chấp tương ứng với booking liên quan.</p>
+          <p>Trạng thái: <span class="text-highlight">Cần phản hồi</span></p>
+          <p>Ở trạng thái này, Host cần:</p>
+          <ul>
+            <li>Xem nội dung khiếu nại của Khách hàng.</li>
+            <li>Kiểm tra thông tin booking liên quan.</li>
+            <li>Chuẩn bị lời giải thích hoặc phản hồi chính thức.</li>
+            <li>Cung cấp các bằng chứng liên quan như: Hình ảnh thực tế; Nội dung trao đổi với Khách hàng; Chính sách của cơ sở lưu trú; Các tài liệu khác phục vụ việc xác minh.</li>
+            <li>Gửi phản hồi cho Rovva trong thời gian quy định.</li>
+          </ul>
+          <p>Nếu Host không phản hồi đúng thời hạn, Rovva có thể tiến hành xử lý dựa trên các thông tin hiện có.</p>
+
+          <h3>Bước 2. Xử lý tranh chấp</h3>
+          <p>Sau khi Host hoàn tất phản hồi, hồ sơ tranh chấp sẽ chuyển sang giai đoạn xem xét.</p>
+          <p>Trạng thái: <span class="text-highlight">Đang xử lý</span></p>
+          <p>Trong giai đoạn này:</p>
+          <ul>
+            <li>Rovva sẽ kiểm tra và đối chiếu thông tin từ Host và Khách hàng.</li>
+            <li>Rovva có thể yêu cầu Host bổ sung bằng chứng hoặc giải trình thêm nếu cần thiết.</li>
+            <li>Host không cần thực hiện thêm thao tác ngoài việc theo dõi tiến trình xử lý và phản hồi khi được yêu cầu.</li>
+            <li>Mọi cập nhật về tranh chấp sẽ được hiển thị trên hệ thống và gửi thông báo đến Host.</li>
+          </ul>
+
+          <h3>Bước 3. Hoàn tất tranh chấp</h3>
+          <p>Sau khi xem xét toàn bộ hồ sơ, Rovva sẽ đưa ra kết quả xử lý cuối cùng.</p>
+          <p>Trạng thái: <span class="text-highlight">Đã giải quyết</span></p>
+          <p>Khi tranh chấp được giải quyết:</p>
+          <ul>
+            <li>Rovva thông báo kết quả chính thức cho Host và Khách hàng.</li>
+            <li>Quyết định xử lý có thể bao gồm: Chấp nhận hoặc từ chối khiếu nại; Hoàn tiền toàn phần hoặc một phần cho Khách hàng (nếu có); Áp dụng các biện pháp xử lý khác theo chính sách của nền tảng.</li>
+            <li>Hồ sơ tranh chấp sẽ được lưu trữ trên hệ thống để Host có thể tra cứu lại khi cần.</li>
+          </ul>
+          <p>Kết quả giải quyết của Rovva được đưa ra trên cơ sở thông tin và bằng chứng được các bên cung cấp, đồng thời tuân thủ quy định của pháp luật Việt Nam và các chính sách hiện hành của nền tảng.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}

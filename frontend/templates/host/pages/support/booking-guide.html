@@ -1,0 +1,73 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Hướng dẫn quản lý Booking — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="booking-guide">
+  <section class="host-support-hero">
+    <div class="host-support-hero__blobs" aria-hidden="true"></div>
+    <div class="host-support-hero__inner host-support-hero__inner--center">
+      <div class="host-support-hero__center">
+        <h1 class="host-support-hero__title">Hướng dẫn quản lý Booking</h1>
+        <p class="host-support-hero__subtitle">Theo dõi và xử lý toàn bộ booking của phòng cho thuê trên hệ thống Rovva.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="host-support-guide-layout">
+    <ol class="host-support-steps list-unstyled m-0">
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">1</div>
+        <div>
+          <h2 class="host-support-step__title">Truy cập Quản lý Booking</h2>
+          <ul class="host-support-step__list">
+            <li>Đăng nhập vào tài khoản Rovva Host của bạn.</li>
+            <li>Chọn mục <strong>Quản lý Booking</strong> trên thanh điều hướng chính.</li>
+            <li>Sử dụng các bộ lọc để tìm kiếm nhanh và hiệu quả hơn.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">2</div>
+        <div>
+          <h2 class="host-support-step__title">Quan sát các trạng thái Booking</h2>
+          <ul class="host-support-step__list">
+            <li><strong>Đã đặt phòng:</strong> Khách hàng hoàn tất việc đặt phòng. Phòng được giữ cho khách trong khoảng thời gian đã chọn. Đây là trạng thái duy nhất Host có thể chủ động hủy nếu cần.</li>
+            <li><strong>Đang lưu trú:</strong> Khách đã nhận phòng và đang trong thời gian lưu trú. Không thể thay đổi thông tin booking ở giai đoạn này.</li>
+            <li><strong>Hoàn thành:</strong> Khách đã trả phòng, booking kết thúc. Dữ liệu được lưu trữ để tra cứu và đối soát doanh thu.</li>
+            <li><strong>Đã hủy:</strong> Booking đã được hủy. Phòng quay về trạng thái trống.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">3</div>
+        <div>
+          <h2 class="host-support-step__title">Xem chi tiết booking</h2>
+          <ul class="host-support-step__list">
+            <li>Tại danh sách booking, bấm vào bất kỳ dòng nào trong bảng.</li>
+            <li>Hệ thống mở trang Chi tiết Booking, hiển thị đầy đủ thông tin: Mã booking và ngày tạo; Thông tin khách: họ tên, số điện thoại, email; Thông tin phòng: tên phòng, CSLT, loại phòng; Thời gian lưu trú: ngày nhận phòng, ngày trả phòng, số đêm; Số lượng khách; Chi tiết thanh toán: giá mỗi đêm, tổng tiền, trạng thái thanh toán; Ghi chú của khách (nếu có); Trạng thái booking hiện tại.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">4</div>
+        <div>
+          <h2 class="host-support-step__title">Nhắc nhở lưu ý trong ngày</h2>
+          <ul class="host-support-step__list">
+            <li>Hỗ trợ nắm nhanh tình hình hiện tại hệ thống: Số khách sắp Check-in hôm nay và giờ nhận phòng; Số khách sắp Check-out hôm nay và giờ trả phòng.</li>
+            <li>Bấm vào từng mục để mở pop-up chi tiết thông tin.</li>
+            <li>Bấm "Xem booking" trên từng dòng trong pop-up để mở trực tiếp chi tiết booking tương ứng.</li>
+          </ul>
+        </div>
+      </li>
+    </ol>
+
+    {% set help_title = 'Bạn gặp khó khăn khi quản lý booking?' %}
+    {% set help_text = 'Đừng lo lắng, đội ngũ hỗ trợ của Rovva luôn sẵn sàng giúp bạn hoàn thiện hồ sơ.' %}
+    {% include 'host/pages/support/_guide_aside.html' %}
+  </div>
+</div>
+{% endblock %}

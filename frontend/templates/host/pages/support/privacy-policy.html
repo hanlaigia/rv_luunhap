@@ -1,0 +1,134 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Chính sách bảo mật dành cho Host — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='host/js/host-support.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="policy">
+  {% set title = 'Chính sách bảo mật dành cho Host' %}
+  {% set subtitle = 'Tìm kiếm câu trả lời nhanh chóng cho mọi thắc mắc của bạn về việc vận hành và quản lý trên Rovva.' %}
+  {% set show_search = true %}
+  {% set toc_items = [
+    {'id': 'privacy-purpose', 'label': 'Mục đích thu thập dữ liệu'},
+    {'id': 'privacy-data', 'label': 'Dữ liệu được thu thập'},
+    {'id': 'privacy-security', 'label': 'Bảo mật dữ liệu'},
+    {'id': 'privacy-sharing', 'label': 'Chia sẻ dữ liệu'},
+    {'id': 'privacy-rights', 'label': 'Quyền của Host'},
+    {'id': 'privacy-retention', 'label': 'Thời gian lưu trữ'}
+  ] %}
+  {% include 'host/pages/support/_policy_hero.html' %}
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner">
+      <section class="host-support-section" id="privacy-purpose" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Mục đích thu thập dữ liệu</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Rovva thu thập thông tin của Host nhằm:</p>
+          <ul>
+            <li>Tạo và quản lý tài khoản Host;</li>
+            <li>Xác minh danh tính và thông tin kinh doanh;</li>
+            <li>Quản lý CSLT và booking;</li>
+            <li>Hỗ trợ xử lý giao dịch;</li>
+            <li>Hỗ trợ giải quyết tranh chấp;</li>
+            <li>Cải thiện chất lượng dịch vụ.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="privacy-data" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Dữ liệu được thu thập</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p><strong>Thông tin tài khoản</strong></p>
+          <ul>
+            <li>Họ và tên</li>
+            <li>Email</li>
+            <li>Số điện thoại</li>
+            <li>Mật khẩu đã mã hóa</li>
+          </ul>
+          <p><strong>Thông tin kinh doanh</strong></p>
+          <ul>
+            <li>Tên cơ sở lưu trú</li>
+            <li>Địa chỉ kinh doanh</li>
+            <li>Giấy phép kinh doanh (nếu có)</li>
+            <li>Thông tin người đại diện</li>
+          </ul>
+          <p><strong>Dữ liệu vận hành</strong></p>
+          <ul>
+            <li>Danh sách phòng</li>
+            <li>Giá phòng</li>
+            <li>Hình ảnh</li>
+            <li>Lịch sử booking</li>
+            <li>Lịch sử chỉnh sửa thông tin</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="privacy-security" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Bảo mật dữ liệu</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Rovva áp dụng các biện pháp kỹ thuật nhằm:</p>
+          <ul>
+            <li>Mã hóa mật khẩu;</li>
+            <li>Hạn chế truy cập dữ liệu trái phép;</li>
+            <li>Giám sát hoạt động bất thường;</li>
+            <li>Sao lưu dữ liệu định kỳ.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="privacy-sharing" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Chia sẻ dữ liệu</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Rovva không bán dữ liệu cá nhân của Host.</p>
+          <p>Thông tin chỉ được chia sẻ trong các trường hợp:</p>
+          <ul>
+            <li>Cung cấp cho Khách hàng các thông tin công khai của CSLT;</li>
+            <li>Theo yêu cầu của cơ quan nhà nước có thẩm quyền;</li>
+            <li>Phục vụ xử lý tranh chấp giữa Host và Khách hàng.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="privacy-rights" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Quyền của Host</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Host có quyền:</p>
+          <ul>
+            <li>Xem dữ liệu cá nhân;</li>
+            <li>Yêu cầu chỉnh sửa thông tin;</li>
+            <li>Yêu cầu xóa tài khoản theo quy định;</li>
+            <li>Yêu cầu giải thích việc xử lý dữ liệu của mình.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="privacy-retention" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Thời gian lưu trữ</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Thông tin được lưu trữ trong thời gian tài khoản còn hoạt động hoặc theo quy định của pháp luật hiện hành.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}

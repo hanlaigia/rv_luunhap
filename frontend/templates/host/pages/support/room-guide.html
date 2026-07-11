@@ -1,0 +1,107 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Hướng dẫn đăng phòng — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="room-guide">
+  <section class="host-support-hero">
+    <div class="host-support-hero__blobs" aria-hidden="true"></div>
+    <div class="host-support-hero__inner host-support-hero__inner--center">
+      <div class="host-support-hero__center">
+        <h1 class="host-support-hero__title">Hướng dẫn đăng phòng</h1>
+        <p class="host-support-hero__subtitle">Làm theo các bước dưới đây để đăng phòng mới cho cơ sở lưu trú đã có lên hệ thống Rovva.</p>
+      </div>
+    </div>
+  </section>
+
+  {% set active = 'room' %}
+  {% include 'host/pages/support/_listing_tabs.html' %}
+
+  <div class="host-support-guide-layout">
+    <ol class="host-support-steps list-unstyled m-0">
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">1</div>
+        <div>
+          <h2 class="host-support-step__title">Truy cập Quản lý CSLT</h2>
+          <ul class="host-support-step__list">
+            <li>Đăng nhập vào tài khoản Rovva Host của bạn.</li>
+            <li>Chọn mục <strong>Quản lý CSLT</strong> trên thanh điều hướng chính.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">2</div>
+        <div>
+          <h2 class="host-support-step__title">Chọn cơ sở lưu trú muốn thêm phòng</h2>
+          <ul class="host-support-step__list">
+            <li>Tìm kiếm cơ sở lưu trú trong danh sách của bạn.</li>
+            <li>Nhấn vào nút &quot;Xem chi tiết&quot; tại cơ sở lưu trú tương ứng.</li>
+            <li>Chọn nút &quot;Thêm phòng mới&quot; ở góc trên bên phải màn hình.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">3</div>
+        <div>
+          <h2 class="host-support-step__title">Nhập thông tin cơ bản của phòng</h2>
+          <ul class="host-support-step__list">
+            <li>Tên phòng: Đặt tên gợi cảm hứng (Ví dụ: Suite View Biển).</li>
+            <li>Loại phòng: Chọn loại giường và không gian.</li>
+            <li>Số khách &amp; Số giường: Thiết lập công suất tối đa.</li>
+            <li>Mô tả: Viết giới thiệu ngắn về đặc điểm nổi bật của phòng.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">4</div>
+        <div>
+          <h2 class="host-support-step__title">Tải hình ảnh phòng</h2>
+          <ul class="host-support-step__list">
+            <li>Định dạng hỗ trợ: JPG, PNG. Dung lượng tối đa 5MB/ảnh.</li>
+            <li>Tải lên tối thiểu 5 ảnh chất lượng cao, bao gồm cả nhà vệ sinh và lối vào.</li>
+            <li>Sắp xếp thứ tự ảnh (Ảnh đầu tiên sẽ là ảnh đại diện).</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">5</div>
+        <div>
+          <h2 class="host-support-step__title">Thiết lập tiện ích &amp; chính sách phòng</h2>
+          <ul class="host-support-step__list">
+            <li>Tích chọn các tiện ích có sẵn: WiFi, Điều hòa, TV, Tủ lạnh...</li>
+            <li>Thiết lập nội quy riêng (nếu có) bổ sung cho nội quy chung của CSLT.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">6</div>
+        <div>
+          <h2 class="host-support-step__title">Thiết lập giá &amp; phụ phí</h2>
+          <ul class="host-support-step__list">
+            <li>Giá cơ bản: Giá thuê cho một đêm tiêu chuẩn.</li>
+            <li>Giá theo thời điểm: Điều chỉnh giá cho cuối tuần hoặc ngày lễ.</li>
+            <li>Phụ phí: Thiết lập phí dọn dẹp hoặc phí khách thêm (nếu có).</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">7</div>
+        <div>
+          <h2 class="host-support-step__title">Gửi phê duyệt</h2>
+          <ul class="host-support-step__list">
+            <li>Kiểm tra lại toàn bộ thông tin đã nhập.</li>
+            <li>Chọn &quot;Lưu nháp&quot; nếu muốn chỉnh sửa sau hoặc &quot;Gửi phê duyệt&quot; để Rovva thẩm định và cho phép hiển thị.</li>
+          </ul>
+        </div>
+      </li>
+    </ol>
+
+    {% set help_title = 'Bạn gặp khó khăn khi đăng phòng?' %}
+    {% set help_text = 'Đừng lo lắng, đội ngũ hỗ trợ của Rovva luôn sẵn sàng giúp bạn hoàn thiện hồ sơ.' %}
+    {% include 'host/pages/support/_guide_aside.html' %}
+  </div>
+</div>
+{% endblock %}

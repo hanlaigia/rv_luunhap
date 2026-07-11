@@ -1,0 +1,115 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Quy định nội dung và hình ảnh — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='host/js/host-support.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="policy">
+  {% set title = 'Quy định nội dung và hình ảnh' %}
+  {% set subtitle = 'Tìm kiếm câu trả lời nhanh chóng cho mọi thắc mắc của bạn về việc vận hành và quản lý trên Rovva.' %}
+  {% set show_search = true %}
+  {% set toc_items = [
+    {'id': 'content-rules', 'label': 'Quy định về nội dung đăng tải'},
+    {'id': 'content-images', 'label': 'Quy định về hình ảnh'},
+    {'id': 'content-ratio', 'label': 'Tỷ lệ hình ảnh được khuyến nghị'},
+    {'id': 'content-forbidden', 'label': 'Nội dung bị cấm'},
+    {'id': 'content-violation', 'label': 'Xử lý vi phạm'}
+  ] %}
+  {% include 'host/pages/support/_policy_hero.html' %}
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner">
+      <section class="host-support-section" id="content-rules" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Quy định về nội dung đăng tải</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Host phải đảm bảo:</p>
+          <ul>
+            <li>Nội dung mô tả CSLT trung thực và chính xác.</li>
+            <li>Không sử dụng từ ngữ gây hiểu lầm hoặc quảng cáo sai sự thật.</li>
+            <li>Không sao chép nội dung từ đơn vị khác khi chưa được phép.</li>
+            <li>Không đăng tải nội dung vi phạm pháp luật hoặc thuần phong mỹ tục.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="content-images" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Quy định về hình ảnh</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Hình ảnh đăng tải phải:</p>
+          <ul>
+            <li>Là hình ảnh thật của CSLT hoặc phòng.</li>
+            <li>Có chất lượng rõ nét, không mờ hoặc vỡ ảnh.</li>
+            <li>Không chứa logo, watermark của bên thứ ba.</li>
+            <li>Không sử dụng ảnh lấy từ Internet nếu không có quyền sử dụng.</li>
+            <li>Không chỉnh sửa làm sai lệch thực tế của phòng.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="content-ratio" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Tỷ lệ hình ảnh được khuyến nghị</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Khi đăng tải CSLT, Host nên cung cấp:</p>
+          <ul>
+            <li>Ảnh mặt tiền: tối thiểu 01 ảnh.</li>
+            <li>Ảnh khu vực lễ tân: tối thiểu 01 ảnh.</li>
+            <li>Ảnh mỗi loại phòng: tối thiểu 03 ảnh.</li>
+            <li>Ảnh nhà vệ sinh: tối thiểu 01 ảnh.</li>
+            <li>Ảnh tiện ích chung: tối thiểu 01 ảnh.</li>
+          </ul>
+          <p>Khuyến nghị:</p>
+          <ul>
+            <li>70% hình ảnh là ảnh phòng và nội thất.</li>
+            <li>20% hình ảnh là tiện ích và khu vực chung.</li>
+            <li>10% hình ảnh là mặt tiền và khu vực xung quanh.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="content-forbidden" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Nội dung bị cấm</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Host không được đăng tải:</p>
+          <ul>
+            <li>Hình ảnh giả mạo hoặc không thuộc CSLT.</li>
+            <li>Nội dung phản cảm hoặc vi phạm pháp luật.</li>
+            <li>Thông tin liên hệ cá nhân nhằm giao dịch ngoài hệ thống.</li>
+            <li>Nội dung mang tính xúc phạm hoặc phân biệt đối xử.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="content-violation" data-policy-section>
+        <header class="host-support-section__head">
+          <h2 class="host-support-section__title">Xử lý vi phạm</h2>
+        </header>
+        <div class="host-support-policy-block">
+          <p>Rovva có quyền:</p>
+          <ul>
+            <li>Từ chối hiển thị nội dung;</li>
+            <li>Yêu cầu Host chỉnh sửa;</li>
+            <li>Gỡ bỏ hình ảnh vi phạm;</li>
+            <li>Tạm khóa hoặc chấm dứt tài khoản đối với trường hợp vi phạm nghiêm trọng.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}

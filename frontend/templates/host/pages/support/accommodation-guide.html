@@ -1,0 +1,109 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Hướng dẫn đăng cơ sở lưu trú — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="accommodation-guide">
+  <section class="host-support-hero">
+    <div class="host-support-hero__blobs" aria-hidden="true"></div>
+    <div class="host-support-hero__inner host-support-hero__inner--center">
+      <div class="host-support-hero__center">
+        <h1 class="host-support-hero__title">Hướng dẫn đăng phòng</h1>
+        <p class="host-support-hero__subtitle">Làm theo các bước dưới đây để đăng phòng mới cho cơ sở lưu trú đã có lên hệ thống Rovva.</p>
+      </div>
+    </div>
+  </section>
+
+  {% set active = 'accommodation' %}
+  {% include 'host/pages/support/_listing_tabs.html' %}
+
+  <div class="host-support-guide-layout">
+    <ol class="host-support-steps list-unstyled m-0">
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">1</div>
+        <div>
+          <h2 class="host-support-step__title">Truy cập Quản lý CSLT</h2>
+          <ul class="host-support-step__list">
+            <li>Đăng nhập vào tài khoản Rovva Host của bạn.</li>
+            <li>Chọn mục <strong>Quản lý CSLT</strong> trên thanh điều hướng chính.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">2</div>
+        <div>
+          <h2 class="host-support-step__title">Tạo cơ sở lưu trú mới</h2>
+          <ul class="host-support-step__list">
+            <li>Quan sát góc phải màn hình, chọn nút <strong>'Thêm CSLT mới'</strong>.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">3</div>
+        <div>
+          <h2 class="host-support-step__title">Nhập thông tin cơ bản</h2>
+          <ul class="host-support-step__list">
+            <li>Điền tên chính xác của cơ sở lưu trú (Ví dụ: Sunny Villa Dalat).</li>
+            <li>Lựa chọn loại hình phù hợp: Homestay, Khách sạn, Căn hộ, hoặc Villa.</li>
+            <li>Cung cấp địa chỉ chi tiết và ghim vị trí chính xác trên bản đồ.</li>
+            <li>Viết mô tả tổng quan lôi cuốn về không gian và các tiện ích nổi bật.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">4</div>
+        <div>
+          <h2 class="host-support-step__title">Tải hình ảnh cơ sở lưu trú</h2>
+          <ul class="host-support-step__list">
+            <li>Định dạng hỗ trợ: JPG, PNG. Dung lượng tối đa 5MB/ảnh.</li>
+            <li>Tải lên tối thiểu 3 ảnh chụp không gian tổng thể và ngoại cảnh.</li>
+            <li>Đánh dấu chọn 'Ảnh đại diện' cho tấm hình ấn tượng nhất.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">5</div>
+        <div>
+          <h2 class="host-support-step__title">Thiết lập chính sách chung</h2>
+          <ul class="host-support-step__list">
+            <li>Quy định giờ check-in và check-out tiêu chuẩn (thông thường là 14:00 và 12:00).</li>
+            <li>Chọn chính sách hủy phòng (Linh hoạt, Trung bình hoặc Nghiêm ngặt).</li>
+            <li>Thêm các nội quy chung (Hút thuốc, Thú cưng, Tiệc tùng).</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">6</div>
+        <div>
+          <h2 class="host-support-step__title">Tải giấy tờ pháp lý</h2>
+          <ul class="host-support-step__list">
+            <li>Ảnh chụp bản gốc Giấy phép kinh doanh (nếu có).</li>
+            <li>Chứng nhận an ninh trật tự và Giấy chứng nhận PCCC.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="host-support-step">
+        <div class="host-support-step__num" aria-hidden="true">7</div>
+        <div>
+          <h2 class="host-support-step__title">Gửi phê duyệt</h2>
+          <ul class="host-support-step__list">
+            <li>Kiểm tra lại toàn bộ thông tin đã nhập.</li>
+            <li>Chọn <strong>'Lưu nháp'</strong> nếu muốn chỉnh sửa sau, hoặc <strong>'Gửi phê duyệt'</strong> để hoàn tất.</li>
+            <li>Hệ thống sẽ phản hồi trong vòng 1-3 ngày làm việc.</li>
+          </ul>
+          <div class="host-support-step__actions">
+            <a href="{{ url_for('accommodation.create') }}" class="host-support-btn">Bắt đầu đăng ngay</a>
+          </div>
+        </div>
+      </li>
+    </ol>
+
+    {% set help_title = 'Bạn gặp khó khăn khi đăng phòng?' %}
+    {% set help_text = 'Đừng lo lắng, đội ngũ hỗ trợ của Rovva luôn sẵn sàng giúp bạn hoàn thiện hồ sơ.' %}
+    {% include 'host/pages/support/_guide_aside.html' %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Chính sách hủy &amp; hoàn tiền — Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-support.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="host-support-page" data-support-page="cancellation">
+  <section class="host-support-hero">
+    <div class="host-support-hero__blobs" aria-hidden="true"></div>
+    <div class="host-support-hero__inner">
+      <aside class="host-support-toc">
+        <h2 class="host-support-toc__title">Nội dung chính</h2>
+        <ul class="host-support-toc__list">
+          <li><a class="host-support-toc__link" href="#policy-free-cancel">Hủy miễn phí</a></li>
+          <li><a class="host-support-toc__link" href="#policy-late-cancel">Hủy sát ngày nhận phòng</a></li>
+          <li><a class="host-support-toc__link" href="#policy-refund-time">Thời gian hoàn tiền</a></li>
+        </ul>
+      </aside>
+      <div class="host-support-hero__center">
+        <h1 class="host-support-hero__title">Chính sách hủy &amp; hoàn tiền</h1>
+        <p class="host-support-hero__subtitle">Tại Rovva Host, chúng tôi cam kết mang lại sự minh bạch tuyệt đối trong mọi giao dịch. Chính sách này được thiết kế để bảo vệ quyền lợi của cả khách hàng và chủ sở hữu.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="host-support-body">
+    <div class="host-support-body__inner">
+      <section class="host-support-section" id="policy-free-cancel">
+        <header class="host-support-section__head">
+          <i class="bi bi-calendar-x" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Hủy miễn phí</h2>
+        </header>
+        <p class="host-support-prose">Khách hàng được quyền hủy đặt phòng và nhận lại <strong>100% tiền thanh toán</strong> nếu việc hủy được thực hiện trước thời hạn quy định của cơ sở lưu trú (thường là 24h hoặc 48h trước giờ nhận phòng).</p>
+        <div class="host-support-callout">
+          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+          <p>Hệ thống sẽ tự động xử lý và lệnh hoàn tiền sẽ được gửi về phương thức thanh toán gốc của khách hàng ngay khi yêu cầu hủy được xác nhận.</p>
+        </div>
+      </section>
+
+      <section class="host-support-section" id="policy-late-cancel">
+        <header class="host-support-section__head">
+          <i class="bi bi-clock-history" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Hủy sát ngày nhận phòng</h2>
+        </header>
+        <p class="host-support-prose">Trong trường hợp việc hủy phòng diễn ra sau thời hạn miễn phí, các quy định sau sẽ được áp dụng dựa trên chính sách riêng của từng Host:</p>
+        <ul class="host-support-list">
+          <li>Trừ phí dịch vụ hoặc phí đêm đầu tiên.</li>
+          <li>Hoàn trả một phần tiền (ví dụ 50%) dựa trên thời gian thực tế còn lại.</li>
+          <li>Không hoàn trả tiền nếu hủy trong vòng 24h trước giờ check-in hoặc khách không đến (No-show).</li>
+        </ul>
+      </section>
+
+      <section class="host-support-section" id="policy-refund-time">
+        <header class="host-support-section__head">
+          <i class="bi bi-wallet2" aria-hidden="true"></i>
+          <h2 class="host-support-section__title">Thời gian hoàn tiền</h2>
+        </header>
+        <div class="host-support-table-wrap">
+          <table class="host-support-table">
+            <thead>
+              <tr>
+                <th scope="col">Phương thức thanh toán</th>
+                <th scope="col">Thời gian dự kiến</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="host-support-table__method">
+                    <i class="bi bi-phone" aria-hidden="true"></i>
+                    Ví điện tử (MoMo, ZaloPay, ShopeePay...)
+                  </div>
+                </td>
+                <td>1 - 3 ngày làm việc</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="host-support-table__method">
+                    <i class="bi bi-bank" aria-hidden="true"></i>
+                    Chuyển khoản ngân hàng nội địa
+                  </div>
+                </td>
+                <td>3 - 7 ngày làm việc</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="host-support-table__method">
+                    <i class="bi bi-credit-card-2-front" aria-hidden="true"></i>
+                    Thẻ quốc tế (Visa/Mastercard/JCB)
+                  </div>
+                </td>
+                <td>5 - 15 ngày làm việc</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="host-support-note">* Lưu ý: Thời gian hoàn tiền thực tế có thể thay đổi tùy thuộc vào quy trình xử lý của ngân hàng phát hành thẻ.</p>
+      </section>
+    </div>
+  </div>
+
+  {% include 'host/pages/support/_cta.html' %}
+</div>
+{% endblock %}
