@@ -7,7 +7,7 @@
 
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
                 data-bs-target="#rovvaNavbar" aria-controls="rovvaNavbar" aria-expanded="false"
-                aria-label="Toggle navigation">
+                aria-label="Mở menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -16,12 +16,6 @@
                     <li class="nav-item">
                         <a class="nav-link rovva-nav-link{% if active_nav == 'dashboard' %} active{% endif %}"
                             href="{{ url_for('main.index') }}">Tổng quan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'copilot' %} active{% endif %}"
-                            href="{{ url_for('copilot.index') }}">
-                            <i class="bi bi-stars text-warning"></i> Copilot
-                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link rovva-nav-link{% if active_nav == 'accommodations' %} active{% endif %}"
@@ -51,12 +45,14 @@
             </div>
 
             <div class="d-flex align-items-center gap-2 ms-lg-3">
-                <button type="button" class="rovva-noti-btn" aria-label="Thông báo">
+                <button type="button" class="rovva-noti-btn" id="host-noti-btn" aria-label="Thông báo">
                     <i class="bi bi-bell-fill" style="font-size: 18px; color: var(--rovva-black-blue);"></i>
+                    {% if host_unread_notifications %}
                     <span class="rovva-noti-badge"></span>
+                    {% endif %}
                 </button>
                 <a href="{{ url_for('main.profile') }}" class="d-flex align-items-center gap-3 text-decoration-none">
-                    <span class="rovva-profile-name d-none d-md-inline">{{ current_user.full_name if current_user.is_authenticated else 'Văn Quản Gia' }}</span>
+                    <span class="rovva-profile-name d-none d-md-inline">{{ current_user.full_name if current_user.is_authenticated else 'Host' }}</span>
                     <img src="{{ current_user.avatar_url }}" alt="{{ current_user.full_name }}"
                         class="rovva-avatar">
                 </a>

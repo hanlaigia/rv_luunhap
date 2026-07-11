@@ -84,6 +84,16 @@ class Accommodation(db.Model):
         return accommodation_gallery(self.id)
 
     @property
+    def existing_image_urls(self):
+        from backend.app.utils.media import accommodation_existing_images
+        return accommodation_existing_images(self.id)
+
+    @property
+    def has_images(self):
+        from backend.app.utils.media import accommodation_has_images
+        return accommodation_has_images(self.id)
+
+    @property
     def average_rating(self):
         from backend.app.models.review import Review
         from sqlalchemy import func

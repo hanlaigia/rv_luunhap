@@ -220,7 +220,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <!-- Header -->
     <h1 class="page-title mb-2">Quản lý Tranh chấp</h1>
     <p class="page-subtitle">Theo dõi và giải quyết các khiếu nại giữa khách hàng và chủ nhà. Đảm bảo trải nghiệm tốt nhất thông qua quy trình xử lý minh bạch và công bằng.</p>
@@ -243,39 +243,49 @@
         </ul>
 
         <!-- Filters -->
-        <div class="filter-section mb-4">
+        <form class="filter-section mb-4" method="get" action="{{ url_for('dispute.index') }}">
+            <input type="hidden" name="status" value="{{ active_tab }}">
             <div class="row g-3">
                 <div class="col-12">
+                    <label class="form-label">Tìm kiếm</label>
                     <div class="position-relative">
                         <i class="bi bi-search position-absolute text-muted" style="left: 16px; top: 10px;"></i>
-                        <input type="text" class="form-control" placeholder="Mã TC, Booking, Tên khách..." style="padding-left: 40px;">
+                        <input type="text" name="q" class="form-control" value="{{ filter_q }}" placeholder="Mã TC, Booking, Tên khách..." style="padding-left: 40px;">
                     </div>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Thời gian</label>
-                    <select class="form-select">
-                        <option>Tháng này</option>
-                        <option>Tháng trước</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Cơ sở lưu trú (CSLT)</label>
-                    <select class="form-select">
-                        <option>Tất cả CSLT</option>
+                    <select class="form-select" name="period">
+                        <option value="7d" {% if period == '7d' %}selected{% endif %}>7 ngày qua</option>
+                        <option value="30d" {% if period == '30d' %}selected{% endif %}>30 ngày qua</option>
+                        <option value="year" {% if period == 'year' %}selected{% endif %}>Năm nay</option>
+                        <option value="all" {% if period == 'all' %}selected{% endif %}>Tất cả</option>
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label">Cơ sở lưu trú (CSLT)</label>
+                    <select class="form-select" name="acc_id" id="dispute-filter-acc">
+                        <option value="">Tất cả CSLT</option>
+                        {% for acc in accommodations %}
+                        <option value="{{ acc.id }}" {% if selected_acc_id == acc.id %}selected{% endif %}>{{ acc.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <label class="form-label">Phòng</label>
-                    <select class="form-select">
-                        <option>Tất cả phòng</option>
+                    <select class="form-select" name="room_id" id="dispute-filter-room">
+                        <option value="">Tất cả phòng</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.id }}" data-acc-id="{{ room.accommodation_id }}" {% if selected_room_id == room.id %}selected{% endif %}>{{ room.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end gap-2">
-                    <button class="btn-premium-primary flex-grow-1">Áp dụng</button>
-                    <button class="btn-premium-outline">Đặt lại</button>
+                    <button type="submit" class="btn-premium-primary flex-grow-1">Áp dụng</button>
+                    <a href="{{ url_for('dispute.index') }}" class="btn-premium-outline flex-grow-1 text-decoration-none text-center">Đặt lại</a>
                 </div>
             </div>
-        </div>
+        </form>
 
         <!-- Table -->
         <div class="table-container">
@@ -294,7 +304,7 @@
                     </thead>
                     <tbody>
                         {% for dispute in pagination.items %}
-                        <tr>
+                        <tr data-href="{{ url_for('dispute.detail', id=dispute.id) }}">
                             <td><span class="text-code">#{{ dispute.dispute_code }}</span></td>
                             <td><span class="text-code">#{{ dispute.booking.booking_code if dispute.booking else 'RV12340' }}</span></td>
                             <td>
@@ -327,12 +337,18 @@
             <!-- Pagination Footer -->
             <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
                 <div class="small text-muted">
-                    Hiển thị {{ pagination.first_item if pagination.total > 0 else 0 }} - {{ pagination.last_item if pagination.total > 0 else 0 }} trên tổng số {{ pagination.total }} tranh chấp
+                    {% if pagination.total > 0 %}
+                    {% set first_item = (pagination.page - 1) * pagination.per_page + 1 %}
+                    {% set last_item = pagination.page * pagination.per_page if pagination.page * pagination.per_page < pagination.total else pagination.total %}
+                    Hiển thị {{ first_item }}–{{ last_item }} trên {{ total_all_disputes }} tranh chấp{% if pagination.total != total_all_disputes %} (đã lọc: {{ pagination.total }}){% endif %}
+                    {% else %}
+                    Không có tranh chấp{% if total_all_disputes > 0 %} — tổng hệ thống: {{ total_all_disputes }}{% endif %}
+                    {% endif %}
                 </div>
                 {% if pagination.pages > 1 %}
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('dispute.index', page=pagination.prev_num, status=active_tab) if pagination.has_prev else '#' }}"><i class="bi bi-chevron-left"></i></a>
+                        <a class="page-link" href="{{ url_for('dispute.index', page=pagination.prev_num, status=active_tab, period=period, q=filter_q or none, acc_id=selected_acc_id or none, room_id=selected_room_id or none) if pagination.has_prev else '#' }}"><i class="bi bi-chevron-left"></i></a>
                     </li>
                     
                     {% for p in pagination.iter_pages() %}
@@ -340,7 +356,7 @@
                             {% if p == pagination.page %}
                             <li class="page-item active"><span class="page-link">{{ p }}</span></li>
                             {% else %}
-                            <li class="page-item"><a class="page-link" href="{{ url_for('dispute.index', page=p, status=active_tab) }}">{{ p }}</a></li>
+                            <li class="page-item"><a class="page-link" href="{{ url_for('dispute.index', page=p, status=active_tab, period=period, q=filter_q or none, acc_id=selected_acc_id or none, room_id=selected_room_id or none) }}">{{ p }}</a></li>
                             {% endif %}
                         {% else %}
                             <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -348,7 +364,7 @@
                     {% endfor %}
                     
                     <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
-                        <a class="page-link" href="{{ url_for('dispute.index', page=pagination.next_num, status=active_tab) if pagination.has_next else '#' }}"><i class="bi bi-chevron-right"></i></a>
+                        <a class="page-link" href="{{ url_for('dispute.index', page=pagination.next_num, status=active_tab, period=period, q=filter_q or none, acc_id=selected_acc_id or none, room_id=selected_room_id or none) if pagination.has_next else '#' }}"><i class="bi bi-chevron-right"></i></a>
                     </li>
                 </ul>
                 {% endif %}

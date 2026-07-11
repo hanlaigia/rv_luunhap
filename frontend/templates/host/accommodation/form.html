@@ -115,17 +115,116 @@
         position: sticky;
         top: 100px;
     }
+
+    .setup-step {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #94a3b8;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+    .setup-step.done {
+        color: #166534;
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+    .setup-step i { font-size: 16px; }
+
+    .acc-image-strip {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+    .acc-image-item {
+        position: relative;
+        flex: 0 0 140px;
+        height: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #e2e8f0;
+        cursor: grab;
+        background: #f8fafc;
+    }
+    .acc-image-item.dragging { opacity: 0.5; }
+    .acc-image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+    }
+    .acc-image-item__cover {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        background: var(--rovva-primary-blue);
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 99px;
+        z-index: 1;
+    }
+    .acc-image-item__remove {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        font-size: 12px;
+        line-height: 1;
+        z-index: 1;
+    }
+    .acc-image-add {
+        flex: 0 0 140px;
+        height: 100px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    .acc-image-add:hover { border-color: var(--rovva-primary-blue); color: var(--rovva-primary-blue); }
+
+    .custom-feature-row .feature-check { width: 100%; }
+    .custom-feature-row input[type="text"] {
+        border: none;
+        background: transparent;
+        flex: 1;
+        font-size: 14px;
+        outline: none;
+        min-width: 0;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
-    <div class="mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}"
-                        class="text-decoration-none text-muted">Quản lý CSLT</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ acc.name if acc else 'Thêm mới' }}</li>
+<div class="container host-page">
+    <div class="host-page-header mb-4">
+        <nav aria-label="breadcrumb" class="host-breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a></li>
+                {% if acc %}
+                <li class="breadcrumb-item"><a href="{{ url_for('accommodation.detail', id=acc.id) }}" class="host-nav-link" data-host-nav="{{ url_for('accommodation.detail', id=acc.id) }}">{{ acc.name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
+                {% else %}
+                <li class="breadcrumb-item active" aria-current="page">Thêm mới</li>
+                {% endif %}
             </ol>
         </nav>
         <h1 class="page-title h3 mb-2">{{ 'Chỉnh sửa Cơ sở lưu trú: ' + acc.name if acc else 'Thêm cơ sở lưu trú mới' }}
@@ -136,8 +235,13 @@
         {% endif %}
     </div>
 
-    <form method="POST"
-        action="{{ url_for('accommodation.edit', id=acc.id) if acc else url_for('accommodation.create') }}">
+    <form method="POST" enctype="multipart/form-data" id="acc-form"
+        action="{{ url_for('accommodation.edit', id=acc.id) if acc else url_for('accommodation.create') }}"
+        data-is-create="{{ '1' if not acc else '0' }}"
+        data-staying-count="{{ staying_count }}"
+        data-cancel-url="{{ url_for('accommodation.index') if not acc else url_for('accommodation.detail', id=acc.id) }}">
+        <input type="hidden" name="image_order" id="image-order-input" value="">
+        <div id="acc-image-file-inputs"></div>
         <div class="row">
             <!-- Left Column: Form Fields -->
             <div class="col-lg-8">
@@ -201,55 +305,50 @@
                     </div>
 
                     <label class="form-label">Đặc điểm nổi bật</label>
-                    <div class="row g-2">
-                        {% set current_features = acc.features if acc and acc.features else [] %}
-                        {% for feature in ['Hủy phòng linh hoạt', 'Không hút thuốc', 'Cho phép thú cưng', 'Tivi 4K'] %}
+                    {% set predefined = ['Hủy phòng linh hoạt', 'Không hút thuốc', 'Cho phép thú cưng', 'Tivi 4K'] %}
+                    {% set current_features = acc.features if acc and acc.features else [] %}
+                    <div class="row g-2" id="features-container">
+                        {% for feature in predefined %}
                         <div class="col-auto">
                             <label class="feature-check">
                                 <input type="checkbox" name="features" value="{{ feature }}"
-                                    class="form-check-input mt-0" {{ 'checked' if feature in current_features else ''
-                                    }}>
+                                    class="form-check-input mt-0 acc-feature-input" {{ 'checked' if feature in current_features else '' }}>
                                 <span>{{ feature }}</span>
                             </label>
                         </div>
                         {% endfor %}
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-light border d-flex align-items-center gap-2"
+                        {% for feature in current_features if feature not in predefined %}
+                        <div class="col-auto custom-feature-row" data-custom-feature>
+                            <label class="feature-check">
+                                <input type="checkbox" class="form-check-input mt-0 acc-feature-input acc-custom-checkbox" checked>
+                                <input type="text" name="custom_feature_name" value="{{ feature }}" placeholder="Nhập Đặc điểm" class="acc-custom-name">
+                            </label>
+                        </div>
+                        {% endfor %}
+                        <div class="col-auto" id="custom-features-anchor">
+                            <button type="button" class="btn btn-light border d-flex align-items-center gap-2" id="add-custom-feature-btn"
                                 style="padding: 10px 14px; border-radius: 8px;">
-                                <i class="bi bi-plus"></i> Bổ sung tiện ích
+                                <i class="bi bi-plus"></i> Bổ sung đặc điểm
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Hình ảnh CSLT -->
-                <div class="section-card">
+                <div class="section-card" id="acc-images-section">
                     <h3 class="section-title"><i class="bi bi-image"></i> Hình ảnh cơ sở lưu trú</h3>
-                    <p class="text-muted small">Đăng ít nhất 5 ảnh (ngoại thất, phòng khách, khu vực chung) để tăng 20%
-                        tỷ lệ đặt phòng thành công.</p>
+                    <p class="text-muted small">Tải tối đa 5 ảnh. Ảnh đầu tiên sẽ là ảnh bìa. Kéo thả để đổi thứ tự.</p>
 
-                    <div class="upload-box mb-3">
+                    <div class="upload-box mb-3" id="acc-upload-box">
                         <i class="bi bi-cloud-arrow-up display-4 text-muted mb-2"></i>
                         <p class="fw-bold mb-1">Tải ảnh lên hoặc kéo thả vào đây</p>
-                        <p class="text-muted small mb-3">Định dạng JPG, PNG. Tối đa 10MB mỗi tập.</p>
-                        <button type="button" class="btn btn-primary px-4">Chọn ảnh</button>
+                        <p class="text-muted small mb-3">Định dạng JPG, PNG. Tối đa 5 ảnh.</p>
+                        <button type="button" class="btn btn-primary px-4" id="acc-upload-trigger">Chọn ảnh</button>
+                        <input type="file" id="acc-file-input" accept="image/jpeg,image/png,image/webp" multiple hidden>
                     </div>
 
-                    <div class="row g-2">
-                        {% if acc and acc.image %}
-                        <div class="col-4 col-md-3 position-relative">
-                            <img src="{{ url_for('static', filename=acc.image) }}" class="img-fluid rounded" alt="Ảnh 1"
-                                onerror="this.onerror=null; this.src='{{ url_for('static', filename='shared/images/demo-acc.png') }}';">
-                            <span class="badge bg-primary position-absolute top-0 start-0 m-2">Ảnh bìa</span>
-                        </div>
-                        {% endif %}
-                        <div class="col-4 col-md-3">
-                            <div class="border rounded d-flex align-items-center justify-content-center flex-column text-muted"
-                                style="height: 100%; min-height: 100px; cursor: pointer; border-style: dashed !important;">
-                                <i class="bi bi-plus-lg"></i>
-                                <small>Thêm ảnh</small>
-                            </div>
-                        </div>
+                    <div class="acc-image-strip" id="acc-image-strip"
+                         data-existing='{{ acc.existing_image_urls | tojson if acc else "[]" }}'>
                     </div>
                 </div>
 
@@ -298,21 +397,21 @@
                 </div>
 
                 <!-- Giấy tờ pháp lý -->
-                <div class="section-card">
+                <div class="section-card" id="acc-legal-section">
                     <h3 class="section-title"><i class="bi bi-file-earmark-text"></i> Giấy tờ pháp lý</h3>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="border rounded p-3 text-center">
                                 <p class="fw-bold mb-1">Giấy phép kinh doanh</p>
                                 <p class="text-muted small mb-2">Tải tệp PDF hoặc ảnh chụp</p>
-                                <a href="#" class="text-decoration-none">Tải tệp lên</a>
+                                <input type="file" name="legal_business" class="form-control form-control-sm acc-legal-input" accept="image/*,.pdf">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="border rounded p-3 text-center">
                                 <p class="fw-bold mb-1">Chứng nhận PCCC</p>
                                 <p class="text-muted small mb-2">Chứng nhận đủ điều kiện PCCC</p>
-                                <a href="#" class="text-decoration-none">Tải tệp lên</a>
+                                <input type="file" name="legal_pccc" class="form-control form-control-sm acc-legal-input" accept="image/*,.pdf">
                             </div>
                         </div>
                     </div>
@@ -323,33 +422,30 @@
             <!-- Right Column: Sidebar -->
             <div class="col-lg-4">
                 <div class="progress-sidebar">
+                    <div class="section-card mb-3" id="acc-setup-progress">
+                        <h4 class="fw-bold mb-3 fs-6">Theo dõi tiến độ thiết lập</h4>
+                        <div class="setup-step" data-step="basic">
+                            <span>Thông tin cơ bản</span>
+                            <i class="bi bi-circle"></i>
+                        </div>
+                        <div class="setup-step" data-step="images">
+                            <span>Hình ảnh</span>
+                            <i class="bi bi-circle"></i>
+                        </div>
+                        <div class="setup-step" data-step="policy">
+                            <span>Chính sách</span>
+                            <i class="bi bi-circle"></i>
+                        </div>
+                        <div class="setup-step" data-step="legal">
+                            <span>Giấy tờ pháp lý</span>
+                            <i class="bi bi-circle"></i>
+                        </div>
+                    </div>
+
                     {% if not acc %}
                     <div class="section-card">
-                        <h4 class="fw-bold mb-3 fs-5">Tiến trình thiết lập</h4>
-
-                        <div class="d-flex justify-content-between mb-2 small text-muted">
-                            <span>Thông tin cơ bản</span>
-                            <i class="bi bi-check-circle-fill text-primary"></i>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2 small text-primary fw-bold">
-                            <span>Hình ảnh</span>
-                            <span>Đang thực hiện</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-3 small text-muted">
-                            <span>Chính sách & Pháp lý</span>
-                            <span>-</span>
-                        </div>
-
-                        <div class="progress mb-2" style="height: 6px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 45%"
-                                aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <p class="small text-muted mb-4">Hoàn thành 45% hồ sơ</p>
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-2">Lưu và tiếp tục thêm
-                            phòng</button>
-                        <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-semibold mb-4">Lưu
-                            nháp</button>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-2">Lưu</button>
+                        <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-semibold mb-2" id="acc-cancel-btn">Hủy</button>
 
                         <div class="p-3 bg-light rounded text-primary small d-flex gap-2">
                             <i class="bi bi-question-circle"></i>
@@ -362,18 +458,16 @@
                     </div>
                     {% else %}
                     <div class="d-flex flex-column gap-2">
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Lưu thay đổi</button>
-                        <a href="{{ url_for('accommodation.detail', id=acc.id) }}"
-                            class="btn btn-outline-secondary w-100 py-2 fw-semibold">Hủy</a>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="acc-save-btn">Lưu thay đổi</button>
+                        <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-semibold" id="acc-cancel-btn">Hủy</button>
                     </div>
 
                     <div class="section-card mt-4 border-danger">
                         <h4 class="fw-bold text-danger mb-2 fs-5"><i class="bi bi-exclamation-triangle"></i> Chú ý</h4>
-                        <p class="small text-muted mb-3">Xóa cơ sở lưu trú sẽ gỡ bỏ tất cả các phòng và lịch đặt phòng
-                            hiện có. Hành động này không thể hoàn tác.</p>
+                        <p class="small text-muted mb-3">Xóa cơ sở lưu trú sẽ gỡ bỏ tất cả các phòng và booking hiện có. Khách đã đặt có thể được hoàn tiền.</p>
                         <button type="button"
                             class="btn btn-danger w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                            onclick="document.getElementById('deleteForm').submit();">
+                            id="acc-delete-trigger">
                             <i class="bi bi-trash"></i> XÓA CƠ SỞ LƯU TRÚ
                         </button>
                     </div>
@@ -384,8 +478,90 @@
     </form>
 
     {% if acc %}
-    <form id="deleteForm" method="POST" action="{{ url_for('accommodation.delete', id=acc.id) }}"
-        style="display: none;"></form>
+    <form id="deleteForm" method="POST" action="{{ url_for('accommodation.delete', id=acc.id) }}" style="display: none;"></form>
     {% endif %}
+
+    <!-- Modals -->
+    <div class="modal fade" id="accSaveSuccessModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center p-4">
+                    <i class="bi bi-check-circle-fill text-success display-4 mb-3"></i>
+                    <h5 class="fw-bold">Thông tin của bạn đã được lưu.</h5>
+                    <button type="button" class="btn btn-primary mt-3 px-4" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="accCancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold mb-2">Thay đổi không được lưu</h5>
+                    <p class="text-muted mb-4">Bạn có chắc muốn rời khỏi trang? Các thay đổi chưa lưu sẽ bị mất.</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Ở lại</button>
+                        <a href="#" class="btn btn-primary" id="acc-cancel-confirm">Rời khỏi</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="accMaxImagesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body p-4 text-center">
+                    <i class="bi bi-exclamation-triangle-fill text-warning display-4 mb-3"></i>
+                    <h5 class="fw-bold">Đạt tối đa ảnh</h5>
+                    <p class="text-muted mb-3">Bạn chỉ có thể tải tối đa 5 ảnh. Cần xóa bớt trước khi thêm mới.</p>
+                    <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="accDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-triangle"></i> Xóa cơ sở lưu trú</h5>
+                    <p class="text-muted mb-3" id="acc-delete-message">Xóa CSLT sẽ mất toàn bộ phòng và booking. Khách đã đặt có thể được hoàn tiền. Hành động này không thể hoàn tác.</p>
+                    <div class="d-flex gap-2 justify-content-end" id="acc-delete-actions">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" form="deleteForm" class="btn btn-danger" id="acc-delete-confirm">Xác nhận xóa</button>
+                    </div>
+                    <div class="text-end d-none" id="acc-delete-blocked">
+                        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="accNavModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold mb-2">Thay đổi chưa được lưu</h5>
+                    <p class="text-muted mb-4">Bạn có muốn lưu thay đổi trước khi rời khỏi trang?</p>
+                    <div class="d-flex gap-2 justify-content-end flex-wrap">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Ở lại</button>
+                        <a href="#" class="btn btn-outline-danger" id="acc-nav-discard">Không lưu thay đổi</a>
+                        <button type="submit" form="acc-form" class="btn btn-primary" id="acc-nav-save">Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    {% if category == 'acc_saved' %}
+    <div id="acc-saved-flash" data-message="{{ message }}" hidden></div>
+    {% endif %}
+    {% endfor %}
+    {% endwith %}
 </div>
 {% endblock %}

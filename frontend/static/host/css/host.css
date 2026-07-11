@@ -6,6 +6,7 @@
     --rovva-noti-badge: #ba1a1a;
     --rovva-avatar-border: #dbe1ff;
     --rovva-text-dark: #060505;
+    --host-header-gap: 28px;
 }
 
 body {
@@ -18,6 +19,146 @@ body {
 
 main {
     flex: 1;
+}
+
+/* Khoảng cách header → tiêu đề / breadcrumb (theo mockup ~40px) */
+
+/* Vùng nội dung — margin gọn, đồng bộ mọi trang */
+main > .container,
+main > .container-fluid.host-page,
+.container.host-page {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: var(--host-header-gap) !important;
+    padding-bottom: 20px !important;
+    max-width: 100% !important;
+}
+
+main > .container-fluid.host-page--flush,
+.host-page.host-page--flush {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    max-width: 100% !important;
+}
+
+.container.host-page[style*="max-width"] {
+    max-width: 960px !important;
+    margin-left: 16px !important;
+    margin-right: auto !important;
+}
+
+/* Trang rộng full — khuyến mãi, giá phòng, gợi ý giá */
+.host-page--wide,
+.container-fluid.host-page--wide {
+    max-width: 100% !important;
+    width: 100%;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+/* Tiêu đề trang thống nhất */
+.host-page-title,
+.dashboard-title,
+.page-title.h3,
+h1.page-title {
+    font-weight: 800 !important;
+    font-size: 1.5rem !important;
+    color: var(--rovva-black-blue) !important;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+}
+
+/* Breadcrumb — xám đồng nhất, khoảng cách gần header & nội dung */
+.host-breadcrumb,
+nav[aria-label="breadcrumb"].host-breadcrumb,
+nav[aria-label="breadcrumb"]:not(.host-breadcrumb) {
+    position: sticky;
+    top: 84px;
+    z-index: 40;
+    background: #f8f9fa;
+    padding: 0;
+    margin-bottom: 4px !important;
+}
+
+.host-breadcrumb .breadcrumb,
+nav[aria-label="breadcrumb"] .breadcrumb {
+    margin-bottom: 0;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.host-breadcrumb .breadcrumb-item + .breadcrumb-item::before,
+nav[aria-label="breadcrumb"] .breadcrumb-item + .breadcrumb-item::before {
+    content: ">" !important;
+    float: none;
+    padding: 0 0.5rem;
+    color: #cbd5e1;
+}
+
+/* Breadcrumb cuộn theo trang — không sticky (Room Detail, v.v.) */
+.host-breadcrumb--static {
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+    background: transparent !important;
+}
+
+.host-breadcrumb .breadcrumb-item a,
+nav[aria-label="breadcrumb"] .breadcrumb-item a {
+    color: #94a3b8 !important;
+    font-weight: 400;
+    text-decoration: none !important;
+}
+
+.host-breadcrumb .breadcrumb-item a:hover,
+nav[aria-label="breadcrumb"] .breadcrumb-item a:hover {
+    color: #64748b !important;
+    text-decoration: none !important;
+}
+
+.host-breadcrumb .breadcrumb-item.active,
+nav[aria-label="breadcrumb"] .breadcrumb-item.active {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* Trạng thái booking — chấm tròn (giống tranh chấp) */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.badge-status::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-confirmed { background: #dbe1ff; color: #003da8; }
+.status-confirmed::before { background: #003da8; }
+.status-staying { background: #dcfce7; color: #15803d; }
+.status-staying::before { background: #15803d; }
+.status-cancelled { background: #ffdad6; color: #93000a; }
+.status-cancelled::before { background: #93000a; }
+.status-completed { background: #eaddff; color: #6750a4; }
+.status-completed::before { background: #6750a4; }
+
+body.host-body {
+    background-color: #f8f9fa;
+}
+
+tr[data-href]:hover {
+    background-color: rgba(59, 130, 246, 0.06);
 }
 
 /* Header */

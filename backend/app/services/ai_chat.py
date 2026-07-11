@@ -43,7 +43,15 @@ def _model_name() -> str:
     return os.environ.get("GROQ_MODEL", DEFAULT_MODEL)
 
 
-def chat_completion(messages: list[dict], *, model: str | None = None) -> str:
+HOST_SYSTEM_PROMPT = (
+    "Bạn là Trợ lý Rovva AI dành cho Host (chủ nhà) trên nền tảng homestay Rovva Việt Nam. "
+    "Trả lời ngắn gọn, thân thiện, bằng tiếng Việt. "
+    "Hỗ trợ: quản lý CSLT, phòng, booking, khuyến mãi, giá phòng, thanh toán, tranh chấp, tăng doanh thu. "
+    "Nếu không chắc, gợi ý liên hệ hotline 1900 2005."
+)
+
+
+def chat_completion(messages: list[dict], *, model: str | None = None, system_prompt: str | None = None) -> str:
     """Gửi hội thoại tới Groq. `messages` dạng OpenAI: [{role, content}, ...]."""
     api_key = _api_key()
     if not api_key:
@@ -54,7 +62,7 @@ def chat_completion(messages: list[dict], *, model: str | None = None) -> str:
     body = json.dumps(
         {
             "model": model or _model_name(),
-            "messages": [{"role": "system", "content": SYSTEM_PROMPT}, *messages],
+            "messages": [{"role": "system", "content": system_prompt or SYSTEM_PROMPT}, *messages],
             "temperature": 0.7,
             "max_tokens": 800,
         }

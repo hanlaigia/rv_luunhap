@@ -1,0 +1,40 @@
+{% if current_user.is_authenticated and current_user.role == 'host' %}
+<div class="rova-ai-widget" id="rova-ai-widget" data-api-url="{{ url_for('main.ai_chat_api') }}">
+  <div class="rova-ai-panel" id="rova-ai-panel" hidden>
+    <header class="rova-ai-panel__head">
+      <span class="rova-ai-panel__title">Trợ lý Rovva AI — Host</span>
+      <div class="rova-ai-panel__actions">
+        <a class="rova-ai-panel__btn" href="{{ url_for('main.ai_chat') }}" title="Toàn màn hình" aria-label="Mở toàn màn hình">
+          <i class="bi bi-arrows-fullscreen"></i>
+        </a>
+        <button type="button" class="rova-ai-panel__btn" id="rova-ai-panel-close" title="Đóng" aria-label="Đóng">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="rova-ai-panel__body" id="rova-ai-panel-messages">
+      <div class="rova-ai-panel__welcome" id="rova-ai-panel-welcome">
+        <div class="rova-ai-panel__bubble">👋 Xin chào Host! Tôi là Trợ lý Rovva AI.</div>
+        <div class="rova-ai-panel__bubble">
+          Tôi có thể hỗ trợ bạn quản lý CSLT, booking, khuyến mãi, giá phòng, thanh toán và tăng doanh thu.
+        </div>
+        <div class="rova-ai-panel__chips">
+          <button type="button" class="rova-ai-panel__chip ai-bubble-prompt" data-prompt="Gợi ý khuyến mãi tăng booking tuần tới">🏷️ Gợi ý khuyến mãi</button>
+          <button type="button" class="rova-ai-panel__chip ai-bubble-prompt" data-prompt="Phân tích doanh thu và occupancy của tôi">📊 Phân tích doanh thu</button>
+          <button type="button" class="rova-ai-panel__chip ai-bubble-prompt" data-prompt="Cách xử lý tranh chấp với khách">⚖️ Xử lý tranh chấp</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="rova-ai-panel__foot" id="rova-ai-panel-form">
+      <input type="text" placeholder="Nhập câu hỏi của bạn..." aria-label="Nhập câu hỏi" required autocomplete="off">
+      <button type="submit" class="rova-ai-panel__send" aria-label="Gửi"><i class="bi bi-send-fill"></i></button>
+    </form>
+  </div>
+
+  <button type="button" class="rova-ai-fab" id="rova-ai-fab" aria-label="Trợ lý Rovva AI" title="Trợ lý Rovva AI">
+    <i class="bi bi-robot"></i>
+  </button>
+</div>
+{% endif %}

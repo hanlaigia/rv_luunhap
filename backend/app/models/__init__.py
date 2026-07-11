@@ -7,6 +7,7 @@ from backend.app.models.promotion import Promotion
 from backend.app.models.review import Review
 from backend.app.models.room import Room
 from backend.app.models.user import User
+from backend.app.models.notification import Notification
 from backend.app.models.wallet_transaction import WalletTransaction
 from backend.app.models.withdrawal import Withdrawal
 
@@ -23,4 +24,5 @@ __all__ = [
     "Message",
     "Favorite",
     "WalletTransaction",
+    "Notification",
 ]

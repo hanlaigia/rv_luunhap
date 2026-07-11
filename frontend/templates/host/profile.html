@@ -142,7 +142,7 @@
                 <ul class="info-list text-start">
                     <li><i class="bi bi-envelope"></i> {{ host.email }}</li>
                     <li><i class="bi bi-telephone"></i> {{ host.phone or 'Chưa cập nhật' }}</li>
-                    <li><i class="bi bi-lock"></i> ********123</li>
+                    <li><i class="bi bi-credit-card-2-front"></i> CCCD: {{ mask_id_card(host.id_card) if host.id_card else 'Chưa cập nhật' }}</li>
                 </ul>
             </div>
             
@@ -279,7 +279,11 @@
               </div>
               <div class="mb-3">
                   <label class="form-label small fw-bold text-muted">CCCD</label>
-                  <input type="text" name="id_card" class="form-control" value="{{ host.id_card or '' }}">
+                  {% if host.id_card %}
+                  <input type="text" class="form-control" value="{{ mask_id_card(host.id_card) }}" readonly disabled>
+                  {% else %}
+                  <input type="text" name="id_card" class="form-control" placeholder="Nhập số CCCD (chỉ nhập một lần)">
+                  {% endif %}
                   <div class="form-text" style="font-size: 11px;">Không thay đổi CCCD, liên hệ Admin để biết thêm chi tiết</div>
               </div>
               <div class="mb-3">

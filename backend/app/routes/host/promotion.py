@@ -8,7 +8,7 @@ promotion_bp = Blueprint("promotion", __name__, url_prefix="/promotions")
 @promotion_bp.route("/")
 @login_required
 def index():
-    promotions = Promotion.query.all()
+    promotions = Promotion.query.filter_by(host_id=current_user.id).all()
     return render_template(
         "host/promotion/index.html",
         active_nav="accommodations",

@@ -1,78 +1,94 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from backend.app.models import Conversation, Message, Booking
+from datetime import date
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
 from backend.app.extensions import db
+from backend.app.models import Accommodation, Booking, Conversation, Dispute, Message, Room
+from backend.app.services.host_dashboard import get_host_stats
+from backend.app.utils.host_display import filter_bookings_by_tab
 
 message_bp = Blueprint("message", __name__, url_prefix="/messages")
 
+
 @message_bp.route("/")
+@login_required
 def index():
-    host_id = 1 # Hardcoded for demo
-    conversations = Conversation.query.filter_by(host_id=host_id).order_by(Conversation.updated_at.desc()).all()
-    
+    host_id = current_user.id
+    conversations = (
+        Conversation.query.filter_by(host_id=host_id)
+        .order_by(Conversation.updated_at.desc())
+        .all()
+    )
+
     active_conversation = None
     bookings = []
-    
-    conversation_id = request.args.get('conversation_id', type=int)
-    
+    conversation_id = request.args.get("conversation_id", type=int)
+
     if not conversation_id and conversations:
-        # Default to first conversation
         conversation_id = conversations[0].id
 
     if conversation_id:
-        active_conversation = Conversation.query.get(conversation_id)
-        if active_conversation:
-            # Mark messages as read
-            unread_msgs = active_conversation.messages.filter_by(sender_type='guest', is_read=False).all()
-            for msg in unread_msgs:
-                msg.is_read = True
-            db.session.commit()
-            
-            # Fetch bookings for this guest
-            bookings = Booking.query.filter_by(guest_email=active_conversation.guest_email).order_by(Booking.created_at.desc()).all()
+        active_conversation = Conversation.query.filter_by(
+            id=conversation_id, host_id=host_id
+        ).first_or_404()
+        unread_msgs = active_conversation.messages.filter_by(
+            sender_type="guest", is_read=False
+        ).all()
+        for msg in unread_msgs:
+            msg.is_read = True
+        db.session.commit()
+
+        bookings = (
+            Booking.query.join(Room)
+            .join(Accommodation)
+            .filter(
+                Accommodation.host_id == host_id,
+                Booking.guest_email == active_conversation.guest_email,
+            )
+            .order_by(Booking.created_at.desc())
+            .all()
+        )
 
     return render_template(
         "host/message/index.html",
         active_nav="messages",
         conversations=conversations,
         active_conversation=active_conversation,
-        bookings=bookings
+        bookings=bookings,
     )
 
+
 @message_bp.route("/<int:conversation_id>/send", methods=["POST"])
+@login_required
 def send_message(conversation_id):
+    conversation = Conversation.query.filter_by(
+        id=conversation_id, host_id=current_user.id
+    ).first_or_404()
     content = request.form.get("content")
     if content and content.strip():
         msg = Message(
-            conversation_id=conversation_id,
+            conversation_id=conversation.id,
             sender_type="host",
-            content=content.strip()
+            content=content.strip(),
         )
         db.session.add(msg)
-        
-        # Update conversation updated_at
-        conversation = Conversation.query.get(conversation_id)
-        if conversation:
-            # SQLAlchemy updates updated_at automatically on update, but we need to trigger an update.
-            # Just touch a field or let it be. For now, db.session.add is enough.
-            conversation.updated_at = db.func.now()
-            
+        conversation.updated_at = db.func.now()
         db.session.commit()
-        
-    return redirect(url_for('message.index', conversation_id=conversation_id))
+    return redirect(url_for("message.index", conversation_id=conversation.id))
+
 
 @message_bp.route("/report", methods=["POST"])
+@login_required
 def report():
-    # Giả lập xử lý report / liên hệ admin
-    report_type = request.form.get("type", "Báo cáo") # 'report' or 'admin'
+    report_type = request.form.get("type", "Báo cáo")
     title = request.form.get("title")
     content = request.form.get("content")
-    
     if title and content:
         flash(f"Đã gửi {report_type} thành công! Quản trị viên sẽ sớm xem xét.", "success")
     else:
         flash("Vui lòng điền đầy đủ thông tin.", "danger")
-        
     conversation_id = request.form.get("conversation_id")
     if conversation_id:
-        return redirect(url_for('message.index', conversation_id=conversation_id))
-    return redirect(url_for('message.index'))
+        return redirect(url_for("message.index", conversation_id=conversation_id))
+    return redirect(url_for("message.index"))

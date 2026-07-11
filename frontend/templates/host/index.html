@@ -333,10 +333,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4" style="max-width: 1400px;">
+<div class="container-fluid host-page" style="max-width: 1400px;">
 
     <div class="dashboard-header">
-        <h1 class="dashboard-title">Xin chào, {{ host.full_name if host else 'Văn Quản Gia' }}!</h1>
+        <h1 class="host-page-title">Xin chào, {{ host.full_name if host else 'Văn Quản Gia' }}!</h1>
         <p class="text-muted mb-0">Chào mừng bạn trở lại, Đây là tình hình kinh doanh hôm nay của bạn.</p>
     </div>
 
@@ -344,7 +344,7 @@
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="stat-badge growth">{{ stats.revenue_growth }} ↗</div>
+                <div class="stat-badge growth">{{ stats.new_bookings }} mới tháng này</div>
                 <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
                 <div class="stat-label">Tổng doanh thu tháng</div>
                 <div class="stat-value">{{ "{:,.0f}".format(stats.total_revenue).replace(",", ".") }}đ</div>
@@ -383,43 +383,25 @@
                 <div class="chart-header">
                     <div>
                         <div class="chart-title">Phân tích doanh thu</div>
-                        <div class="chart-subtitle">Thống kê theo 7 ngày qua</div>
+                        <div class="chart-subtitle">{{ chart.subtitle }}</div>
                     </div>
-                    <select class="form-select form-select-sm w-auto">
-                        <option>7 ngày qua</option>
-                        <option>Tháng này</option>
+                    <select class="form-select form-select-sm w-auto" id="dashboard-chart-period" onchange="location.href='{{ url_for('main.index') }}?period='+this.value">
+                        <option value="7d"{% if chart_period == '7d' %} selected{% endif %}>7 ngày qua</option>
+                        <option value="30d"{% if chart_period == '30d' %} selected{% endif %}>30 ngày qua</option>
                     </select>
                 </div>
 
-                <div class="css-chart">
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height: 40%"></div>
-                        <div class="chart-label">T2</div>
-                    </div>
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height: 60%"></div>
-                        <div class="chart-label">T3</div>
-                    </div>
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar active" style="height: 90%"></div>
-                        <div class="chart-label">T4</div>
-                    </div>
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height: 45%"></div>
-                        <div class="chart-label">T5</div>
-                    </div>
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height: 70%"></div>
-                        <div class="chart-label">T6</div>
-                    </div>
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height: 85%"></div>
-                        <div class="chart-label">T7</div>
-                    </div>
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height: 50%"></div>
-                        <div class="chart-label">CN</div>
-                    </div>
+                <div class="host-line-chart" id="revenue-line-chart"
+                     data-labels='{{ chart.labels | tojson }}'
+                     data-values='{{ chart["values"] | tojson }}'
+                     data-avg='{{ chart["avg"] }}'>
+                    <svg id="revenue-line-svg" viewBox="0 0 800 180" preserveAspectRatio="none"></svg>
+                    <div class="host-line-chart__labels" id="revenue-line-labels"></div>
+                    <div class="host-line-chart__tooltip" id="revenue-line-tooltip" hidden></div>
+                </div>
+                <div class="host-chart-legend">
+                    <span class="host-chart-legend__item"><span class="host-chart-legend__dot host-chart-legend__dot--revenue"></span> Doanh thu</span>
+                    <span class="host-chart-legend__item"><span class="host-chart-legend__dot host-chart-legend__dot--avg"></span> Doanh thu trung bình</span>
                 </div>
             </div>
 
@@ -442,32 +424,19 @@
                         </thead>
                         <tbody>
                             {% for booking in recent_bookings %}
-                            <tr>
-                                <td><a href="#" class="fw-bold text-decoration-none">{{ booking.booking_code }}</a></td>
+                            <tr data-href="{{ url_for('booking.detail', id=booking.id) }}">
+                                <td><span class="fw-bold text-primary">{{ booking.booking_code }}</span></td>
                                 <td>
                                     <div>{{ booking.room.accommodation.name }}</div>
                                     <div class="text-muted small">{{ booking.room.name }}</div>
                                 </td>
                                 <td>
-                                    {{ booking.check_in.strftime('%d/%m') }} - {{ booking.check_out.strftime('%d/%m')
-                                    }}<br>
+                                    {{ booking.check_in.strftime('%d/%m/%Y') }} - {{ booking.check_out.strftime('%d/%m/%Y') }}<br>
                                     <span class="text-muted small">{{ booking.nights }} đêm</span>
                                 </td>
-                                <td class="fw-bold text-dark">{{ "{:,.0f}".format(booking.total_amount).replace(',',
-                                    '.') }}đ</td>
+                                <td class="fw-bold text-dark">{{ "{:,.0f}".format(booking.total_amount).replace(",", ".") }}đ</td>
                                 <td>
-                                    {% if booking.status == 'confirmed' %}
-                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2">● Đã đặt
-                                        phòng</span>
-                                    {% elif booking.status == 'Đang lưu trú' %}
-                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2">● Đang
-                                        lưu trú</span>
-                                    {% elif booking.status == 'cancelled' %}
-                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2">● Đã
-                                        hủy</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary rounded-pill px-2">{{ booking.status }}</span>
-                                    {% endif %}
+                                    <span class="{{ booking_status_badge_class(booking) }}">{{ booking_status_label(booking) }}</span>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -485,58 +454,26 @@
             <div class="noti-card">
                 <div class="noti-title"><i class="bi bi-bell"></i> Thông báo hệ thống</div>
 
+                {% for n in host_recent_notifications[:3] %}
+                <div class="noti-item{% if n.category == 'dispute' %} alert{% elif n.category == 'system' %} warning{% endif %}">
+                    <div class="noti-item-title">{{ n.title }}</div>
+                    <div class="noti-item-desc">{{ n.body }}</div>
+                    <div class="noti-item-time">{{ n.created_at.strftime('%d/%m/%Y') if n.created_at else '' }}</div>
+                </div>
+                {% else %}
                 <div class="noti-item">
-                    <div class="noti-item-title">Yêu cầu rút tiền thành công</div>
-                    <div class="noti-item-desc">Giao dịch 12,400,000đ đã được chuyển tới tài khoản của bạn.</div>
-                    <div class="noti-item-time">2 GIỜ TRƯỚC</div>
-                </div>
-
-                <div class="noti-item alert">
-                    <div class="noti-item-title">Tranh chấp mới phát sinh</div>
-                    <div class="noti-item-desc">Khách hàng P.402 yêu cầu hoàn tiền do điều hòa hỏng.</div>
-                    <div class="noti-item-time">5 GIỜ TRƯỚC</div>
-                </div>
-
-                <div class="noti-item warning">
-                    <div class="noti-item-title">Cập nhật chính sách Host</div>
-                    <div class="noti-item-desc">Vui lòng đọc các điều khoản mới về bảo hiểm tài sản homestay.</div>
-                    <div class="noti-item-time">HÔM QUA</div>
-                </div>
-
-                <button class="btn btn-outline-secondary w-100 mt-2 fw-bold" style="font-size: 13px;">Xem tất cả thông
-                    báo</button>
-            </div>
-
-            <!-- Host Copilot Widget -->
-            <div class="copilot-widget mb-4" style="background: linear-gradient(135deg, #1e66c7, #0d47a1); border-radius: 16px; padding: 20px; color: #fff;">
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <i class="bi bi-stars fs-5 text-warning"></i>
-                    <span class="fw-bold">Host Copilot</span>
-                    <a href="{{ url_for('copilot.index') }}" class="ms-auto small text-white-50 text-decoration-none">Mở đầy đủ →</a>
-                </div>
-                <div class="small opacity-90 mb-3">
-                    Occ. tuần tới: <strong>{{ (copilot_ctx.next_week_occupancy * 100) | round(0) | int }}%</strong>
-                </div>
-                {% for rec in copilot_recs %}
-                <div class="bg-white bg-opacity-10 rounded-3 p-3 mb-2 small">
-                    <div class="fw-semibold mb-1"><i class="bi {{ rec.icon }}"></i> {{ rec.title }}</div>
-                    <div class="opacity-75" style="font-size: 12px;">{{ rec.description[:80] }}{% if rec.description|length > 80 %}…{% endif %}</div>
+                    <div class="noti-item-desc text-muted">Chưa có thông báo.</div>
                 </div>
                 {% endfor %}
-                {% if copilot_alert %}
-                <div class="bg-warning bg-opacity-25 rounded-3 p-2 small mt-2">
-                    <i class="bi bi-tools"></i> {{ copilot_alert.issue_label }} — {{ copilot_alert.room_name }}
-                </div>
-                {% endif %}
-                <a href="{{ url_for('copilot.index') }}" class="btn btn-light btn-sm fw-bold w-100 mt-3 text-primary">Xem gợi ý Copilot</a>
+
+                <a href="{{ url_for('main.notifications') }}" class="btn btn-outline-secondary w-100 mt-2 fw-bold" style="font-size: 13px;">Xem tất cả thông báo</a>
             </div>
 
-            <!-- Tip Card -->
+            <!-- Mẹo tăng doanh thu -->
             <div class="tip-card">
                 <div class="tip-title">Mẹo tăng doanh thu!</div>
-                <div class="tip-desc">Homestay của bạn có tỷ lệ lấp đầy thấp hơn trung bình khu vực 15%. Thử giảm giá
-                    vào ngày thường để thu hút khách.</div>
-                <button class="btn btn-light btn-sm fw-bold px-4"
+                <div class="tip-desc">{{ tip_summary }}</div>
+                <button type="button" class="btn btn-light btn-sm fw-bold px-4" id="revenue-tips-trigger"
                     style="position: relative; z-index: 2; color: var(--rovva-primary-blue)">Tối ưu ngay</button>
             </div>
 
@@ -566,5 +503,37 @@
 
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="revenueTipsModal" tabindex="-1" aria-labelledby="revenueTipsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold" id="revenueTipsModalLabel">Mẹo tăng doanh thu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body pt-0">
+        {% for tip in revenue_tips %}
+        <div class="border rounded-3 p-3 mb-3">
+          <div class="d-flex align-items-start gap-2 mb-2">
+            <i class="bi {{ tip.icon }} text-primary fs-5"></i>
+            <div>
+              <div class="fw-bold">{{ tip.title }}</div>
+              <div class="text-muted small">{{ tip.description }}</div>
+              {% if tip.impact %}
+              <div class="small text-primary mt-1">{{ tip.impact }}</div>
+              {% endif %}
+            </div>
+          </div>
+          {% if tip.href and tip.href != '#' %}
+          <a href="{{ tip.href }}" class="btn btn-sm btn-primary fw-semibold">{{ tip.action_label or 'Xem chi tiết' }}</a>
+          {% endif %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Vận hành ổn định — không có gợi ý đặc biệt lúc này.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -64,13 +64,52 @@ def create_app(config_name="default"):
     app.add_template_global(SUB_RATING_LABELS, "sub_rating_labels")
     app.add_template_global(SUB_RATING_KEYS, "sub_rating_keys")
 
+    from backend.app.utils.host_display import (
+        booking_status_badge_class,
+        booking_status_label,
+        booking_status_meta,
+        filter_bookings_by_tab,
+        mask_id_card,
+    )
+
+    app.add_template_global(booking_status_label, "booking_status_label")
+    app.add_template_global(booking_status_badge_class, "booking_status_badge_class")
+    app.add_template_global(booking_status_meta, "booking_status_meta")
+    app.add_template_global(mask_id_card, "mask_id_card")
+
+    @app.context_processor
+    def inject_host_notifications():
+        from flask_login import current_user
+        from backend.app.models import Notification
+        from backend.app.utils.notification_links import notification_action_url
+
+        if not current_user.is_authenticated or getattr(current_user, "role", None) != "host":
+            return {}
+        unread = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
+        recent = (
+            Notification.query.filter_by(user_id=current_user.id)
+            .order_by(Notification.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        return {
+            "host_unread_notifications": unread,
+            "host_recent_notifications": recent,
+            "notification_action_url": notification_action_url,
+            "now": __import__("datetime").datetime.utcnow(),
+        }
+
     with app.app_context():
         from backend.app import models  # noqa: F401
 
         db.create_all()
         from backend.app.seed import (
             patch_guest_review_demo,
+            patch_host_id_card_demo,
+            patch_host_notifications_demo,
+            patch_host_notifications_links,
             patch_host_payment_demo,
+            patch_guest_insight_demo,
             patch_review_schema,
             seed_database,
         )
@@ -79,6 +118,10 @@ def create_app(config_name="default"):
         seed_database()
         patch_host_payment_demo()
         patch_guest_review_demo()
+        patch_host_notifications_demo()
+        patch_host_notifications_links()
+        patch_host_id_card_demo()
+        patch_guest_insight_demo()
 
     return app
 

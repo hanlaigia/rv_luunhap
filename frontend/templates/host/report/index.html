@@ -295,39 +295,37 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <!-- Header -->
     <h1 class="page-title h3 mb-4">Quản lý Báo cáo</h1>
 
     <!-- Filters -->
-    <div class="filter-section">
+    <form class="filter-section" method="get" action="{{ url_for('report.index') }}">
         <div class="row align-items-end g-3">
             <div class="col-md-3">
                 <label class="form-label">Thời gian</label>
-                <select class="form-select">
-                    <option>Tháng này</option>
-                    <option>Tháng trước</option>
-                    <option>Năm nay</option>
+                <select class="form-select" name="period">
+                    <option value="7d" {% if period == '7d' %}selected{% endif %}>7 ngày qua</option>
+                    <option value="30d" {% if period == '30d' %}selected{% endif %}>30 ngày qua</option>
+                    <option value="year" {% if period == 'year' %}selected{% endif %}>Năm nay</option>
+                    <option value="all" {% if period == 'all' %}selected{% endif %}>Tất cả</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Cơ sở lưu trú (CSLT)</label>
-                <select class="form-select">
-                    <option>Tất cả CSLT</option>
+                <select class="form-select" name="acc_id">
+                    <option value="">Tất cả CSLT</option>
+                    {% for acc in accommodations %}
+                    <option value="{{ acc.id }}" {% if acc_id == acc.id %}selected{% endif %}>{{ acc.name }}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Phòng</label>
-                <select class="form-select">
-                    <option>Tất cả phòng</option>
-                </select>
-            </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn-premium-primary w-50">Áp dụng</button>
-                <button class="btn-premium-outline w-50">Đặt lại</button>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn-premium-primary flex-grow-1">Áp dụng</button>
+                <a href="{{ url_for('report.index') }}" class="btn-premium-outline flex-grow-1 text-decoration-none text-center">Đặt lại</a>
             </div>
         </div>
-    </div>
+    </form>
 
     <!-- Stats Row -->
     <div class="row g-4 mb-5 align-items-stretch">
@@ -434,15 +432,15 @@
                 <div>
                     <div class="donut-legend-item">
                         <div><i class="bi bi-circle-fill me-2" style="color: #e2e8f0;"></i>Hoàn thành</div>
-                        <div class="fw-bold text-dark">72%</div>
+                        <div class="fw-bold text-dark">{{ status_chart.completed_pct }}%</div>
                     </div>
                     <div class="donut-legend-item">
                         <div><i class="bi bi-circle-fill me-2 text-primary"></i>Đang lưu trú</div>
-                        <div class="fw-bold text-dark">18%</div>
+                        <div class="fw-bold text-dark">{{ status_chart.staying_pct }}%</div>
                     </div>
                     <div class="donut-legend-item">
                         <div><i class="bi bi-circle-fill me-2 text-danger"></i>Đã hủy</div>
-                        <div class="fw-bold text-dark">10%</div>
+                        <div class="fw-bold text-dark">{{ status_chart.cancelled_pct }}%</div>
                     </div>
                 </div>
             </div>
@@ -532,38 +530,53 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for txn in transactions %}
+                    {% for txn in transactions_page %}
                     <tr>
                         <td class="text-start ps-4">{{ txn.date }}</td>
                         <td class="text-start">{{ txn.acc }}</td>
                         <td class="text-start">{{ txn.room }}</td>
-                        <td><a href="#" class="text-decoration-none fw-semibold">{{ txn.code }}</a></td>
+                        <td><span class="fw-semibold">{{ txn.code }}</span></td>
                         <td class="fw-semibold">{{ txn.revenue }}</td>
                         <td><span class="badge-status status-{{ txn.status_color }}">{{ txn.status }}</span></td>
                     </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center py-4 text-muted">Không có giao dịch trong khoảng thời gian này.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
         <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center p-3 bg-light border-top">
-            <div class="small text-muted">Hiển thị 1 - 10 trên 348 dòng</div>
+            <div class="small text-muted">
+                {% if pagination.total %}
+                Hiển thị {{ pagination.start }} - {{ pagination.end }} trên {{ pagination.total }} dòng
+                {% else %}
+                Không có dữ liệu
+                {% endif %}
+            </div>
+            {% if pagination.pages > 1 %}
             <ul class="pagination pagination-sm mb-0">
-                <li class="page-item disabled"><a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a></li>
+                <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('report.index', page=pagination.page - 1, period=period, acc_id=acc_id or none) }}"><i class="bi bi-chevron-left"></i></a>
+                </li>
+                {% for p in range(1, pagination.pages + 1) %}
+                <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('report.index', page=p, period=period, acc_id=acc_id or none) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('report.index', page=pagination.page + 1, period=period, acc_id=acc_id or none) }}"><i class="bi bi-chevron-right"></i></a>
+                </li>
             </ul>
+            {% endif %}
         </div>
     </div>
 
     <!-- Export Buttons -->
     <div class="d-flex justify-content-end gap-3 mb-4">
-        <button class="btn btn-light border fw-semibold bg-white"><i
-                class="bi bi-file-earmark-pdf text-danger me-2"></i>Xuất PDF</button>
-        <button class="btn btn-light border fw-semibold bg-white"><i
-                class="bi bi-file-earmark-excel text-success me-2"></i>Xuất Excel</button>
+        <a href="{{ url_for('report.export', fmt='csv', period=period, acc_id=acc_id or none) }}" class="btn btn-light border fw-semibold bg-white text-decoration-none">
+            <i class="bi bi-file-earmark-excel text-success me-2"></i>Xuất Excel (CSV)
+        </a>
     </div>
 </div>
 {% endblock %}
@@ -572,64 +585,76 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Bar Chart
-        var ctxBar = document.getElementById('revenueChart').getContext('2d');
-        var revenueData = {{ bar_chart_data | tojson
-    }};
+        var barEl = document.getElementById("revenueChart");
+        var donutEl = document.getElementById("statusChart");
+        if (!barEl || !donutEl || !window.Chart) return;
 
-    new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: ['Tháng 1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-            datasets: [{
-                label: 'Doanh thu',
-                data: revenueData,
-                backgroundColor: '#e2e8f0',
-                borderRadius: 4,
-                barThickness: 24
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
+        var revenueLabels = {{ bar_chart_labels | tojson }};
+        var revenueData = {{ bar_chart_values | tojson }};
+        var statusData = [
+            {{ status_chart.completed }},
+            {{ status_chart.staying }},
+            {{ status_chart.cancelled }}
+        ];
+
+        new Chart(barEl.getContext("2d"), {
+            type: "bar",
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: "Doanh thu",
+                    data: revenueData,
+                    backgroundColor: "#2784f0",
+                    borderRadius: 4,
+                    barThickness: revenueLabels.length > 14 ? 12 : 24
+                }]
             },
-            scales: {
-                x: {
-                    grid: { display: false, drawBorder: false },
-                    ticks: { color: '#94a3b8', font: { size: 11 } }
-                },
-                y: {
-                    display: false, // hide y axis
-                    grid: { display: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: "#94a3b8", font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: "#f1f5f9" },
+                        ticks: {
+                            color: "#94a3b8",
+                            font: { size: 11 },
+                            callback: function (v) {
+                                if (v >= 1000000) return (v / 1000000).toFixed(1) + "tr";
+                                if (v >= 1000) return (v / 1000).toFixed(0) + "k";
+                                return v;
+                            }
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Donut Chart
-    var ctxDonut = document.getElementById('statusChart').getContext('2d');
-    new Chart(ctxDonut, {
-        type: 'doughnut',
-        data: {
-            labels: ['Hoàn thành', 'Đang lưu trú', 'Đã hủy'],
-            datasets: [{
-                data: [72, 18, 10],
-                backgroundColor: ['#e2e8f0', '#2784f0', '#dc3545'],
-                borderWidth: 0,
-                cutout: '80%'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: { enabled: false }
+        new Chart(donutEl.getContext("2d"), {
+            type: "doughnut",
+            data: {
+                labels: ["Hoàn thành", "Đang lưu trú", "Đã hủy"],
+                datasets: [{
+                    data: statusData,
+                    backgroundColor: ["#e2e8f0", "#2784f0", "#dc3545"],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "80%",
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                }
             }
-        }
-    });
+        });
     });
 </script>
 {% endblock %}

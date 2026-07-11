@@ -113,6 +113,9 @@ def build_recommendations(host_id, resolved_keys=None):
     top_issue = scan_maintenance_issues(host_id, resolved_keys)
     if top_issue:
         issue = top_issue[0]
+        from backend.app.models import Room
+
+        room = Room.query.get(issue["room_id"])
         recs.append(
             {
                 "id": "fix_maintenance",
@@ -123,9 +126,12 @@ def build_recommendations(host_id, resolved_keys=None):
                     f'"{issue["sample_quote"][:60]}…"'
                 ),
                 "impact": "Tránh review xấu",
-                "action_label": "Xem Radar",
-                "action_url": "copilot.index",
-                "action_params": {"tab": "radar"},
+                "action_label": "Xem phòng",
+                "action_url": "accommodation.room_detail",
+                "action_params": {
+                    "acc_id": room.accommodation_id if room else 1,
+                    "room_id": issue["room_id"],
+                },
                 "priority": 85,
             }
         )

@@ -1,0 +1,182 @@
+/* Trợ lý Rovva AI — Host (đồng bộ client bubble) */
+.rova-ai-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.rova-ai-fab:hover,
+.rova-ai-fab.is-open {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.rova-ai-widget {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.rova-ai-panel {
+  width: 400px;
+  max-width: calc(100vw - 2rem);
+  height: 487px;
+  max-height: calc(100vh - 8rem);
+  background: #fff;
+  border: 1px solid #c2c6d6;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rova-ai-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f9f9ff;
+  border-bottom: 1px solid #c2c6d6;
+}
+
+.rova-ai-panel__title {
+  color: #0058be;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.rova-ai-panel__actions { display: flex; gap: 8px; }
+
+.rova-ai-panel__btn {
+  border: none;
+  background: transparent;
+  color: #424754;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.rova-ai-panel__btn:hover {
+  background: rgba(0, 88, 190, 0.08);
+  color: #0058be;
+}
+
+.rova-ai-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #fff;
+}
+
+.rova-ai-panel__welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rova-ai-panel__bubble {
+  max-width: 92%;
+  padding: 11px 16px;
+  background: #e7e8ee;
+  border-radius: 12px;
+  color: #191c20;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.rova-ai-panel__bubble--user {
+  margin-left: auto;
+  background: #dbeafe;
+}
+
+.rova-ai-panel__bubble--typing {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.rova-ai-panel__bubble--error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.rova-ai-panel__chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.rova-ai-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 5px 12px;
+  background: #fff;
+  border: 1px solid #0058be;
+  border-radius: 8px;
+  color: #0058be;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.rova-ai-panel__chip:hover { background: #f0f7ff; }
+
+.rova-ai-panel__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-top: 1px solid #c2c6d6;
+  background: #fff;
+}
+
+.rova-ai-panel__foot input {
+  flex: 1;
+  height: 32px;
+  border: 1px solid #c2c6d6;
+  border-radius: 20px;
+  background: #f3f3f9;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.rova-ai-panel__bubble strong {
+  font-weight: 700;
+}
+
+.rova-ai-panel__send {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  background: #0058be;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}

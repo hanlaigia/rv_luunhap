@@ -5,92 +5,59 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
-    .page-title {
-        color: var(--rovva-black-blue);
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-    .section-card {
-        border: 1px solid #dee2e6;
-        border-radius: 12px;
-        background: #fff;
-        margin-bottom: 24px;
-        padding: 24px;
-    }
-    .section-title {
-        font-weight: 700;
-        font-size: 16px;
-        color: var(--rovva-black-blue);
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .section-title i {
-        color: var(--rovva-primary-blue);
-    }
-    .form-label {
-        font-weight: 600;
-        font-size: 14px;
-        color: var(--rovva-black-blue);
-    }
-    .form-control, .form-select {
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 14px;
-    }
-    .feature-check {
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        padding: 10px 14px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.2s;
-    }
-    .feature-check:hover { background: #f8f9fa; }
-    .feature-check input:checked + span {
-        font-weight: 600;
-        color: var(--rovva-primary-blue);
-    }
-    .sidebar-sticky { position: sticky; top: 100px; }
+    .page-title { color: var(--rovva-black-blue); font-weight: 800; }
+    .section-card { border: 1px solid #dee2e6; border-radius: 12px; background: #fff; margin-bottom: 24px; padding: 24px; }
+    .section-title { font-weight: 700; font-size: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .section-title i { color: var(--rovva-primary-blue); }
+    .form-label { font-weight: 600; font-size: 14px; }
+    .feature-check { border: 1px solid #dee2e6; border-radius: 8px; padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .custom-feature-row input[type="text"] { border: none; background: transparent; flex: 1; outline: none; min-width: 0; }
+    .acc-image-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+    .acc-image-item { position: relative; flex: 0 0 140px; height: 100px; border-radius: 8px; overflow: hidden; border: 2px solid #e2e8f0; cursor: grab; }
+    .acc-image-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    .acc-image-item__cover { position: absolute; top: 6px; left: 6px; font-size: 10px; font-weight: 700; background: var(--rovva-primary-blue); color: #fff; padding: 2px 8px; border-radius: 99px; z-index: 1; }
+    .acc-image-item__remove { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border: none; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; z-index: 1; }
+    .acc-image-add { flex: 0 0 140px; height: 100px; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; cursor: pointer; }
+    .upload-box { border: 2px dashed #dee2e6; border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; }
+    .setup-step { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #94a3b8; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .setup-step.done { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
+    .sidebar-sticky { position: sticky; top: 140px; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}" class="text-decoration-none text-muted">Quản lý CSLT</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.detail', id=acc.id) }}" class="text-decoration-none text-muted">{{ acc.name }}</a></li>
+<div class="container host-page">
+    <nav aria-label="breadcrumb" class="host-breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.detail', id=acc.id) }}">{{ acc.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ 'Chỉnh sửa: ' + room.name if room else 'Thêm phòng mới' }}</li>
         </ol>
     </nav>
-    
+
     <div class="mb-4">
         <h1 class="page-title h3 mb-2">{{ 'Chỉnh sửa phòng' if room else 'Thêm phòng mới' }}</h1>
-        <p class="text-muted">Vui lòng cung cấp đầy đủ thông tin để phòng của bạn sớm được duyệt và hiển thị trên Rovva.</p>
+        <p class="text-muted mb-0">Vui lòng cung cấp đầy đủ thông tin để phòng sớm được hiển thị trên Rovva.</p>
     </div>
 
-    <form method="POST" action="{{ url_for('accommodation.room_edit', acc_id=acc.id, room_id=room.id) if room else url_for('accommodation.room_create', acc_id=acc.id) }}">
+    <form method="POST" enctype="multipart/form-data" id="room-form"
+        action="{{ url_for('accommodation.room_edit', acc_id=acc.id, room_id=room.id) if room else url_for('accommodation.room_create', acc_id=acc.id) }}"
+        data-is-create="{{ '0' if room else '1' }}"
+        data-cancel-url="{{ url_for('accommodation.room_detail', acc_id=acc.id, room_id=room.id) if room else url_for('accommodation.detail', id=acc.id) }}">
+        <input type="hidden" name="image_order" id="room-image-order-input" value="">
+        <div id="room-image-file-inputs"></div>
         <div class="row">
-            <!-- Left Col: Form -->
             <div class="col-lg-8">
-                
-                <!-- Thông tin cơ bản -->
                 <div class="section-card">
                     <h3 class="section-title"><i class="bi bi-info-circle"></i> Thông tin cơ bản</h3>
                     <div class="mb-3">
                         <label class="form-label">Tên phòng <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" value="{{ room.name if room else '' }}" required placeholder="VD: Deluxe Double Garden View">
+                        <input type="text" name="name" class="form-control room-progress-input" value="{{ room.name if room else '' }}" required>
                     </div>
-                    
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Loại phòng</label>
-                            <select name="bed_info" class="form-select">
+                            <select name="bed_info" class="form-select room-progress-input">
                                 {% for t in ['1 Giường đôi', '2 Giường đơn', '2 Giường đôi', '1 Giường King'] %}
                                 <option value="{{ t }}" {{ 'selected' if room and room.bed_info == t else '' }}>{{ t }}</option>
                                 {% endfor %}
@@ -98,179 +65,166 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Số khách tối đa</label>
-                            <input type="number" name="capacity" class="form-control" value="{{ room.capacity if room else 2 }}">
+                            <input type="number" name="capacity" class="form-control room-progress-input" value="{{ room.capacity if room else 2 }}" min="1">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Diện tích (m2)</label>
-                            <input type="text" name="area" class="form-control" value="{{ room.area if room else '30m2' }}">
+                            <label class="form-label">Diện tích (m²)</label>
+                            <input type="text" name="area" class="form-control room-progress-input" value="{{ room.area if room else '30m2' }}">
                         </div>
                     </div>
-                    
                     <div>
                         <label class="form-label">Mô tả chi tiết</label>
-                        <textarea name="description" class="form-control" rows="4" placeholder="Mô tả các đặc điểm nổi bật của phòng...">{{ room.description if room else '' }}</textarea>
+                        <textarea name="description" class="form-control room-progress-input" rows="4">{{ room.description if room else '' }}</textarea>
                     </div>
                 </div>
-                
-                <!-- Hình ảnh phòng -->
+
                 <div class="section-card">
                     <h3 class="section-title"><i class="bi bi-image"></i> Hình ảnh phòng</h3>
-                    <p class="small text-muted">Tải lên ít nhất 5 ảnh chất lượng cao để thu hút khách hàng.</p>
-                    <div class="row g-2">
-                        {% if room and room.image %}
-                        <div class="col-4 position-relative">
-                            <img src="{{ url_for('static', filename=room.image) }}" class="img-fluid rounded border" alt="Ảnh 1" onerror="this.onerror=null; this.src='{{ url_for('static', filename='shared/images/demo-acc.png') }}';">
-                        </div>
-                        {% endif %}
-                        <div class="col-4">
-                            <div class="border rounded d-flex align-items-center justify-content-center flex-column text-muted" style="height: 100%; min-height: 120px; cursor: pointer; border-style: dashed !important; background: #f8f9fa;">
-                                <i class="bi bi-cloud-arrow-up fs-3 mb-1"></i>
-                                <small>Thêm ảnh</small>
-                            </div>
-                        </div>
+                    <p class="text-muted small">Tối đa 5 ảnh. Ảnh đầu tiên là ảnh bìa.</p>
+                    <div class="upload-box mb-3" id="room-upload-box">
+                        <i class="bi bi-cloud-arrow-up display-6 text-muted mb-2"></i>
+                        <p class="fw-bold mb-1">Tải ảnh lên hoặc kéo thả vào đây</p>
+                        <button type="button" class="btn btn-primary btn-sm px-4" id="room-upload-trigger">Chọn ảnh</button>
+                        <input type="file" id="room-file-input" accept="image/jpeg,image/png,image/webp" multiple hidden>
                     </div>
+                    <div class="acc-image-strip" id="room-image-strip"
+                         data-existing='{{ room.existing_image_urls | tojson if room else "[]" }}'
+                         data-prefix="room"></div>
                 </div>
-                
-                <!-- Tiện ích & Dịch vụ -->
+
                 <div class="section-card">
                     <h3 class="section-title"><i class="bi bi-shield-check"></i> Tiện ích & Dịch vụ</h3>
-                    
+                    {% set predefined = ['Wifi miễn phí', 'Điều hòa', 'Bồn tắm', 'Ban công', 'Minibar', 'Tivi 4K'] %}
+                    {% set current_features = room.features if room and room.features else [] %}
                     <label class="form-label mb-2">Tiện ích phòng</label>
-                    <div class="row g-2 mb-4">
-                        {% set current_features = room.features if room and room.features else [] %}
-                        {% for feature in ['Wifi miễn phí', 'Điều hòa', 'Bồn tắm', 'Ban công', 'Minibar', 'Tivi 4K'] %}
+                    <div class="row g-2 mb-3" id="room-features-container">
+                        {% for feature in predefined %}
                         <div class="col-md-4 col-sm-6">
                             <label class="feature-check w-100">
-                                <input type="checkbox" name="features" value="{{ feature }}" class="form-check-input mt-0" {{ 'checked' if feature in current_features else '' }}>
+                                <input type="checkbox" name="features" value="{{ feature }}" class="form-check-input mt-0 room-progress-input" {{ 'checked' if feature in current_features else '' }}>
                                 <span class="small">{{ feature }}</span>
                             </label>
                         </div>
                         {% endfor %}
+                        {% for feature in current_features if feature not in predefined %}
+                        <div class="col-md-4 col-sm-6 custom-feature-row" data-custom-feature>
+                            <label class="feature-check w-100">
+                                <input type="checkbox" class="form-check-input mt-0 acc-custom-checkbox" checked>
+                                <input type="text" name="custom_feature_name" value="{{ feature }}" placeholder="Nhập tiện ích" class="acc-custom-name">
+                            </label>
+                        </div>
+                        {% endfor %}
+                        <div class="col-md-4 col-sm-6" id="room-custom-features-anchor">
+                            <button type="button" class="btn btn-light border w-100 feature-check justify-content-center" id="room-add-feature-btn"><i class="bi bi-plus"></i> Thêm tiện ích</button>
+                        </div>
                     </div>
-                    
+
                     <label class="form-label mb-2">Dịch vụ đi kèm</label>
-                    <!-- Tạm thời mock 2 dịch vụ -->
-                    <div class="row g-2 align-items-end mb-2">
-                        <div class="col-md-5">
-                            <small class="text-muted">Tên dịch vụ</small>
-                            <input type="text" class="form-control" value="Đưa đón tận nơi" readonly>
+                    <div id="room-services-list">
+                        {% set services = room.services if room and room.services else [] %}
+                        {% if services %}
+                        {% for svc in services %}
+                        <div class="row g-2 align-items-end mb-2 service-row">
+                            <div class="col-md-5"><small class="text-muted">Tên dịch vụ</small><input type="text" name="service_name" class="form-control" value="{{ svc.name }}"></div>
+                            <div class="col-md-3"><small class="text-muted">Giá</small><input type="text" name="service_price" class="form-control" value="{{ svc.price }}"></div>
+                            <div class="col-md-3"><small class="text-muted">Ghi chú (Đơn vị)</small><input type="text" name="service_note" class="form-control" value="{{ svc.note }}"></div>
+                            <div class="col-md-1"><button type="button" class="btn btn-link text-danger p-0 remove-service-btn">&times;</button></div>
                         </div>
-                        <div class="col-md-3">
-                            <small class="text-muted">Giá</small>
-                            <input type="text" class="form-control" value="250.000" readonly>
+                        {% endfor %}
+                        {% else %}
+                        <div class="row g-2 align-items-end mb-2 service-row">
+                            <div class="col-md-5"><small class="text-muted">Tên dịch vụ</small><input type="text" name="service_name" class="form-control" placeholder="Đưa đón tận nơi"></div>
+                            <div class="col-md-3"><small class="text-muted">Giá</small><input type="text" name="service_price" class="form-control" placeholder="250.000"></div>
+                            <div class="col-md-3"><small class="text-muted">Ghi chú (Đơn vị)</small><input type="text" name="service_note" class="form-control" placeholder="đ/lượt"></div>
+                            <div class="col-md-1"></div>
                         </div>
-                        <div class="col-md-4">
-                            <small class="text-muted">Ghi chú (Đơn vị)</small>
-                            <input type="text" class="form-control" value="đ/lượt" readonly>
-                        </div>
+                        {% endif %}
                     </div>
-                    <div class="row g-2 align-items-end mb-3">
-                        <div class="col-md-5">
-                            <input type="text" class="form-control" value="Bữa sáng tại sảnh" readonly>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" value="150.000" readonly>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" value="đ/người/ngày" readonly>
-                        </div>
-                    </div>
-                    
-                    <button type="button" class="btn btn-link text-decoration-none p-0 mb-4"><i class="bi bi-plus"></i> Thêm dịch vụ</button>
-                    
+                    <button type="button" class="btn btn-link text-decoration-none p-0 mb-4" id="room-add-service-btn"><i class="bi bi-plus"></i> Thêm dịch vụ</button>
+
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Check-in từ</label>
-                            <select name="check_in_time" class="form-select">
-                                <option value="14:00" selected>14:00</option>
-                                <option value="15:00">15:00</option>
+                            <select name="check_in_time" class="form-select room-progress-input">
+                                {% for time in ['12:00','13:00','14:00','15:00'] %}
+                                <option value="{{ time }}" {{ 'selected' if room and room.check_in_time == time else ('selected' if not room and time == '14:00' else '') }}>{{ time }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Check-out trước</label>
-                            <select name="check_out_time" class="form-select">
-                                <option value="12:00" selected>12:00</option>
-                                <option value="11:00">11:00</option>
+                            <select name="check_out_time" class="form-select room-progress-input">
+                                {% for time in ['10:00','11:00','12:00','13:00'] %}
+                                <option value="{{ time }}" {{ 'selected' if room and room.check_out_time == time else ('selected' if not room and time == '12:00' else '') }}>{{ time }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Chính sách hủy</label>
-                            <select name="cancellation_policy" class="form-select">
-                                <option value="Linh hoạt" selected>Linh hoạt</option>
-                                <option value="Nghiêm ngặt">Nghiêm ngặt</option>
+                            <select name="cancellation_policy" class="form-select room-progress-input">
+                                <option value="Linh hoạt: Hoàn tiền 100% trước 24h" {{ 'selected' if not room or 'Linh hoạt' in (room.cancellation_policy or '') else '' }}>Linh hoạt</option>
+                                <option value="Nghiêm ngặt: Không hoàn tiền" {{ 'selected' if room and 'Nghiêm' in (room.cancellation_policy or '') else '' }}>Nghiêm ngặt</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <!-- Giá cơ bản -->
                 <div class="section-card">
                     <h3 class="section-title"><i class="bi bi-cash"></i> Giá cơ bản</h3>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label class="form-label">Giá cơ bản (đêm) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="number" name="base_price" class="form-control" value="{{ room.base_price if room else 1200000 }}" required>
-                                <span class="input-group-text">VND</span>
-                            </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Giá cơ bản (đêm) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" name="base_price" class="form-control room-progress-input" value="{{ room.base_price if room else 1200000 }}" required>
+                            <span class="input-group-text">VND</span>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Right Col: Actions -->
+
             <div class="col-lg-4">
                 <div class="sidebar-sticky">
+                    <div class="section-card mb-3" id="room-setup-progress">
+                        <h4 class="fw-bold mb-3 fs-6">Theo dõi tiến độ thiết lập</h4>
+                        <div class="setup-step" data-step="basic"><span>Thông tin cơ bản</span><i class="bi bi-circle"></i></div>
+                        <div class="setup-step" data-step="images"><span>Hình ảnh phòng</span><i class="bi bi-circle"></i></div>
+                        <div class="setup-step" data-step="amenities"><span>Tiện ích & Chính sách</span><i class="bi bi-circle"></i></div>
+                        <div class="setup-step" data-step="price"><span>Giá thuê & Phụ phí</span><i class="bi bi-circle"></i></div>
+                    </div>
                     {% if room %}
-                    <div class="d-flex flex-column gap-2 mb-4">
-                        <button type="submit" class="btn btn-primary py-2 fw-semibold w-100">Lưu thay đổi</button>
-                        <a href="{{ url_for('accommodation.room_detail', acc_id=acc.id, room_id=room.id) }}" class="btn btn-outline-secondary py-2 fw-semibold w-100">Hủy</a>
-                    </div>
-                    
-                    <div class="section-card bg-light border-0 mb-4">
+                    <div class="section-card bg-light border-0 mb-3">
                         <h4 class="fw-bold mb-3 fs-6">Trạng thái phòng</h4>
-                        <div class="d-flex justify-content-between mb-2 small">
-                            <span class="text-muted">Trạng thái hiện tại</span>
-                            <span class="text-success fw-bold">Đang hoạt động</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2 small">
-                            <span class="text-muted">Booking đang đặt trước</span>
-                            <span class="fw-bold">04</span>
-                        </div>
-                        <div class="d-flex justify-content-between small">
-                            <span class="text-muted">Tỉ lệ lấp đầy (Tháng)</span>
-                            <span class="fw-bold">85%</span>
-                        </div>
+                        <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Trạng thái</span><span class="fw-bold">{{ room.status_label }}</span></div>
+                        <div class="d-flex justify-content-between mb-2 small"><span class="text-muted">Booking đặt trước</span><span class="fw-bold">{{ room_stats.upcoming_bookings if room_stats else 0 }}</span></div>
+                        <div class="d-flex justify-content-between small"><span class="text-muted">Tỉ lệ lấp đầy</span><span class="fw-bold">{{ room_stats.occupancy_percent if room_stats else 0 }}%</span></div>
                     </div>
-                    
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-2">Lưu thay đổi</button>
+                    <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-semibold mb-4" id="room-cancel-btn">Hủy</button>
                     <div class="section-card border-danger">
-                        <h4 class="fw-bold text-danger mb-2 fs-6">Chú ý</h4>
-                        <p class="small text-muted mb-3">Việc xóa phòng sẽ hủy bỏ các thiết lập hiện tại và không thể hoàn tác.</p>
-                        <button type="button" class="btn btn-outline-danger w-100 py-2 fw-semibold" onclick="document.getElementById('deleteRoomForm').submit();">
-                            <i class="bi bi-trash"></i> XÓA PHÒNG
-                        </button>
+                        <p class="small text-muted mb-3">Xóa phòng không thể hoàn tác.</p>
+                        <button type="button" class="btn btn-outline-danger w-100" id="room-delete-trigger"><i class="bi bi-trash"></i> XÓA PHÒNG</button>
                     </div>
                     {% else %}
-                    <div class="d-flex flex-column gap-2 mb-4">
-                        <button type="submit" class="btn btn-primary py-2 fw-semibold w-100"><i class="bi bi-send"></i> Gửi phê duyệt</button>
-                        <button type="button" class="btn btn-outline-secondary py-2 fw-semibold w-100">Lưu nháp</button>
-                    </div>
-                    
-                    <div class="p-3 bg-light rounded text-primary small d-flex gap-2">
-                        <i class="bi bi-info-circle-fill mt-1"></i>
-                        <div>
-                            <strong>Hướng dẫn</strong><br>
-                            Mô tả chi tiết và hình ảnh đẹp sẽ giúp tăng 30% tỉ lệ đặt phòng.
-                        </div>
-                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-2">Lưu</button>
+                    <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-semibold mb-4" id="room-cancel-btn">Hủy</button>
                     {% endif %}
                 </div>
             </div>
         </div>
     </form>
-    
     {% if room %}
-    <form id="deleteRoomForm" method="POST" action="{{ url_for('accommodation.room_delete', acc_id=acc.id, room_id=room.id) }}" style="display:none;"></form>
+    <form id="deleteRoomForm" method="POST" action="{{ url_for('accommodation.room_delete', acc_id=acc.id, room_id=room.id) }}" style="display:none"></form>
     {% endif %}
+
+<div class="modal fade" id="accMaxImagesModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-body p-4 text-center">
+        <h5 class="fw-bold">Đạt tối đa ảnh</h5>
+        <p class="text-muted mb-3">Bạn chỉ có thể tải tối đa 5 ảnh. Cần xóa bớt trước khi thêm mới.</p>
+        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 {% endblock %}

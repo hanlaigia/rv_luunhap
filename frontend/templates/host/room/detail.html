@@ -2,402 +2,305 @@
 
 {% block title %}Chi tiết Phòng - Rovva Host{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<style>
-    .page-title {
-        color: var(--rovva-black-blue);
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-    .badge-status {
-        padding: 6px 14px;
-        border-radius: 99px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .badge-status.active { background: #e8f5e9; color: #2e7d32; }
-    
-    /* Image Grid */
-    .img-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-template-rows: 200px 200px;
-        gap: 12px;
-        margin-bottom: 32px;
-        border-radius: 16px;
-        overflow: hidden;
-    }
-    .img-main {
-        grid-row: 1 / 3;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .img-sub {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .img-more {
-        position: relative;
-    }
-    .img-overlay {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 20px;
-        cursor: pointer;
-    }
-    
-    /* Cards */
-    .info-card {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .info-card i {
-        color: var(--rovva-primary-blue);
-        font-size: 20px;
-        margin-bottom: 8px;
-    }
-    .info-label {
-        font-size: 12px;
-        color: #6c757d;
-        text-transform: uppercase;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-    .info-value {
-        font-weight: 700;
-        color: var(--rovva-black-blue);
-    }
-    
-    .price-card {
-        border: 1px solid #dee2e6;
-        border-radius: 12px;
-        padding: 24px;
-        background: #fff;
-        margin-bottom: 24px;
-    }
-    
-    /* Feature Tag */
-    .feature-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        padding: 10px 16px;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--rovva-black-blue);
-    }
-    .feature-tag i {
-        color: var(--rovva-primary-blue);
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container py-4 py-lg-5">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}" class="text-decoration-none text-muted">Quản lý CSLT</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.detail', id=acc.id) }}" class="text-decoration-none text-muted">{{ acc.name }}</a></li>
+<div class="container host-page room-detail">
+    <nav aria-label="breadcrumb" class="host-breadcrumb host-breadcrumb--static room-detail__breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.detail', id=acc.id) }}">{{ acc.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ room.name }}</li>
         </ol>
     </nav>
-    
-    <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-        <div>
-            <div class="d-flex align-items-center gap-3 mb-2">
-                <h1 class="page-title h2 mb-0">{{ room.name }}</h1>
-                <span class="badge-status active"><i class="bi bi-circle-fill" style="font-size: 8px;"></i> Đang hoạt động</span>
+
+    <div class="room-detail__heading">
+        <h1 class="room-detail__title">{{ room.name }}</h1>
+        <p class="room-detail__meta">
+            <i class="bi bi-building me-1"></i>
+            Thuộc CSLT:
+            <a href="{{ url_for('accommodation.detail', id=acc.id) }}">{{ acc.name }}</a>
+        </p>
+    </div>
+
+    {% set gallery = room.existing_image_urls %}
+    <div class="row g-4 align-items-start mb-4">
+        <div class="col-lg-8">
+            {% if gallery|length > 0 %}
+            <div class="room-detail__gallery d-none d-md-grid">
+                <img src="{{ gallery[0] }}" class="room-detail__gallery-main" alt="{{ room.name }}">
+                {% if gallery|length > 1 %}
+                <img src="{{ gallery[1] }}" alt="">
+                {% else %}
+                <img src="{{ gallery[0] }}" alt="">
+                {% endif %}
+                <div class="position-relative">
+                    <img src="{{ gallery[2] if gallery|length > 2 else gallery[0] }}" alt="">
+                    {% if gallery|length > 3 %}
+                    <div class="room-detail__gallery-more">+{{ gallery|length - 3 }} ảnh</div>
+                    {% endif %}
+                </div>
             </div>
-            <p class="text-muted"><i class="bi bi-building"></i> Thuộc CSLT: {{ acc.name }}</p>
+            <div class="d-block d-md-none">
+                <img src="{{ gallery[0] }}" class="img-fluid rounded w-100" alt="{{ room.name }}" style="height:250px;object-fit:cover">
+            </div>
+            {% else %}
+            <img src="{{ room.image_url }}" class="img-fluid rounded w-100" alt="{{ room.name }}" style="min-height:300px;object-fit:cover">
+            {% endif %}
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
-            <a href="{{ url_for('accommodation.room_edit', acc_id=acc.id, room_id=room.id) }}" class="btn btn-outline-primary fw-semibold px-4"><i class="bi bi-pencil-square"></i> Chỉnh sửa phòng</a>
-            <button class="btn btn-outline-danger fw-semibold px-4"><i class="bi bi-pause-circle"></i> Tạm ngưng</button>
-            <a href="{{ url_for('accommodation.room_pricing', acc_id=acc.id, room_id=room.id) }}" class="btn btn-primary fw-semibold px-4"><i class="bi bi-calendar-check"></i> Quản lý giá & Lịch</a>
+
+        <div class="col-lg-4">
+            <aside class="room-detail__sidebar">
+                <div class="room-detail__panel">
+                    <div class="room-detail__panel-label">Giá cơ bản</div>
+                    <div class="room-detail__price mb-0">
+                        <span class="room-detail__price-value">{{ "{:,.0f}".format(room.base_price).replace(",", ".") }}đ</span>
+                        <span class="room-detail__price-unit">/ đêm</span>
+                    </div>
+                </div>
+
+                <div class="room-detail__panel">
+                    <div class="room-detail__panel-title">Chính sách lưu trú</div>
+                    <div class="room-detail__policy-row">
+                        <span class="room-detail__policy-label"><i class="bi bi-box-arrow-in-right me-1"></i>Nhận phòng</span>
+                        <span class="room-detail__policy-value">Sau {{ room.check_in_time }}</span>
+                    </div>
+                    <div class="room-detail__policy-row mb-3">
+                        <span class="room-detail__policy-label"><i class="bi bi-box-arrow-right me-1"></i>Trả phòng</span>
+                        <span class="room-detail__policy-value">Trước {{ room.check_out_time }}</span>
+                    </div>
+                    <div class="room-detail__cancel-box">
+                        <i class="bi bi-shield-exclamation me-1"></i>
+                        <strong>Chính sách hủy:</strong> {{ room.cancellation_policy }}
+                    </div>
+                </div>
+
+                <div class="room-detail__panel room-detail__panel--muted">
+                    <div class="room-detail__panel-label mb-2">Trạng thái</div>
+                    {% if room.status == 'active' %}
+                    <span class="room-detail__status-badge active"><i class="bi bi-circle-fill" style="font-size:8px"></i> Đang hoạt động</span>
+                    {% elif room.status == 'paused' %}
+                    <span class="room-detail__status-badge paused"><i class="bi bi-pause-circle-fill"></i> Tạm ngưng</span>
+                    {% else %}
+                    <span class="room-detail__status-badge draft">{{ room.status_label }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="room-detail__panel room-detail__actions d-grid gap-2">
+                    <a href="{{ url_for('accommodation.room_edit', acc_id=acc.id, room_id=room.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa phòng
+                    </a>
+                    {% if room.status == 'active' %}
+                    <button type="button" class="btn btn-outline-danger" id="room-pause-trigger"
+                        data-pause-url="{{ url_for('accommodation.room_pause', acc_id=acc.id, room_id=room.id) }}"
+                        data-staying-count="{{ staying_count }}">
+                        <i class="bi bi-pause-circle me-1"></i> Tạm ngưng
+                    </button>
+                    {% elif room.status == 'paused' %}
+                    <form method="POST" action="{{ url_for('accommodation.room_pause', acc_id=acc.id, room_id=room.id) }}">
+                        <button type="submit" class="btn btn-outline-success w-100">
+                            <i class="bi bi-play-circle me-1"></i> Kích hoạt lại
+                        </button>
+                    </form>
+                    {% endif %}
+                    <a href="{{ url_for('accommodation.room_pricing', acc_id=acc.id, room_id=room.id) }}" class="btn btn-primary">
+                        <i class="bi bi-calendar-check me-1"></i> Quản lý giá &amp; Lịch
+                    </a>
+                </div>
+
+                <div class="room-detail__panel room-detail__panel--muted">
+                    <div class="room-detail__panel-title text-primary mb-3">Thống kê nhanh</div>
+                    <div class="room-detail__stat-row">
+                        <span class="text-muted">Tỉ lệ lấp đầy tháng này</span>
+                        <strong>{{ room_stats.occupancy_percent }}%</strong>
+                    </div>
+                    <div class="progress mb-3" style="height:6px">
+                        <div class="progress-bar bg-primary" style="width:{{ room_stats.occupancy_percent }}%"></div>
+                    </div>
+                    <div class="room-detail__stat-row">
+                        <span class="text-muted">Số booking hoàn tất</span>
+                        <strong>{{ room_stats.completed_bookings }}</strong>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
-    
-    <!-- Image Grid -->
-    <div class="img-grid d-none d-md-grid">
-        <img src="{{ room.image_url }}" class="img-main" alt="Main">
-        <img src="{{ acc.cover_url }}" class="img-sub" alt="Sub 1">
-        <div class="img-more">
-            <img src="{{ acc.cover_url }}" class="img-sub" alt="Sub 2">
-            <div class="img-overlay">+12 ảnh</div>
-        </div>
-    </div>
-    
-    <!-- Mobile Image -->
-    <div class="d-block d-md-none mb-4">
-        <img src="{{ room.image_url }}" class="img-fluid rounded w-100" alt="Room" style="height: 250px; object-fit: cover;">
-    </div>
-    
-    <div class="row g-4">
-        <!-- Left Content -->
-        <div class="col-lg-7 col-xl-8">
-            <ul class="nav nav-tabs mb-4" id="roomTabs">
+
+    <div class="row">
+        <div class="col-lg-8">
+            <ul class="nav room-detail__tabs mb-4" id="roomTabs">
                 <li class="nav-item">
-                    <a class="nav-link active fw-bold text-primary" href="#" data-bs-target="#tab-info">Thông tin chi tiết</a>
+                    <a class="nav-link active" href="#tab-info" data-room-tab="tab-info">Thông tin chi tiết</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-muted" href="#" data-bs-target="#tab-reviews">Đánh giá khách hàng</a>
+                    <a class="nav-link" href="#tab-reviews" data-room-tab="tab-reviews">Đánh giá khách hàng</a>
                 </li>
             </ul>
-            
-            <div class="tab-content">
-                <!-- TAB INFO -->
-                <div class="tab-pane fade show active" id="tab-info">
-                    <h4 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-info-circle"></i> Thông tin cơ bản</h4>
-            <div class="row g-3 mb-4">
-                <div class="col-4">
-                    <div class="info-card h-100">
-                        <i class="bi bi-door-open"></i>
-                        <div class="info-label">LOẠI PHÒNG</div>
-                        <div class="info-value">{{ room.bed_info }}</div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="info-card h-100">
-                        <i class="bi bi-people"></i>
-                        <div class="info-label">SỨC CHỨA</div>
-                        <div class="info-value">{{ room.capacity }} người</div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="info-card h-100">
-                        <i class="bi bi-aspect-ratio"></i>
-                        <div class="info-label">DIỆN TÍCH</div>
-                        <div class="info-value">{{ room.area if room.area else '30m2' }}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <h4 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-file-text"></i> Mô tả phòng</h4>
-            <p class="text-muted mb-4" style="line-height: 1.6;">{{ room.description }}</p>
-            
-            <h4 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-grid"></i> Tiện ích phòng</h4>
-            <div class="d-flex flex-wrap gap-2 mb-4">
-                {% set features = room.features if room.features else ['Wifi miễn phí', 'Điều hòa', 'Bồn tắm'] %}
-                {% for feature in features %}
-                <div class="feature-tag">
-                    <i class="bi bi-check-square-fill"></i> {{ feature }}
-                </div>
-                {% endfor %}
-            </div>
-            
-            <h4 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-box-seam"></i> Dịch vụ đi kèm</h4>
-            <div class="table-responsive mb-4">
-                <table class="table table-borderless">
-                    <thead class="text-muted small border-bottom">
-                        <tr>
-                            <th>Tên dịch vụ</th>
-                            <th>Giá</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><i class="bi bi-check-circle-fill text-primary me-2"></i>Đưa đón tận nơi</td>
-                            <td class="fw-bold">250.000đ</td>
-                            <td class="text-muted">đ/lượt</td>
-                        </tr>
-                        <tr>
-                            <td><i class="bi bi-check-circle-fill text-primary me-2"></i>Bữa sáng tại sảnh</td>
-                            <td class="fw-bold">150.000đ</td>
-                            <td class="text-muted">đ/người/ngày</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- TAB REVIEWS -->
-        <div class="tab-pane fade" id="tab-reviews">
-            <div class="row mb-4 align-items-center">
-                <div class="col-md-4 text-center border-end">
-                    <div class="display-4 fw-bold text-primary" style="line-height: 1;">4,5</div>
-                    <div class="text-warning mb-1">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                    </div>
-                    <div class="text-muted small">{{ room.reviews|length if room.reviews else 3 }} bài đánh giá</div>
-                </div>
-                <div class="col-md-8 ps-md-4">
-                    {% for i, pct in [(5, 85), (4, 10), (3, 3), (2, 1), (1, 1)] %}
-                    <div class="d-flex align-items-center gap-2 mb-1 small">
-                        <span style="width: 15px;">{{ i }}</span>
-                        <div class="progress flex-grow-1" style="height: 6px;">
-                            <div class="progress-bar bg-primary" style="width: {{ pct }}%"></div>
+
+            <div id="tab-info" class="room-tab-pane">
+                <h2 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-info-circle me-1"></i> Thông tin cơ bản</h2>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="room-detail__info-card">
+                            <div class="room-detail__info-label">Loại phòng</div>
+                            <div class="room-detail__info-value">{{ room.bed_info }}</div>
                         </div>
-                        <span class="text-muted" style="width: 35px; text-align: right;">{{ pct }}%</span>
                     </div>
+                    <div class="col-md-4">
+                        <div class="room-detail__info-card">
+                            <div class="room-detail__info-label">Sức chứa</div>
+                            <div class="room-detail__info-value">{{ room.capacity }} người</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="room-detail__info-card">
+                            <div class="room-detail__info-label">Diện tích</div>
+                            <div class="room-detail__info-value">{{ room.area or '30m²' }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-file-text me-1"></i> Mô tả phòng</h2>
+                <p class="text-muted mb-4" style="line-height:1.7">{{ room.description or 'Chưa có mô tả.' }}</p>
+
+                <h2 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-grid me-1"></i> Tiện ích phòng</h2>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    {% for feature in (room.features or []) %}
+                    <div class="room-detail__feature-tag">
+                        <i class="bi bi-check-square-fill text-primary"></i> {{ feature }}
+                    </div>
+                    {% else %}
+                    <span class="text-muted small">Chưa có tiện ích.</span>
                     {% endfor %}
                 </div>
-            </div>
-            
-            <div class="d-flex gap-2 mb-4">
-                <div class="position-relative flex-grow-1">
-                    <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-                    <input type="text" class="form-control ps-5 rounded-pill" placeholder="Tìm kiếm">
+
+                <h2 class="h5 fw-bold mb-3 text-primary"><i class="bi bi-box-seam me-1"></i> Dịch vụ đi kèm</h2>
+                <div class="table-responsive mb-4">
+                    <table class="table table-borderless align-middle">
+                        <thead class="text-muted small border-bottom">
+                            <tr><th>Tên dịch vụ</th><th>Giá</th><th>Ghi chú</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for svc in (room.services or []) %}
+                            <tr>
+                                <td><i class="bi bi-check-circle-fill text-primary me-2"></i>{{ svc.name }}</td>
+                                <td class="fw-bold">{{ svc.price }}đ</td>
+                                <td class="text-muted">{{ svc.note }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="text-muted">Chưa có dịch vụ đi kèm.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <select class="form-select rounded-pill" style="width: 140px;">
-                    <option>Mới nhất</option>
-                </select>
-                <div class="d-flex gap-1 overflow-auto no-scrollbar">
-                    <button class="btn btn-primary rounded-pill btn-sm px-3">Tất cả</button>
-                    <button class="btn btn-outline-secondary rounded-pill btn-sm px-3">5 sao</button>
-                    <button class="btn btn-outline-secondary rounded-pill btn-sm px-3">4 sao</button>
-                    <button class="btn btn-outline-secondary rounded-pill btn-sm px-3">3 sao</button>
-                </div>
             </div>
-            
-            <div class="d-flex flex-column gap-3">
-                {% for review in room.reviews %}
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between mb-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
-                                    {{ review.guest_name[:2].upper() }}
-                                </div>
-                                <div>
-                                    <div class="fw-bold fs-6">{{ review.guest_name }}</div>
-                                    <div class="small text-primary fw-semibold">Mã Booking: {{ review.booking_code }}</div>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <div class="text-primary small mb-1">
-                                    {% for i in range(5) %}
-                                        <i class="bi bi-star{{ '-fill' if i < review.rating else '' }}"></i>
-                                    {% endfor %}
-                                </div>
-                                <div class="small text-muted">{{ review.created_at.strftime('%d/%m/%Y') }}</div>
-                            </div>
+
+            <div id="tab-reviews" class="room-tab-pane d-none">
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-4 text-center border-end">
+                        <div class="display-4 fw-bold text-primary" style="line-height:1">{{ "%.1f"|format(room.average_rating)|replace('.', ',') }}</div>
+                        <div class="text-warning mb-1">
+                            {% set avg_int = room.average_rating|int %}
+                            {% for i in range(5) %}<i class="bi bi-star{{ '-fill' if i < avg_int else '' }}"></i>{% endfor %}
                         </div>
-                        <p class="mb-3 text-dark">{{ review.content }}</p>
-                        
-                        {% if review.reply %}
-                        <div class="bg-light p-3 rounded border-start border-primary border-4 ms-4">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="fw-bold small">Phản hồi từ chủ cơ sở</span>
-                                <span class="text-muted small">{{ review.reply_at.strftime('%d/%m/%Y') if review.reply_at else '' }}</span>
+                        <div class="text-muted small">{{ reviews|length }} bài đánh giá</div>
+                    </div>
+                    <div class="col-md-8 ps-md-4">
+                        {% for i in range(5, 0, -1) %}
+                        <div class="d-flex align-items-center gap-2 mb-1 small">
+                            <span style="width:15px">{{ i }}</span>
+                            <div class="progress flex-grow-1" style="height:6px">
+                                <div class="progress-bar bg-primary" style="width:{{ rating_pct.get(i, 0) }}%"></div>
                             </div>
-                            <p class="mb-0 small text-muted">{{ review.reply }}</p>
+                            <span class="text-muted" style="width:35px;text-align:right">{{ rating_pct.get(i, 0) }}%</span>
                         </div>
-                        {% else %}
-                        <div class="mt-2">
-                            <button class="btn btn-link text-decoration-none p-0 small" type="button" data-bs-toggle="collapse" data-bs-target="#reply-{{ review.id }}">
-                                Phản hồi
-                            </button>
-                            <div class="collapse mt-2" id="reply-{{ review.id }}">
-                                <textarea class="form-control mb-2" rows="2" placeholder="Nhập nội dung bạn muốn phản hồi..."></textarea>
-                                <div class="text-end">
-                                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-1" data-bs-toggle="collapse" data-bs-target="#reply-{{ review.id }}">Hủy</button>
-                                    <button class="btn btn-primary btn-sm rounded-pill px-3">Gửi phản hồi</button>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
-                {% else %}
-                <div class="text-center py-5 text-muted">
-                    Chưa có bài đánh giá nào.
+
+                <div class="d-flex gap-2 mb-4 flex-wrap align-items-center">
+                    <select class="form-select rounded-pill" style="width:150px" id="review-sort">
+                        <option value="newest">Mới nhất</option>
+                        <option value="oldest">Cũ nhất</option>
+                    </select>
+                    <div class="d-flex gap-1 flex-wrap" id="review-star-filters">
+                        <button type="button" class="btn btn-primary rounded-pill btn-sm px-3 filter-star active" data-star="all">Tất cả</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3 filter-star" data-star="5">5 sao</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3 filter-star" data-star="4">4 sao</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3 filter-star" data-star="3">3 sao</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3 filter-star" data-star="2">2 sao</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3 filter-star" data-star="1">1 sao</button>
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- Right Content -->
-        <div class="col-lg-5 col-xl-4">
-            <div class="price-card">
-                <p class="text-muted small fw-bold mb-1">GIÁ CƠ BẢN</p>
-                <div class="d-flex align-items-end gap-1 mb-4">
-                    <span class="fs-1 fw-bold text-primary" style="line-height: 1;">{{ "{:,.0f}".format(room.base_price).replace(",", ".") }}đ</span>
-                    <span class="text-muted mb-1">/ đêm</span>
-                </div>
-                
-                <hr class="my-4">
-                
-                <p class="fw-bold mb-3">Chính sách lưu trú</p>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted"><i class="bi bi-box-arrow-in-right me-2"></i>Nhận phòng</span>
-                    <span class="fw-bold">Sau {{ room.check_in_time if room.check_in_time else '14:00' }}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-4">
-                    <span class="text-muted"><i class="bi bi-box-arrow-right me-2"></i>Trả phòng</span>
-                    <span class="fw-bold">Trước {{ room.check_out_time if room.check_out_time else '12:00' }}</span>
-                </div>
-                
-                <div class="p-3 bg-light rounded text-danger" style="font-size: 13px;">
-                    <i class="bi bi-shield-exclamation me-1"></i> <strong>Chính sách hủy:</strong> 
-                    {{ room.cancellation_policy if room.cancellation_policy else 'Linh hoạt: Hoàn tiền 100% trước 24h' }}
-                </div>
-            </div>
-            
-            <div class="price-card bg-light border-0">
-                <p class="fw-bold text-primary mb-3">Hiệu suất phòng này</p>
-                
-                <div class="d-flex justify-content-between mb-1 small">
-                    <span>Tỉ lệ lấp đầy tháng này</span>
-                    <span class="fw-bold">85%</span>
-                </div>
-                <div class="progress mb-4" style="height: 6px;">
-                    <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"></div>
-                </div>
-                
-                <div class="d-flex justify-content-between small">
-                    <span>Số booking hoàn tất</span>
-                    <span class="fw-bold">24</span>
+
+                <div class="d-flex flex-column gap-3" id="review-list">
+                    {% for review in reviews %}
+                    <div class="card border-0 shadow-sm review-card room-detail__review-card" data-rating="{{ review.rating }}" data-ts="{{ review.created_at.timestamp() if review.created_at else 0 }}">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:40px;height:40px">{{ review.guest_name[:2].upper() }}</div>
+                                    <div>
+                                        <div class="fw-bold">{{ review.guest_name }}</div>
+                                        <div class="small text-primary fw-semibold">Mã Booking: {{ review.booking_code }}</div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-primary small mb-1">{% for i in range(5) %}<i class="bi bi-star{{ '-fill' if i < review.rating else '' }}"></i>{% endfor %}</div>
+                                    <div class="small text-muted">{{ review.created_at.strftime('%d/%m/%Y') if review.created_at else '' }}</div>
+                                </div>
+                            </div>
+                            <p class="mb-3">{{ review.content }}</p>
+                            {% if review.reply %}
+                            <div class="bg-light p-3 rounded border-start border-primary border-4 ms-2 mb-2">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-bold small">Phản hồi từ chủ cơ sở</span>
+                                    <span class="text-muted small">{{ review.reply_at.strftime('%d/%m/%Y') if review.reply_at else '' }}</span>
+                                </div>
+                                <p class="mb-2 small text-muted">{{ review.reply }}</p>
+                                <button type="button" class="btn btn-link btn-sm p-0" data-bs-toggle="collapse" data-bs-target="#reply-edit-{{ review.id }}">Chỉnh sửa phản hồi</button>
+                            </div>
+                            <div class="collapse" id="reply-edit-{{ review.id }}">
+                                <form method="POST" action="{{ url_for('accommodation.room_review_reply', acc_id=acc.id, room_id=room.id, review_id=review.id) }}">
+                                    <textarea name="reply" class="form-control mb-2" rows="2" required>{{ review.reply }}</textarea>
+                                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">Cập nhật phản hồi</button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <button type="button" class="btn btn-link btn-sm p-0" data-bs-toggle="collapse" data-bs-target="#reply-new-{{ review.id }}">Phản hồi</button>
+                            <div class="collapse mt-2" id="reply-new-{{ review.id }}">
+                                <form method="POST" action="{{ url_for('accommodation.room_review_reply', acc_id=acc.id, room_id=room.id, review_id=review.id) }}">
+                                    <textarea name="reply" class="form-control mb-2" rows="2" placeholder="Nhập nội dung phản hồi..." required></textarea>
+                                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">Gửi phản hồi</button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">Chưa có bài đánh giá nào.</div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const tabs = document.querySelectorAll('#roomTabs .nav-link');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Remove active from all tabs
-                tabs.forEach(t => {
-                    t.classList.remove('active', 'fw-bold', 'text-primary');
-                    t.classList.add('text-muted');
-                });
-                // Add active to clicked tab
-                this.classList.add('active', 'fw-bold', 'text-primary');
-                this.classList.remove('text-muted');
-                
-                // Hide all tab panes
-                document.querySelectorAll('.tab-pane').forEach(pane => {
-                    pane.classList.remove('show', 'active');
-                });
-                
-                // Show target pane
-                const targetId = this.getAttribute('data-bs-target');
-                document.querySelector(targetId).classList.add('show', 'active');
-            });
-        });
-    });
-</script>
+
+<div class="modal fade" id="roomPauseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body p-4">
+                <h5 class="fw-bold text-danger mb-2"><i class="bi bi-pause-circle"></i> Tạm ngưng phòng</h5>
+                <p class="text-muted mb-3" id="room-pause-message">Tạm ngưng sẽ ẩn phòng khỏi tìm kiếm.</p>
+                <div class="d-flex gap-2 justify-content-end" id="room-pause-actions">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form method="POST" id="roomPauseForm" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Xác nhận tạm ngưng</button>
+                    </form>
+                </div>
+                <div class="text-end d-none" id="room-pause-blocked">
+                    <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

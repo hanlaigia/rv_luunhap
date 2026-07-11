@@ -49,10 +49,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
+    <nav aria-label="breadcrumb" class="host-breadcrumb">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}" class="text-decoration-none text-muted">Quản lý CSLT</a></li>
             <li class="breadcrumb-item active" aria-current="page">Quản lý khuyến mãi</li>
         </ol>
@@ -100,10 +100,8 @@
                 </thead>
                 <tbody>
                     {% for promo in promotions %}
-                    <tr>
-                        <td class="text-start">
-                            <a href="{{ url_for('promotion.edit', id=promo.id) }}" class="text-decoration-none promo-name">{{ promo.name }}</a>
-                        </td>
+                    <tr data-href="{{ url_for('promotion.edit', id=promo.id) }}">
+                        <td class="text-start promo-name">{{ promo.name }}</td>
                         <td class="text-muted">{{ promo.type }}</td>
                         <td class="text-muted small">
                             {{ promo.start_date }} -<br>{{ promo.end_date }}

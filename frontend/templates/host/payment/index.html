@@ -83,6 +83,16 @@
         color: #b45309;
     }
 
+    .stat-card--clickable {
+        cursor: pointer;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .stat-card--clickable:hover {
+        box-shadow: 0 4px 16px rgba(15, 41, 77, 0.12);
+        transform: translateY(-1px);
+    }
+
     /* Tabs */
     .nav-tabs-premium {
         border-bottom: 1px solid #e2e8f0;
@@ -406,7 +416,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -455,12 +465,13 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card">
+            <div class="stat-card stat-card--clickable" role="button" tabindex="0"
+                data-bs-toggle="modal" data-bs-target="#withdrawalHistoryModal">
                 <div>
                     <div class="stat-label">Đã rút</div>
                     <div class="stat-value">{{ "{:,.0f}".format(total_withdrawn).replace(',', '.') }} đ</div>
                 </div>
-                <div class="stat-desc"><span class="text-primary">+12%</span> So với tháng trước</div>
+                <div class="stat-desc">Nhấn để xem lịch sử rút tiền</div>
             </div>
         </div>
     </div>
@@ -492,38 +503,40 @@
         </ul>
 
         <!-- Filters -->
-        <div class="filter-section mb-4">
+        <form class="filter-section mb-4" method="get" action="{{ url_for('payment.index') }}">
+            <input type="hidden" name="status" value="{{ active_tab }}">
             <div class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label">Tìm kiếm</label>
                     <div class="position-relative">
                         <i class="bi bi-search position-absolute text-muted" style="left: 16px; top: 10px;"></i>
-                        <input type="text" class="form-control" placeholder="Mã Booking, Tên khách..."
+                        <input type="text" name="q" class="form-control" value="{{ filter_q }}" placeholder="Mã Booking, Tên khách..."
                             style="padding-left: 40px;">
                     </div>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Cơ sở lưu trú</label>
-                    <select class="form-select">
-                        <option>Tất cả CSLT</option>
+                    <select class="form-select" name="acc_id">
+                        <option value="">Tất cả CSLT</option>
                         {% for acc in accommodations %}
-                        <option value="{{ acc.id }}">{{ acc.name }}</option>
+                        <option value="{{ acc.id }}" {% if selected_acc_id == acc.id %}selected{% endif %}>{{ acc.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">Ngày thay đổi</label>
+                <div class="col-md-3">
+                    <label class="form-label">Ngày cập nhật</label>
                     <div class="d-flex align-items-center gap-2">
-                        <input type="date" class="form-control">
+                        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
                         <span>-</span>
-                        <input type="date" class="form-control">
+                        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
                     </div>
                 </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button class="btn-premium-primary w-100">Lọc</button>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn-premium-primary flex-grow-1">Áp dụng</button>
+                    <a href="{{ url_for('payment.index', status=active_tab) }}" class="btn-premium-outline flex-grow-1 text-decoration-none text-center">Đặt lại</a>
                 </div>
             </div>
-        </div>
+        </form>
 
         <!-- Table -->
         <div class="table-container">
@@ -544,13 +557,10 @@
                     </thead>
                     <tbody>
                         {% for booking in pagination.items %}
-                        <tr>
+                        <tr style="cursor:pointer" onclick="bootstrap.Modal.getOrCreateInstance(document.getElementById('detailModal{{ booking.id }}')).show();">
                             <td>{{ booking.created_at.strftime('%d/%m/%Y') }}</td>
                             <td>
-                                <a href="#" class="text-code text-decoration-none" data-bs-toggle="modal"
-                                    data-bs-target="#detailModal{{ booking.id }}">
-                                    {{ booking.booking_code }}
-                                </a>
+                                <span class="text-code fw-bold text-primary">{{ booking.booking_code }}</span>
                             </td>
                             <td>
                                 <div>{{ booking.guest_name }}</div>
@@ -590,20 +600,17 @@
                         </tr>
 
                         <!-- Modal Detail Transaction -->
-                        <div class="modal fade" id="detailModal{{ booking.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal fade host-tx-modal" id="detailModal{{ booking.id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
-                                    <div class="modal-header">
-                                        <div class="d-flex flex-column">
-                                            <span class="text-muted"
-                                                style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Giao
-                                                dịch chi tiết</span>
-                                            <h5 class="modal-title text-primary">{{ booking.booking_code }}</h5>
+                                    <div class="host-tx-modal__head d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="host-tx-modal__label">Giao dịch chi tiết</div>
+                                            <div class="host-tx-modal__code">{{ booking.booking_code }}</div>
                                         </div>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                                     </div>
-                                    <div class="modal-body">
+                                    <div class="modal-body px-4">
                                         <div class="row mb-4">
                                             <div class="col-6 mb-3">
                                                 <div class="text-muted" style="font-size: 12px;">Mã booking</div>
@@ -623,24 +630,19 @@
                                             </div>
                                         </div>
 
-                                        <div class="summary-box">
-                                            <div class="fw-bold mb-3"><i class="bi bi-wallet2 me-2"></i> Tóm tắt tài
-                                                chính</div>
-                                            <div class="d-flex justify-content-between mb-2" style="font-size: 14px;">
+                                        <div class="host-tx-finance">
+                                            <div class="fw-bold mb-3"><i class="bi bi-wallet2 me-2"></i> Tóm tắt tài chính</div>
+                                            <div class="host-tx-finance__row">
                                                 <span class="text-muted">Tổng tiền booking</span>
-                                                <span>{{ "{:,.0f}".format(booking.total_amount).replace(',', '.') }}
-                                                    đ</span>
+                                                <span>{{ "{:,.0f}".format(booking.total_amount).replace(',', '.') }} đ</span>
                                             </div>
-                                            <div class="d-flex justify-content-between mb-3 pb-3 border-bottom"
-                                                style="font-size: 14px;">
-                                                <span class="text-danger">Phí hoa hồng (10%)</span>
-                                                <span class="text-danger">-{{ "{:,.0f}".format(booking.total_amount *
-                                                    0.1).replace(',', '.') }} đ</span>
+                                            <div class="host-tx-finance__row text-danger">
+                                                <span>Phí hoa hồng (10%)</span>
+                                                <span>-{{ "{:,.0f}".format(booking.total_amount * 0.1).replace(',', '.') }} đ</span>
                                             </div>
-                                            <div class="d-flex justify-content-between fw-bold align-items-center">
+                                            <div class="host-tx-finance__total">
                                                 <span>Host thực nhận</span>
-                                                <span class="text-primary fs-5">{{ "{:,.0f}".format(booking.total_amount
-                                                    * 0.9).replace(',', '.') }} đ</span>
+                                                <span class="text-primary">{{ "{:,.0f}".format(booking.total_amount * 0.9).replace(',', '.') }} đ</span>
                                             </div>
                                         </div>
 
@@ -722,14 +724,19 @@
             <!-- Pagination Footer -->
             <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
                 <div class="small text-muted">
-                    Hiển thị {{ pagination.first_item if pagination.total > 0 else 0 }} - {{ pagination.last_item if
-                    pagination.total > 0 else 0 }} trong số {{ pagination.total }} giao dịch
+                    {% if pagination.total > 0 %}
+                    {% set first_item = (pagination.page - 1) * pagination.per_page + 1 %}
+                    {% set last_item = pagination.page * pagination.per_page if pagination.page * pagination.per_page < pagination.total else pagination.total %}
+                    Hiển thị {{ first_item }}–{{ last_item }} trên {{ total_all_bookings }} giao dịch{% if pagination.total != total_all_bookings or filter_q or selected_acc_id or date_from or date_to %} (đã lọc: {{ pagination.total }}){% endif %}
+                    {% else %}
+                    Không có giao dịch{% if active_tab != 'Tất cả' %} — tổng hệ thống: {{ total_all_bookings }}{% endif %}
+                    {% endif %}
                 </div>
                 {% if pagination.pages > 1 %}
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
                         <a class="page-link"
-                            href="{{ url_for('payment.index', page=pagination.prev_num, status=active_tab) if pagination.has_prev else '#' }}"><i
+                            href="{{ url_for('payment.index', page=pagination.prev_num, status=active_tab, q=filter_q or none, acc_id=selected_acc_id or none, date_from=date_from or none, date_to=date_to or none) if pagination.has_prev else '#' }}"><i
                                 class="bi bi-chevron-left"></i></a>
                     </li>
 
@@ -739,7 +746,7 @@
                     <li class="page-item active"><span class="page-link">{{ p }}</span></li>
                     {% else %}
                     <li class="page-item"><a class="page-link"
-                            href="{{ url_for('payment.index', page=p, status=active_tab) }}">{{ p }}</a></li>
+                            href="{{ url_for('payment.index', page=p, status=active_tab, q=filter_q or none, acc_id=selected_acc_id or none, date_from=date_from or none, date_to=date_to or none) }}">{{ p }}</a></li>
                     {% endif %}
                     {% else %}
                     <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -748,11 +755,49 @@
 
                     <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
                         <a class="page-link"
-                            href="{{ url_for('payment.index', page=pagination.next_num, status=active_tab) if pagination.has_next else '#' }}"><i
+                            href="{{ url_for('payment.index', page=pagination.next_num, status=active_tab, q=filter_q or none, acc_id=selected_acc_id or none, date_from=date_from or none, date_to=date_to or none) if pagination.has_next else '#' }}"><i
                                 class="bi bi-chevron-right"></i></a>
                     </li>
                 </ul>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Lịch sử rút tiền -->
+<div class="modal fade" id="withdrawalHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <div>
+                    <h5 class="modal-title fw-bold">Lịch sử rút tiền</h5>
+                    <p class="text-muted small mb-0">Tổng đã rút: {{ "{:,.0f}".format(total_withdrawn).replace(',', '.') }} đ</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body pt-0">
+                {% if withdrawals %}
+                <div class="list-group list-group-flush">
+                    {% for w in withdrawals %}
+                    <div class="list-group-item px-0 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span class="fw-bold text-primary">{{ "{:,.0f}".format(w.amount).replace(',', '.') }} đ</span>
+                            <span class="badge bg-success-subtle text-success">Hoàn tất</span>
+                        </div>
+                        <div class="small text-muted">{{ w.bank_account }}</div>
+                        <div class="small text-muted">
+                            {{ (w.completed_at or w.created_at).strftime('%d/%m/%Y %H:%M') if (w.completed_at or w.created_at) else '—' }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">Chưa có lịch sử rút tiền.</div>
+                {% endif %}
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

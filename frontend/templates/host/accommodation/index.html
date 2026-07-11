@@ -140,10 +140,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4">
         <div>
-            <h1 class="page-title h3 mb-2">Cơ sở lưu trú của tôi</h1>
+            <h1 class="host-page-title h3 mb-2">Cơ sở lưu trú của tôi</h1>
             <p class="page-subtitle mb-0">Quản lý và theo dõi hiệu suất các cơ sở lưu trú của bạn trên toàn hệ thống Rovva.</p>
         </div>
         <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
@@ -157,46 +157,39 @@
     </div>
 
     <!-- Tabs -->
-    <ul class="nav nav-tabs mb-4">
+    <ul class="nav nav-tabs mb-4" id="host-acc-tabs">
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'all' %}active{% endif %}" href="{{ url_for('accommodation.index', status='all') }}">
+            <button type="button" class="nav-link {% if current_status == 'all' %}active{% endif %}" data-acc-filter="all">
                 Tất cả{% if counts.all > 0 %} ({{ counts.all }}){% endif %}
-            </a>
+            </button>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'active' %}active{% endif %}" href="{{ url_for('accommodation.index', status='active') }}">
+            <button type="button" class="nav-link {% if current_status == 'active' %}active{% endif %}" data-acc-filter="active">
                 Đang hoạt động{% if counts.active > 0 %} ({{ counts.active }}){% endif %}
-            </a>
+            </button>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'pending' %}active{% endif %}" href="{{ url_for('accommodation.index', status='pending') }}">
-                Chờ duyệt{% if counts.pending > 0 %} ({{ counts.pending }}){% endif %}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if current_status == 'paused' %}active{% endif %}" href="{{ url_for('accommodation.index', status='paused') }}">
+            <button type="button" class="nav-link {% if current_status == 'paused' %}active{% endif %}" data-acc-filter="paused">
                 Tạm ngưng{% if counts.paused > 0 %} ({{ counts.paused }}){% endif %}
-            </a>
+            </button>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'draft' %}active{% endif %}" href="{{ url_for('accommodation.index', status='draft') }}">
+            <button type="button" class="nav-link {% if current_status == 'draft' %}active{% endif %}" data-acc-filter="draft">
                 Bản nháp{% if counts.draft > 0 %} ({{ counts.draft }}){% endif %}
-            </a>
+            </button>
         </li>
     </ul>
 
     <!-- Grid -->
-    <div class="row g-4">
+    <div class="row g-4" id="host-acc-grid">
         {% for acc in accommodations %}
-        <div class="col-12 col-md-6 col-lg-4">
+        <div class="col-12 col-md-6 col-lg-4" data-acc-status="{{ acc.status }}">
             <div class="acc-card bg-white h-100 d-flex flex-column">
                 <div class="acc-card-img-wrap">
                     <img src="{{ acc.cover_url }}" alt="{{ acc.name }}" class="acc-card-img">
                     
                     {% if acc.status == 'active' %}
                         <span class="acc-badge active"><i class="bi bi-check-circle-fill me-1"></i> Đang hoạt động</span>
-                    {% elif acc.status == 'pending' %}
-                        <span class="acc-badge pending"><i class="bi bi-clock-fill me-1"></i> Chờ duyệt</span>
                     {% elif acc.status == 'paused' %}
                         <span class="acc-badge paused"><i class="bi bi-pause-circle-fill me-1"></i> Tạm ngưng</span>
                     {% elif acc.status == 'draft' %}
@@ -234,7 +227,7 @@
                                 <i class="bi bi-play"></i> Hoạt động
                             </button>
                             {% else %}
-                            <form action="{{ url_for('accommodation.delete', id=acc.id) }}" method="POST" class="w-50 m-0 p-0 d-flex" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
+                            <form action="{{ url_for('accommodation.delete', id=acc.id) }}" method="POST" class="w-50 m-0 p-0 d-flex" data-host-confirm-delete="Bạn có chắc chắn muốn xóa cơ sở lưu trú này?">
                                 <button type="submit" class="btn-outline-custom d-flex align-items-center justify-content-center gap-2 text-danger w-100">
                                     <i class="bi bi-trash"></i> Xóa
                                 </button>

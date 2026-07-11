@@ -1,0 +1,47 @@
+<div class="modal fade host-noti-popup" id="hostNotiModal" tabindex="-1" aria-labelledby="hostNotiModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="host-noti-popup__head">
+        <div class="d-flex align-items-center">
+          <h5 id="hostNotiModalLabel">Thông báo</h5>
+          {% if host_unread_notifications %}
+          <span class="host-noti-popup__badge">{{ host_unread_notifications }} mới</span>
+          {% endif %}
+        </div>
+        <form method="post" action="{{ url_for('main.mark_all_notifications_read') }}" class="m-0">
+          <button type="submit" class="btn btn-link host-noti-popup__mark p-0 border-0 bg-transparent">Đánh dấu tất cả đã đọc</button>
+        </form>
+      </div>
+      <div class="modal-body p-0">
+        {% set icon_map = {
+          'booking': ('bi-bell-fill', '#dbeafe', '#2563eb'),
+          'payment': ('bi-cash-stack', '#d1fae5', '#059669'),
+          'dispute': ('bi-exclamation-circle-fill', '#fee2e2', '#dc2626'),
+          'system': ('bi-check-circle-fill', '#e2e8f0', '#64748b'),
+          'reminder': ('bi-calendar-event', '#ffedd5', '#ea580c')
+        } %}
+        {% for n in host_recent_notifications %}
+        {% set ic = icon_map.get(n.category, icon_map.system) %}
+        {% set href = notification_action_url(n) if notification_action_url is defined else n.link_url %}
+        <div class="host-noti-item{% if not n.is_read %} unread{% endif %}"{% if href %} data-href="{{ href }}"{% endif %}>
+          <div class="host-noti-item__icon" style="background:{{ ic[1] }};color:{{ ic[2] }}"><i class="bi {{ ic[0] }}"></i></div>
+          <div class="host-noti-item__body">
+            <div class="host-noti-item__text"><strong>{{ n.title }}</strong> — {{ n.body }}</div>
+            <div class="host-noti-item__time">
+              {% if n.created_at %}
+                {{ n.created_at.strftime('%d/%m/%Y %H:%M') }}
+              {% endif %}
+            </div>
+          </div>
+          {% if not n.is_read %}<span class="host-noti-item__dot"></span>{% endif %}
+        </div>
+        {% else %}
+        <div class="p-4 text-muted text-center">Chưa có thông báo mới.</div>
+        {% endfor %}
+      </div>
+      <div class="host-noti-popup__foot">
+        <a href="{{ url_for('main.notifications') }}">Xem tất cả thông báo</a>
+      </div>
+    </div>
+  </div>
+</div>

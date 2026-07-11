@@ -1,0 +1,178 @@
+{% extends 'host/layout/base.html' %}
+
+
+
+{% block title %}Tất cả thông báo - Rovva Host{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container host-page">
+
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start mb-3 gap-3">
+
+    <div>
+
+      <h1 class="host-page-title">Tất cả thông báo</h1>
+
+      <p class="text-muted mb-0">Quản lý các cập nhật quan trọng về đặt phòng, tài chính và hệ thống của bạn.</p>
+
+    </div>
+
+    <form method="post" action="{{ url_for('main.mark_all_notifications_read') }}">
+
+      <button type="submit" class="btn btn-link text-primary text-decoration-none fw-semibold p-0"><i class="bi bi-check2-all me-1"></i>Đánh dấu đã đọc tất cả</button>
+
+    </form>
+
+  </div>
+
+
+
+  <div class="host-noti-page__layout">
+
+    <aside>
+
+      <form method="get" action="{{ url_for('main.notifications') }}" id="noti-filter-form">
+
+        <div class="host-noti-filter-card">
+
+          <div class="host-noti-filter-card__title">Phân loại</div>
+
+          {% set cats = [
+
+            ('all', 'Tất cả', 'bi-link-45deg', counts.all),
+
+            ('booking', 'Booking', 'bi-calendar-check', counts.booking),
+
+            ('payment', 'Tài chính', 'bi-wallet2', counts.payment),
+
+            ('dispute', 'Tranh chấp', 'bi-shield-exclamation', counts.dispute),
+
+            ('system', 'Hệ thống', 'bi-gear', counts.system),
+
+          ] %}
+
+          {% for val, label, icon, cnt in cats %}
+
+          <label class="host-noti-filter-option">
+
+            <span><input type="radio" name="category" value="{{ val }}" {% if category == val %}checked{% endif %}> <i class="bi {{ icon }} me-1"></i>{{ label }}</span>
+
+            <span class="badge bg-light text-dark">{{ cnt }}</span>
+
+          </label>
+
+          {% endfor %}
+
+        </div>
+
+
+
+        <div class="host-noti-filter-card">
+
+          <div class="host-noti-filter-card__title">Thời gian</div>
+
+          <label class="form-label small text-muted">Từ ngày</label>
+
+          <input type="date" name="date_from" class="form-control form-control-sm mb-2" value="{{ date_from }}">
+
+          <label class="form-label small text-muted">Đến ngày</label>
+
+          <input type="date" name="date_to" class="form-control form-control-sm mb-3" value="{{ date_to }}">
+
+          <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">Áp dụng</button>
+
+          <a href="{{ url_for('main.notifications') }}" class="btn btn-outline-secondary btn-sm w-100 fw-semibold mt-2">Xóa bộ lọc</a>
+
+        </div>
+
+      </form>
+
+    </aside>
+
+
+
+    <div>
+
+      {% set icon_map = {
+
+        'booking': ('bi-bell-fill', '#dbeafe', '#2563eb'),
+
+        'payment': ('bi-cash-stack', '#d1fae5', '#059669'),
+
+        'dispute': ('bi-exclamation-circle-fill', '#fee2e2', '#dc2626'),
+
+        'system': ('bi-check-circle-fill', '#e2e8f0', '#64748b')
+
+      } %}
+
+      {% if notifications %}
+
+      <div class="host-noti-group-title">Gần đây</div>
+
+      {% for n in notifications %}
+
+      {% set ic = icon_map.get(n.category, icon_map.system) %}
+
+      {% set action_url = notification_action_url(n) %}
+
+      <div class="host-noti-card{% if not n.is_read %} unread{% endif %}">
+
+        <div class="host-noti-item__icon" style="background:{{ ic[1] }};color:{{ ic[2] }}"><i class="bi {{ ic[0] }}"></i></div>
+
+        <div class="flex-grow-1">
+
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+
+            <div class="fw-bold">{{ n.title }}</div>
+
+            <div class="small text-muted text-nowrap">{{ n.created_at.strftime('%H:%M') if n.created_at else '' }}</div>
+
+          </div>
+
+          <div class="text-muted small mb-2">{{ n.body }}</div>
+
+          <div class="small text-muted mb-2">{{ n.created_at.strftime('%d/%m/%Y') if n.created_at else '' }}</div>
+
+          <div class="d-flex gap-2 flex-wrap">
+
+            {% if action_url %}
+
+            <a href="{{ action_url }}" class="btn btn-primary btn-sm">{{ notification_action_label(n) }}</a>
+
+            {% endif %}
+
+            {% if not n.is_read %}
+
+            <form method="post" action="{{ url_for('main.mark_notification_read', id=n.id) }}" class="d-inline">
+
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Đã đọc</button>
+
+            </form>
+
+            {% endif %}
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {% endfor %}
+
+      {% else %}
+
+      <div class="host-noti-card justify-content-center text-muted">Chưa có thông báo trong mục này.</div>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+

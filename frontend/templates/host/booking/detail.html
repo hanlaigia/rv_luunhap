@@ -16,10 +16,10 @@
         border-radius: 20px;
         font-size: 12px;
     }
-    .status-confirmed { background: #e3f2fd; color: #0d6efd; }
-    .status-staying { background: #e8f5e9; color: #198754; }
-    .status-completed { background: #f3e5f5; color: #9c27b0; }
-    .status-cancelled { background: #ffebee; color: #dc3545; }
+    .status-confirmed { background: #dbe1ff; color: #003da8; }
+    .status-staying { background: #dcfce7; color: #15803d; }
+    .status-completed { background: #eaddff; color: #6750a4; }
+    .status-cancelled { background: #ffdad6; color: #93000a; }
     
     .section-card {
         background: #fff;
@@ -85,27 +85,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <div class="mb-4">
         <a href="{{ url_for('booking.index') }}" class="text-decoration-none text-primary fw-semibold small">
             <i class="bi bi-arrow-left"></i> Quay lại danh sách
         </a>
     </div>
     
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-        <div class="d-flex align-items-center gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
             <h1 class="page-title h3 mb-0">Chi tiết Booking {{ booking.booking_code if booking.booking_code else ('#RV' ~ booking.id) }}</h1>
-            
-            {% set status_class = 'status-confirmed' %}
-            {% if booking.status == 'Đang lưu trú' %}{% set status_class = 'status-staying' %}
-            {% elif booking.status == 'Hoàn thành' or booking.status == 'completed' %}{% set status_class = 'status-completed' %}
-            {% elif booking.status == 'Đã hủy' or booking.status == 'cancelled' %}{% set status_class = 'status-cancelled' %}{% endif %}
-            
-            <span class="badge-status {{ status_class }}"><i class="bi bi-circle-fill" style="font-size: 6px; vertical-align: middle; margin-right: 4px;"></i> {{ booking.status }}</span>
+            <span class="{{ booking_status_badge_class(booking) }}">{{ booking_status_label(booking) }}</span>
         </div>
         
-        <div class="mt-3 mt-md-0">
-            {% if booking.status != 'Đã hủy' and booking.status != 'cancelled' %}
+        <div>
+            {% if booking_status_label(booking) == 'Đã đặt phòng' %}
             <button class="btn btn-outline-danger fw-semibold px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#cancelModal">Yêu cầu hủy booking</button>
             {% endif %}
         </div>
@@ -207,11 +201,44 @@
                     </table>
                 </div>
             </div>
+
+            {% if booking_status_label(booking) == 'Hoàn thành' %}
+            <div class="host-review-card">
+                <h3 class="section-title"><i class="bi bi-star text-warning"></i> Đánh giá từ khách hàng</h3>
+                {% if review %}
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <div class="fw-bold">{{ review.guest_name }}</div>
+                        <div class="small text-muted">Mã booking: {{ review.booking_code }}</div>
+                    </div>
+                    <div class="host-review-stars">
+                        {% for i in range(review.rating) %}<i class="bi bi-star-fill"></i>{% endfor %}
+                    </div>
+                </div>
+                <p class="mb-2">{{ review.content }}</p>
+                {% if review.reply %}
+                <div class="small text-muted border-top pt-2 mt-2"><strong>Phản hồi của bạn:</strong> {{ review.reply }}</div>
+                {% else %}
+                <button type="button" class="btn btn-link btn-sm p-0 text-primary">Phản hồi</button>
+                {% endif %}
+                {% else %}
+                <p class="text-muted mb-0 fst-italic">Khách hàng chưa để lại đánh giá cho booking này.</p>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
         
         <!-- Right Column -->
         <div class="col-lg-4">
-            {% include 'host/copilot/_persona_card.html' %}
+            {% if guest_insight %}
+            <div class="host-guest-insight">
+                <div class="host-guest-insight__title">
+                    <i class="bi {{ guest_insight.icon }}"></i> Guest insight
+                </div>
+                <div class="small fw-semibold text-primary mb-1">{{ guest_insight.label }}</div>
+                <p class="small text-muted mb-0">{{ guest_insight.suggestion }}</p>
+            </div>
+            {% endif %}
 
             <!-- Khách hàng -->
             <div class="section-card mb-4">

@@ -1,7 +1,8 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
 from backend.app.extensions import db
@@ -74,6 +75,10 @@ def index():
     host_id = current_user.id
     status_filter = request.args.get("status", "Tất cả")
     page = request.args.get("page", 1, type=int)
+    q = request.args.get("q", "").strip()
+    acc_id = request.args.get("acc_id", type=int)
+    date_from = request.args.get("date_from", "")
+    date_to = request.args.get("date_to", "")
     per_page = 10
 
     stats = _wallet_stats(host_id)
@@ -93,8 +98,37 @@ def index():
     elif status_filter == "Đã giải quyết":
         query = query.filter(Booking.payment_status == "resolved")
 
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                Booking.booking_code.ilike(like),
+                Booking.guest_name.ilike(like),
+            )
+        )
+    if acc_id:
+        query = query.filter(Accommodation.id == acc_id)
+    if date_from:
+        try:
+            query = query.filter(Booking.created_at >= datetime.strptime(date_from, "%Y-%m-%d"))
+        except ValueError:
+            pass
+    if date_to:
+        try:
+            end = datetime.strptime(date_to, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
+            query = query.filter(Booking.created_at <= end)
+        except ValueError:
+            pass
+
     pagination = query.order_by(Booking.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
+    )
+    total_all = _host_bookings_query(host_id).count()
+
+    withdrawals = (
+        Withdrawal.query.filter_by(host_id=host_id, status=Withdrawal.STATUS_COMPLETED)
+        .order_by(Withdrawal.completed_at.desc(), Withdrawal.created_at.desc())
+        .all()
     )
 
     accommodations = Accommodation.query.filter_by(host_id=host_id).order_by(
@@ -106,6 +140,12 @@ def index():
         active_nav="payments",
         active_tab=status_filter,
         pagination=pagination,
+        total_all_bookings=total_all,
+        filter_q=q,
+        selected_acc_id=acc_id,
+        date_from=date_from,
+        date_to=date_to,
+        withdrawals=withdrawals,
         timedelta=timedelta,
         accommodations=accommodations,
         **stats,

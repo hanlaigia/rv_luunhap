@@ -6,7 +6,6 @@ from backend.app.routes.host.report import report_bp
 from backend.app.routes.host.dispute import dispute_bp
 from backend.app.routes.host.payment import payment_bp
 from backend.app.routes.host.message import message_bp
-from backend.app.routes.host.copilot import copilot_bp
 from backend.app.routes.customer.main import customer_bp
 from backend.app.routes.customer.booking import customer_booking_bp
 from backend.app.routes.auth.routes import auth_bp
@@ -23,7 +22,6 @@ def register_blueprints(app):
     app.register_blueprint(dispute_bp, url_prefix="/host/dispute")
     app.register_blueprint(payment_bp, url_prefix="/host/payment")
     app.register_blueprint(message_bp, url_prefix="/host/message")
-    app.register_blueprint(copilot_bp, url_prefix="/host/copilot")
     app.register_blueprint(customer_bp)
     app.register_blueprint(customer_booking_bp)
     app.register_blueprint(auth_bp)

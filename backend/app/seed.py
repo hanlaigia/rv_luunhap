@@ -12,6 +12,7 @@ def seed_database():
         full_name="Văn Quản Gia",
         email="van.quangia@rova.vn",
         phone="0901234567",
+        id_card="079203001234",
         avatar="images/host-avatar.png",
         role="host",
         is_email_verified=True,
@@ -658,4 +659,147 @@ def patch_guest_review_demo():
         created_at=reviewed_at,
     )
     db.session.add(review)
+    db.session.commit()
+
+
+def patch_host_notifications_demo():
+    """Thêm thông báo mẫu cho Host demo."""
+    from backend.app.models import Notification
+
+    host = User.query.filter_by(email="van.quangia@rova.vn").first()
+    if not host:
+        return
+    if Notification.query.filter_by(user_id=host.id).count():
+        patch_host_notifications_links()
+        return
+
+    today = datetime.utcnow()
+    booking = (
+        Booking.query.join(Room)
+        .join(Accommodation)
+        .filter(Accommodation.host_id == host.id)
+        .order_by(Booking.created_at.desc())
+        .first()
+    )
+    dispute = (
+        Dispute.query.join(Booking)
+        .join(Room)
+        .join(Accommodation)
+        .filter(Accommodation.host_id == host.id)
+        .order_by(Dispute.created_at.desc())
+        .first()
+    )
+
+    booking_link = f"/host/booking/{booking.id}" if booking else "/host/booking/"
+    dispute_link = f"/host/dispute/{dispute.id}" if dispute else "/host/dispute/"
+    booking_title = (
+        f"Đơn đặt phòng mới: {booking.booking_code}"
+        if booking and booking.booking_code
+        else "Đơn đặt phòng mới"
+    )
+
+    samples = [
+        (
+            booking_title,
+            f"Bạn có yêu cầu đặt phòng mới từ {booking.guest_name if booking else 'khách'}."
+            if booking
+            else "Bạn có yêu cầu đặt phòng mới.",
+            "booking",
+            booking_link,
+        ),
+        (
+            "Thanh toán doanh thu tháng 10",
+            "Thanh toán doanh thu trị giá 24.500.000đ đã được chuyển.",
+            "payment",
+            "/host/payment/",
+        ),
+        (
+            f"Tranh chấp mới: #{dispute.dispute_code}" if dispute else "Tranh chấp mới phát sinh",
+            "Tranh chấp phát sinh từ khách hàng — cần phản hồi sớm.",
+            "dispute",
+            dispute_link,
+        ),
+    ]
+    for i, (title, body, cat, link) in enumerate(samples):
+        db.session.add(
+            Notification(
+                user_id=host.id,
+                title=title,
+                body=body,
+                category=cat,
+                link_url=link,
+                is_read=i > 1,
+                created_at=today - timedelta(hours=2 + i * 3),
+            )
+        )
+    db.session.commit()
+
+
+def patch_host_notifications_links():
+    """Cập nhật link thông báo, xóa loại CSLT đã duyệt."""
+    from backend.app.models import Notification
+
+    host = User.query.filter_by(email="van.quangia@rova.vn").first()
+    if not host:
+        return
+
+    Notification.query.filter(
+        Notification.user_id == host.id,
+        Notification.title.ilike("%đã được duyệt%"),
+    ).delete(synchronize_session=False)
+
+    booking = (
+        Booking.query.join(Room)
+        .join(Accommodation)
+        .filter(Accommodation.host_id == host.id)
+        .order_by(Booking.created_at.desc())
+        .first()
+    )
+    dispute = (
+        Dispute.query.join(Booking)
+        .join(Room)
+        .join(Accommodation)
+        .filter(Accommodation.host_id == host.id)
+        .order_by(Dispute.created_at.desc())
+        .first()
+    )
+
+    for n in Notification.query.filter_by(user_id=host.id).all():
+        if n.category == "booking" and booking:
+            n.link_url = f"/host/booking/{booking.id}"
+            if "RV29384" in (n.title or ""):
+                n.title = f"Đơn đặt phòng mới: {booking.booking_code}"
+                n.body = f"Bạn có yêu cầu đặt phòng mới từ {booking.guest_name}."
+        elif n.category == "payment":
+            n.link_url = "/host/payment/"
+        elif n.category == "dispute" and dispute:
+            n.link_url = f"/host/dispute/{dispute.id}"
+            if "phát sinh" in (n.title or "").lower():
+                n.title = f"Tranh chấp mới: #{dispute.dispute_code}"
+
+    db.session.commit()
+
+
+def patch_guest_insight_demo():
+    """Thêm ghi chú trẻ em cho 1 booking demo."""
+    host = User.query.filter_by(email="van.quangia@rova.vn").first()
+    if not host:
+        return
+    booking = (
+        Booking.query.join(Room)
+        .join(Accommodation)
+        .filter(Accommodation.host_id == host.id, Booking.guest_note == "")
+        .first()
+    )
+    if booking:
+        booking.guest_note = "Gia đình có bé 2 tuổi đang ăn dặm, cần ghế ăn dặm nếu có."
+        db.session.commit()
+
+
+def patch_host_id_card_demo():
+    """Gán CCCD mẫu cho Host demo nếu chưa có."""
+    host = User.query.filter_by(email="van.quangia@rova.vn").first()
+    if not host or host.id_card:
+        return
+    host.id_card = "079203001234"
     db.session.commit()

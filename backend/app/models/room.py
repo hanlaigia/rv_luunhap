@@ -47,5 +47,26 @@ class Room(db.Model):
         from backend.app.utils.media import room_image
         return room_image(self.accommodation_id, self.id)
 
+    @property
+    def existing_image_urls(self):
+        from backend.app.utils.media import room_existing_images
+        return room_existing_images(self.accommodation_id, self.id)
+
+    @property
+    def average_rating(self):
+        from sqlalchemy import func
+        from backend.app.models.review import Review
+        avg = (
+            db.session.query(func.avg(Review.rating))
+            .filter(Review.room_id == self.id)
+            .scalar()
+        )
+        return round(float(avg), 1) if avg else 0.0
+
+    @property
+    def review_count(self):
+        from backend.app.models.review import Review
+        return Review.query.filter_by(room_id=self.id).count()
+
     def __repr__(self):
         return f"<Room {self.name}>"

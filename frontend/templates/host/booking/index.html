@@ -79,25 +79,10 @@
         font-size: 12px;
     }
 
-    .status-confirmed {
-        background: #e3f2fd;
-        color: #0d6efd;
-    }
-
-    .status-staying {
-        background: #e8f5e9;
-        color: #198754;
-    }
-
-    .status-completed {
-        background: #f3e5f5;
-        color: #9c27b0;
-    }
-
-    .status-cancelled {
-        background: #ffebee;
-        color: #dc3545;
-    }
+    .status-confirmed { background: #dbe1ff; color: #003da8; }
+    .status-staying { background: #dcfce7; color: #15803d; }
+    .status-completed { background: #eaddff; color: #6750a4; }
+    .status-cancelled { background: #ffdad6; color: #93000a; }
 
     .widget-card {
         border: 1px solid #dee2e6;
@@ -131,7 +116,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <div class="mb-4">
         <h1 class="page-title h3 mb-1">Quản lý Booking</h1>
         <p class="text-muted">Theo dõi và quản lý các yêu cầu đặt phòng từ khách hàng.</p>
@@ -145,7 +130,7 @@
             {% for tab in tabs %}
             <li class="nav-item">
                 <a class="nav-link {{ 'active' if active_tab == tab else '' }}"
-                    href="{{ url_for('booking.index', status=tab) }}">
+                    href="{{ url_for('booking.index', status=tab, acc_id=selected_acc_id or none, q=search_q or none, date_from=request.args.get('date_from'), date_to=request.args.get('date_to')) }}">
                     {{ tab }}
                 </a>
             </li>
@@ -153,31 +138,40 @@
         </ul>
 
         <!-- Filters -->
-        <div class="filters-section">
+        <form class="filters-section" method="get" action="{{ url_for('booking.index') }}">
+            <input type="hidden" name="status" value="{{ active_tab }}">
             <div class="row g-3">
                 <div class="col-md-3">
                     <label class="form-label small text-muted mb-1">Cơ sở</label>
-                    <select class="form-select">
-                        <option>Tất cả cơ sở</option>
+                    <select class="form-select" name="acc_id" onchange="this.form.submit()">
+                        <option value="">Tất cả cơ sở</option>
+                        {% for acc in accommodations %}
+                        <option value="{{ acc.id }}" {% if selected_acc_id == acc.id %}selected{% endif %}>{{ acc.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small text-muted mb-1">Thời gian</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white text-muted"><i class="bi bi-calendar"></i></span>
-                        <input type="text" class="form-control border-start-0 ps-0" placeholder="Chọn khoảng thời gian">
-                    </div>
+                    <label class="form-label small text-muted mb-1">Từ ngày</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ request.args.get('date_from', '') }}">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted mb-1">Đến ngày</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ request.args.get('date_to', '') }}">
+                </div>
+                <div class="col-md-3">
                     <label class="form-label small text-muted mb-1">Tìm kiếm</label>
                     <div class="position-relative">
                         <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-                        <input type="text" class="form-control ps-5"
-                            placeholder="Tìm theo mã booking, tên khách hoặc số điện thoại...">
+                        <input type="text" name="q" class="form-control ps-5" value="{{ search_q }}"
+                            placeholder="Mã booking, tên khách, SĐT...">
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="mt-2 d-flex justify-content-end gap-2">
+                <a href="{{ url_for('booking.index', status=active_tab) }}" class="btn btn-sm btn-outline-secondary">Đặt lại</a>
+                <button type="submit" class="btn btn-sm btn-primary">Áp dụng</button>
+            </div>
+        </form>
 
         <!-- Table -->
         <div class="table-responsive">
@@ -195,10 +189,9 @@
                 </thead>
                 <tbody>
                     {% for booking in bookings %}
-                    <tr>
+                    <tr data-href="{{ url_for('booking.detail', id=booking.id) }}">
                         <td class="text-start ps-4 fw-bold text-primary">
-                            <a href="{{ url_for('booking.detail', id=booking.id) }}" class="text-decoration-none">{{
-                                booking.booking_code if booking.booking_code else ('#RV' ~ booking.id) }}</a>
+                            {{ booking.booking_code if booking.booking_code else ('#RV' ~ booking.id) }}
                         </td>
                         <td class="text-start">
                             <div class="fw-bold">{{ booking.guest_name }}</div>
@@ -210,7 +203,7 @@
                             <div class="small text-muted">{{ booking.room.name }}</div>
                         </td>
                         <td class="small">
-                            <div>{{ booking.check_in.strftime('%d/%m') }} - {{ booking.check_out.strftime('%d/%m') }}
+                            <div>{{ booking.check_in.strftime('%d/%m/%Y') }} - {{ booking.check_out.strftime('%d/%m/%Y') }}
                             </div>
                             <div class="text-muted">{{ booking.nights }} đêm</div>
                         </td>
@@ -222,23 +215,7 @@
                             {{ "{:,.0f}".format(booking.total_amount).replace(",", ".") }}đ
                         </td>
                         <td>
-                            {% set status_class = 'status-confirmed' %}
-                            {% set status_text = 'Đã đặt phòng' %}
-
-                            {% if booking.status == 'Đang lưu trú' %}
-                            {% set status_class = 'status-staying' %}
-                            {% set status_text = 'Đang lưu trú' %}
-                            {% elif booking.status == 'Hoàn thành' or booking.status == 'completed' %}
-                            {% set status_class = 'status-completed' %}
-                            {% set status_text = 'Hoàn thành' %}
-                            {% elif booking.status == 'Đã hủy' or booking.status == 'cancelled' %}
-                            {% set status_class = 'status-cancelled' %}
-                            {% set status_text = 'Đã hủy' %}
-                            {% endif %}
-
-                            <span class="badge-status {{ status_class }}"><i class="bi bi-circle-fill"
-                                    style="font-size: 6px; vertical-align: middle; margin-right: 4px;"></i> {{
-                                status_text }}</span>
+                            <span class="{{ booking_status_badge_class(booking) }}">{{ booking_status_label(booking) }}</span>
                         </td>
                     </tr>
                     {% endfor %}
@@ -267,14 +244,14 @@
                     <div class="alert-item" data-bs-toggle="modal" data-bs-target="#checkInModal">
                         <div class="text-primary fs-3"><i class="bi bi-box-arrow-in-right"></i></div>
                         <div>
-                            <div class="fw-bold">1 Khách sắp Check-in</div>
+                            <div class="fw-bold">{{ check_in_today|length }} Khách sắp Check-in</div>
                             <div class="small text-muted">Đảm bảo phòng đã được dọn dẹp trước 14:00.</div>
                         </div>
                     </div>
                     <div class="alert-item" data-bs-toggle="modal" data-bs-target="#checkOutModal">
                         <div class="text-primary fs-3"><i class="bi bi-box-arrow-right"></i></div>
                         <div>
-                            <div class="fw-bold">1 Khách sắp Check-out</div>
+                            <div class="fw-bold">{{ check_out_today|length }} Khách sắp Check-out</div>
                             <div class="small text-muted">Kiểm tra và thông báo đến khách hàng trước 11:00.</div>
                         </div>
                     </div>
@@ -286,9 +263,9 @@
         <div class="col-lg-4">
             <div class="widget-card revenue-card d-flex flex-column">
                 <h5 class="mb-3">Doanh thu tháng này</h5>
-                <div class="display-5 fw-bold mb-1">45.200.000đ</div>
-                <div class="small text-white-50 mb-auto">+12% so với tháng trước</div>
-                <button class="btn btn-light w-100 fw-bold mt-4">Xem báo cáo chi tiết</button>
+                <div class="display-5 fw-bold mb-1">{{ "{:,.0f}".format(month_revenue).replace(",", ".") }}đ</div>
+                <div class="small text-white-50 mb-auto">Dữ liệu từ booking thực tế</div>
+                <a href="{{ url_for('report.index') }}" class="btn btn-light w-100 fw-bold mt-4 text-decoration-none">Xem báo cáo chi tiết</a>
             </div>
         </div>
     </div>
@@ -307,25 +284,28 @@
                     </div>
                     <div>
                         <h5 class="modal-title fw-bold">Danh sách khách check-in trong ngày</h5>
-                        <div class="text-muted small">Thứ Hai, 15/06/2026</div>
+                        <div class="text-muted small">Hôm nay, {{ today.strftime('%d/%m/%Y') }}</div>
                     </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 bg-light">
-                <div class="fw-bold mb-3"><i class="bi bi-box-arrow-in-right text-primary me-2"></i> 1 khách sắp
-                    Check-in</div>
+                <div class="fw-bold mb-3"><i class="bi bi-box-arrow-in-right text-primary me-2"></i> {{ check_in_today|length }} khách sắp Check-in</div>
 
+                {% for b in check_in_today %}
                 <div class="card border-0 shadow-sm mb-3">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-1">
-                            <div class="fw-bold fs-6">Nguyễn Văn A</div>
-                            <a href="#" class="text-primary text-decoration-none small fw-bold">[Xem booking]</a>
+                            <div class="fw-bold fs-6">{{ b.guest_name }}</div>
+                            <a href="{{ url_for('booking.detail', id=b.id) }}" class="text-primary text-decoration-none small fw-bold">Xem booking</a>
                         </div>
-                        <div class="text-muted small mb-2">Sunside Homestay - Phòng Deluxe - Tầng 2</div>
-                        <div class="small text-muted"><i class="bi bi-clock me-1"></i> 15/06/2026 14:00</div>
+                        <div class="text-muted small mb-2">{{ b.room.accommodation.name }} - {{ b.room.name }}</div>
+                        <div class="small text-muted"><i class="bi bi-clock me-1"></i> {{ b.check_in.strftime('%d/%m/%Y') }} 14:00</div>
                     </div>
                 </div>
+                {% else %}
+                <p class="text-muted small mb-0">Không có khách check-in hôm nay.</p>
+                {% endfor %}
 
                 <div class="bg-primary bg-opacity-10 rounded border-start border-primary border-4 p-3 d-flex gap-2">
                     <i class="bi bi-info-circle text-primary"></i>
@@ -348,25 +328,28 @@
                     </div>
                     <div>
                         <h5 class="modal-title fw-bold">Danh sách khách check-out trong ngày</h5>
-                        <div class="text-muted small">Thứ Hai, 15/06/2026</div>
+                        <div class="text-muted small">Hôm nay, {{ today.strftime('%d/%m/%Y') }}</div>
                     </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 bg-light">
-                <div class="fw-bold mb-3"><i class="bi bi-box-arrow-right text-primary me-2"></i> 1 khách sắp Check-out
-                </div>
+                <div class="fw-bold mb-3"><i class="bi bi-box-arrow-right text-primary me-2"></i> {{ check_out_today|length }} khách sắp Check-out</div>
 
+                {% for b in check_out_today %}
                 <div class="card border-0 shadow-sm mb-3">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-1">
-                            <div class="fw-bold fs-6">Lê Hoàng C</div>
-                            <a href="#" class="text-primary text-decoration-none small fw-bold">[Xem booking]</a>
+                            <div class="fw-bold fs-6">{{ b.guest_name }}</div>
+                            <a href="{{ url_for('booking.detail', id=b.id) }}" class="text-primary text-decoration-none small fw-bold">Xem booking</a>
                         </div>
-                        <div class="text-muted small mb-2">Ocean Breeze - Studio 05</div>
-                        <div class="small text-muted"><i class="bi bi-clock me-1"></i> 15/06/2026 11:00</div>
+                        <div class="text-muted small mb-2">{{ b.room.accommodation.name }} - {{ b.room.name }}</div>
+                        <div class="small text-muted"><i class="bi bi-clock me-1"></i> {{ b.check_out.strftime('%d/%m/%Y') }} 11:00</div>
                     </div>
                 </div>
+                {% else %}
+                <p class="text-muted small mb-0">Không có khách check-out hôm nay.</p>
+                {% endfor %}
 
                 <div class="bg-primary bg-opacity-10 rounded border-start border-primary border-4 p-3 d-flex gap-2">
                     <i class="bi bi-info-circle text-primary"></i>

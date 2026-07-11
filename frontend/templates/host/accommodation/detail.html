@@ -18,11 +18,49 @@
         overflow: hidden;
         margin-bottom: 32px;
     }
+    .acc-header-img-wrap {
+        position: relative;
+        min-height: 250px;
+        background: #f1f5f9;
+    }
     .acc-header-img {
         width: 100%;
         height: 100%;
         min-height: 250px;
         object-fit: cover;
+        display: block;
+    }
+    .acc-carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.92);
+        color: var(--rovva-black-blue);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .acc-carousel-btn:hover { background: #fff; }
+    .acc-carousel-btn--prev { left: 12px; }
+    .acc-carousel-btn--next { right: 12px; }
+    .acc-carousel-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .acc-carousel-counter {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 99px;
+        z-index: 2;
     }
     .acc-badge {
         padding: 4px 12px;
@@ -158,11 +196,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
+<div class="container host-page">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}" class="text-decoration-none text-muted">Quản lý CSLT</a></li>
+    <nav aria-label="breadcrumb" class="host-breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ acc.name }}</li>
         </ol>
     </nav>
@@ -171,7 +209,24 @@
     <div class="acc-header-card">
         <div class="row g-0">
             <div class="col-md-4 col-lg-3">
-                <img src="{{ acc.cover_url }}" class="acc-header-img" alt="{{ acc.name }}">
+                {% set gallery = acc.existing_image_urls %}
+                <div class="acc-header-img-wrap" id="acc-image-carousel" data-count="{{ gallery|length }}">
+                    {% if gallery|length > 0 %}
+                    <img src="{{ gallery[0] }}" class="acc-header-img" id="acc-carousel-img" alt="{{ acc.name }}">
+                    {% if gallery|length > 1 %}
+                    <button type="button" class="acc-carousel-btn acc-carousel-btn--prev" id="acc-carousel-prev" aria-label="Ảnh trước">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="acc-carousel-btn acc-carousel-btn--next" id="acc-carousel-next" aria-label="Ảnh sau">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <span class="acc-carousel-counter" id="acc-carousel-counter">1 / {{ gallery|length }}</span>
+                    <script type="application/json" id="acc-carousel-data">{{ gallery | tojson }}</script>
+                    {% endif %}
+                    {% else %}
+                    <img src="{{ acc.cover_url }}" class="acc-header-img" alt="{{ acc.name }}">
+                    {% endif %}
+                </div>
             </div>
             <div class="col-md-8 col-lg-9 p-4 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -200,10 +255,21 @@
                 </div>
                 {% endif %}
                 
-                <div class="mt-auto">
+                <div class="mt-auto d-flex flex-wrap gap-2">
                     <a href="{{ url_for('accommodation.edit', id=acc.id) }}" class="btn btn-primary px-4 fw-semibold d-inline-flex align-items-center gap-2">
                         <i class="bi bi-pencil-square"></i> Chỉnh sửa thông tin CSLT
                     </a>
+                    {% if acc.status == 'active' %}
+                    <button type="button" class="btn btn-outline-danger px-4 fw-semibold" id="acc-pause-trigger"
+                        data-pause-url="{{ url_for('accommodation.pause', id=acc.id) }}"
+                        data-staying-count="{{ staying_count }}">
+                        <i class="bi bi-pause-circle"></i> Tạm ngưng
+                    </button>
+                    {% elif acc.status == 'paused' %}
+                    <form method="POST" action="{{ url_for('accommodation.pause', id=acc.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-outline-success px-4 fw-semibold"><i class="bi bi-play-circle"></i> Kích hoạt lại</button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -218,41 +284,45 @@
     </div>
 
     <!-- Tabs -->
-    <ul class="nav nav-tabs mb-4">
+    <ul class="nav nav-tabs mb-4" id="host-room-tabs" data-tab-group="rooms">
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'all' %}active{% endif %}" href="{{ url_for('accommodation.detail', id=acc.id, status='all') }}">
+            <button type="button" class="nav-link {% if current_status == 'all' %}active{% endif %}" data-room-filter="all">
                 Tất cả{% if counts.all > 0 %} ({{ counts.all }}){% endif %}
-            </a>
+            </button>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'active' %}active{% endif %}" href="{{ url_for('accommodation.detail', id=acc.id, status='active') }}">
+            <button type="button" class="nav-link {% if current_status == 'active' %}active{% endif %}" data-room-filter="active">
                 Đang hoạt động{% if counts.active > 0 %} ({{ counts.active }}){% endif %}
-            </a>
+            </button>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'paused' %}active{% endif %}" href="{{ url_for('accommodation.detail', id=acc.id, status='paused') }}">
+            <button type="button" class="nav-link {% if current_status == 'paused' %}active{% endif %}" data-room-filter="paused">
                 Tạm ngưng{% if counts.paused > 0 %} ({{ counts.paused }}){% endif %}
-            </a>
+            </button>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if current_status == 'draft' %}active{% endif %}" href="{{ url_for('accommodation.detail', id=acc.id, status='draft') }}">
+            <button type="button" class="nav-link {% if current_status == 'draft' %}active{% endif %}" data-room-filter="draft">
                 Bản nháp{% if counts.draft > 0 %} ({{ counts.draft }}){% endif %}
-            </a>
+            </button>
         </li>
     </ul>
 
     <!-- Rooms Grid -->
-    <div class="row g-4">
+    <div class="row g-4" id="host-room-grid">
         {% for room in rooms %}
-        <div class="col-12 col-md-6 col-lg-4">
+        <div class="col-12 col-md-6 col-lg-4" data-room-status="{{ room.status }}">
             <div class="room-card bg-white h-100 d-flex flex-column">
                 <div class="room-img-wrap">
                     <img src="{{ room.image_url }}" alt="{{ room.name }}" class="room-img">
                     
                     {% if room.status == 'active' %}
                         <span class="room-badge active"><i class="bi bi-circle-fill small text-success me-1"></i> Đang hoạt động</span>
+                    {% elif room.status == 'paused' %}
+                        <span class="room-badge paused"><i class="bi bi-pause-circle-fill small text-secondary me-1"></i> Tạm ngưng</span>
+                    {% elif room.status == 'draft' %}
+                        <span class="room-badge paused"><i class="bi bi-file-earmark-fill small text-secondary me-1"></i> Bản nháp</span>
                     {% else %}
-                        <span class="room-badge paused"><i class="bi bi-circle-fill small text-secondary me-1"></i> Tạm ngưng</span>
+                        <span class="room-badge paused"><i class="bi bi-circle-fill small text-secondary me-1"></i> {{ room.status_label }}</span>
                     {% endif %}
                 </div>
                 
@@ -293,5 +363,25 @@
         </div>
         {% endfor %}
     </div>
+</div>
+
+<div class="modal fade" id="accPauseModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-body p-4">
+        <h5 class="fw-bold text-danger mb-2"><i class="bi bi-pause-circle"></i> Tạm ngưng cơ sở lưu trú</h5>
+        <p class="text-muted mb-3" id="acc-pause-message">Tạm ngưng sẽ ẩn CSLT khỏi tìm kiếm. Khách đã đặt có thể được hoàn tiền.</p>
+        <div class="d-flex gap-2 justify-content-end" id="acc-pause-actions">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <form method="POST" id="accPauseForm" class="d-inline">
+            <button type="submit" class="btn btn-danger">Xác nhận tạm ngưng</button>
+          </form>
+        </div>
+        <div class="text-end d-none" id="acc-pause-blocked">
+          <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

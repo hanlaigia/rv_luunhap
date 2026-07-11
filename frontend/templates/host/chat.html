@@ -1,0 +1,56 @@
+{% extends 'host/layout/base.html' %}
+{% block title %}Trợ lý AI — Rovva Host{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='host/css/host-ai-full.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="host-ai-shell" id="host-ai-shell" data-api-url="{{ url_for('main.ai_chat_api') }}">
+  <aside class="host-ai-side">
+    <button type="button" class="host-ai-new-chat" id="host-ai-new-chat">
+      <i class="bi bi-plus-lg"></i> Cuộc trò chuyện mới
+    </button>
+    <div class="host-ai-history" id="host-ai-history-list"></div>
+  </aside>
+
+  <section class="host-ai-main">
+    <header class="host-ai-main__head">
+      <span class="text-primary fs-5"><i class="bi bi-robot"></i></span>
+      <span class="host-ai-main__brand">Trợ lý Rovva AI — Host</span>
+      <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-outline-secondary ms-auto">Về tổng quan</a>
+    </header>
+
+    <div class="host-ai-main__body" id="host-ai-messages">
+      <div class="host-ai-welcome" id="host-ai-welcome">
+        <div class="text-primary mb-3" style="font-size:48px"><i class="bi bi-robot"></i></div>
+        <h1 class="host-ai-welcome__title">Xin chào, {{ current_user.full_name }}!</h1>
+        <p class="host-ai-welcome__desc">
+          Tôi là Trợ lý Rovva AI dành cho Host. Hỏi tôi về khuyến mãi, giá phòng, booking, tranh chấp hoặc vận hành homestay.
+        </p>
+        <div class="host-ai-suggestions">
+          <button type="button" class="host-ai-suggestion" data-prompt="Gợi ý khuyến mãi tăng booking tuần tới">
+            <i class="bi bi-tags"></i> Gợi ý khuyến mãi
+          </button>
+          <button type="button" class="host-ai-suggestion" data-prompt="Phân tích doanh thu và tỷ lệ lấp đầy của tôi">
+            <i class="bi bi-bar-chart"></i> Phân tích doanh thu
+          </button>
+          <button type="button" class="host-ai-suggestion" data-prompt="Cách xử lý tranh chấp với khách hiệu quả">
+            <i class="bi bi-shield-check"></i> Xử lý tranh chấp
+          </button>
+          <button type="button" class="host-ai-suggestion" data-prompt="Gợi ý điều chỉnh giá phòng theo mùa">
+            <i class="bi bi-currency-dollar"></i> Gợi ý giá phòng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <form class="host-ai-main__input" id="host-ai-full-form">
+      <input type="text" placeholder="Nhập câu hỏi của bạn..." aria-label="Nhập câu hỏi" required autocomplete="off">
+      <button type="submit" class="host-ai-main__send" aria-label="Gửi"><i class="bi bi-send-fill"></i></button>
+    </form>
+  </section>
+</div>
+{% endblock %}

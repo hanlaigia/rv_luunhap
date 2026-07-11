@@ -51,9 +51,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5" style="max-width: 900px;">
+<div class="container-fluid host-page host-page--wide">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
+    <nav aria-label="breadcrumb" class="host-breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}" class="text-decoration-none text-muted">Quản lý CSLT</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('promotion.index') }}" class="text-decoration-none text-muted">Quản lý khuyến mãi</a></li>
@@ -62,7 +62,7 @@
     </nav>
     
     <div class="mb-4">
-        <h1 class="page-title h3 mb-1">Thiết lập khuyến mãi</h1>
+        <h1 class="host-page-title mb-1">Thiết lập khuyến mãi</h1>
         <p class="text-muted">Gia tăng lượng đặt phòng bằng cách tạo các ưu đãi hấp dẫn cho khách hàng.</p>
     </div>
 

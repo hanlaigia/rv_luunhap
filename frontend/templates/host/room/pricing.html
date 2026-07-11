@@ -5,412 +5,169 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
-    .page-title {
-        color: var(--rovva-black-blue);
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-    
-    .section-card {
-        border: 1px solid #dee2e6;
-        border-radius: 12px;
-        background: #fff;
-        margin-bottom: 24px;
-        padding: 24px;
-    }
-    
-    /* Calendar */
-    .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        border-top: 1px solid #dee2e6;
-        border-left: 1px solid #dee2e6;
-    }
-    .cal-cell {
-        border-right: 1px solid #dee2e6;
-        border-bottom: 1px solid #dee2e6;
-        min-height: 80px;
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-    }
-    .cal-cell.header {
-        min-height: auto;
-        text-align: center;
-        font-weight: 600;
-        color: #5f6487;
-        background: #f8f9fa;
-        padding: 12px 8px;
-        font-size: 13px;
-    }
-    .cal-cell.empty {
-        background: #f8f9fa;
-    }
-    .cal-cell.selected {
-        background: #e3f2fd;
-        border: 2px solid var(--rovva-primary-blue);
-    }
-    .cal-date {
-        font-weight: 600;
-        font-size: 14px;
-        color: var(--rovva-black-blue);
-        margin-bottom: auto;
-    }
-    .cal-price {
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--rovva-primary-blue);
-    }
-    .cal-status.booked {
-        color: #dc3545;
-        font-size: 12px;
-        font-weight: 600;
-    }
-    .cal-status.ai-suggest {
-        color: #28a745;
-        font-size: 12px;
-        font-weight: 600;
-    }
-    
-    /* Legend */
-    .legend-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: #5f6487;
-        margin-left: 16px;
-    }
-    .legend-box {
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
-    }
-    
-    /* AI Card */
-    .ai-card {
-        background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%);
-        border: 1px solid #cce5ff;
-        border-radius: 12px;
-        padding: 24px;
-        text-align: center;
-    }
+    .page-title { color: var(--rovva-black-blue); font-weight: 800; }
+    .section-card { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; margin-bottom: 24px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; }
+    .cal-cell { border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; min-height: 72px; padding: 8px; }
+    .cal-cell.header { min-height: auto; text-align: center; font-weight: 600; color: #64748b; background: #f8fafc; padding: 10px 8px; font-size: 13px; }
+    .cal-cell.empty { background: #f8fafc; }
+    .cal-cell.selected { outline: 2px solid #3b82f6; background: #eff6ff; z-index: 1; }
+    .cal-cell.booked { background: #ffebee; }
+    .cal-cell.special { background: #e0f2fe; }
+    .cal-date { font-weight: 600; font-size: 13px; }
+    .cal-price { font-size: 12px; font-weight: 700; color: #3b82f6; }
+    .cal-status.booked { color: #dc2626; font-size: 11px; font-weight: 600; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b; margin-left: 12px; }
+    .legend-box { width: 12px; height: 12px; border-radius: 2px; }
+    .type-badge { background: #dbeafe; color: #1d4ed8; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4 py-lg-5">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
+<div class="container-fluid host-page host-page--wide">
+    <nav aria-label="breadcrumb" class="host-breadcrumb">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}" class="text-decoration-none text-muted">Quản lý CSLT</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('accommodation.detail', id=acc.id) }}" class="text-decoration-none text-muted">{{ acc.name }}</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.room_detail', acc_id=acc.id, room_id=room.id) }}" class="text-decoration-none text-muted">Phòng {{ room.name.split(' - ')[0] if ' - ' in room.name else room.name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Quản lý giá & Lịch</li>
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.room_detail', acc_id=acc.id, room_id=room.id) }}" class="text-decoration-none text-muted">{{ room.name.split(' - ')[0] if ' - ' in room.name else room.name }}</a></li>
+            <li class="breadcrumb-item active">Quản lý giá & lịch</li>
         </ol>
     </nav>
-    
+
     <div class="mb-4">
         <h1 class="page-title h3 mb-1">Quản lý giá & Lịch</h1>
-        <p class="text-muted">{{ room.name }}</p>
+        <p class="text-muted mb-0">{{ room.name }}</p>
     </div>
 
-    <!-- Smart Pricing Summary (Mock) -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="section-card p-3 h-100 mb-0">
-                <div class="small text-muted mb-1">Giá trung bình hiện tại</div>
-                <div class="fs-4 fw-bold text-primary mb-1">1.500.000đ</div>
-                <div class="small text-success"><i class="bi bi-arrow-up-right"></i> +2% so với tháng trước</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="section-card p-3 h-100 mb-0">
-                <div class="small text-muted mb-1">Doanh thu tháng này</div>
-                <div class="fs-4 fw-bold mb-1">45.000.000đ</div>
-                <div class="small text-success"><i class="bi bi-arrow-up-right"></i> +15% so với tháng trước</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="section-card p-3 h-100 mb-0">
-                <div class="small text-muted mb-1">Tỷ lệ lấp đầy</div>
-                <div class="fs-4 fw-bold mb-1">78%</div>
-                <div class="small text-success"><i class="bi bi-arrow-up-right"></i> +5% so với tháng trước</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="section-card p-3 h-100 mb-0">
-                <div class="small text-muted mb-1">Điểm tối ưu giá</div>
-                <div class="fs-4 fw-bold text-warning mb-1">72/100</div>
-                <div class="small text-warning"><i class="bi bi-exclamation-circle"></i> Cần dự đoán cải thiện vào cuối tuần</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Left Col: Calendar -->
+    <div class="row g-4">
         <div class="col-lg-8">
             <div class="section-card p-0 overflow-hidden">
-                <div class="calendar-header p-3 pb-0">
-                    <div class="d-flex align-items-center gap-3">
-                        <h4 class="h5 fw-bold mb-0">Tháng 12, 2024</h4>
-                        <div>
-                            <button class="btn btn-sm btn-outline-secondary px-2 py-0"><i class="bi bi-chevron-left"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary px-2 py-0"><i class="bi bi-chevron-right"></i></button>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="h6 fw-bold mb-0">Tháng 12, 2024</h2>
+                        <button class="btn btn-sm btn-outline-secondary px-2 py-0"><i class="bi bi-chevron-left"></i></button>
+                        <button class="btn btn-sm btn-outline-secondary px-2 py-0"><i class="bi bi-chevron-right"></i></button>
                     </div>
-                    
-                    <div class="d-none d-md-flex">
-                        <div class="legend-item"><div class="legend-box border" style="background:#fff;"></div> Trống</div>
-                        <div class="legend-item"><div class="legend-box" style="background:#ffebee;"></div> Đã đặt</div>
-                        <div class="legend-item"><div class="legend-box" style="background:#e8f5e9;"></div> Gợi ý tăng giá</div>
-                        <div class="legend-item"><div class="legend-box" style="background:#e3f2fd;"></div> Lễ hội / Sự kiện</div>
+                    <div>
+                        <span class="legend-item"><span class="legend-box border bg-white"></span> Trống</span>
+                        <span class="legend-item"><span class="legend-box" style="background:#ffebee;"></span> Đã đặt</span>
+                        <span class="legend-item"><span class="legend-box" style="background:#e0f2fe;"></span> Ngày đặc biệt</span>
                     </div>
                 </div>
-                
                 <div class="p-3">
                     <div class="calendar-grid">
-                        <div class="cal-cell header">CN</div>
-                        <div class="cal-cell header">T2</div>
-                        <div class="cal-cell header">T3</div>
-                        <div class="cal-cell header">T4</div>
-                        <div class="cal-cell header">T5</div>
-                        <div class="cal-cell header">T6</div>
-                        <div class="cal-cell header">T7</div>
-                        
-                        <!-- Row 1 -->
+                        {% for d in ['CN','T2','T3','T4','T5','T6','T7'] %}
+                        <div class="cal-cell header">{{ d }}</div>
+                        {% endfor %}
                         <div class="cal-cell empty"></div>
-                        <div class="cal-cell">
-                            <span class="cal-date">1</span>
-                            <span class="cal-price">1.200k</span>
+                        {% for day in range(1, 32) %}
+                        {% set cls = 'cal-cell' %}
+                        {% if day in [2, 9] %}{% set cls = cls ~ ' booked' %}
+                        {% elif day in [4, 5, 25] %}{% set cls = cls ~ ' special' %}
+                        {% elif day == 5 %}{% set cls = cls ~ ' selected' %}{% endif %}
+                        <div class="{{ cls }}">
+                            <div class="cal-date">{{ day }}</div>
+                            {% if day in [2, 9] %}
+                            <div class="cal-status booked">Đã đặt</div>
+                            {% else %}
+                            <div class="cal-price">{{ '1.800k' if day == 25 else ('1.500k' if day in [3,4,5,22,23] else '1.200k') }}</div>
+                            {% endif %}
                         </div>
-                        <div class="cal-cell" style="background:#ffebee;">
-                            <span class="cal-date">2</span>
-                            <span class="cal-status booked"><i class="bi bi-lock-fill"></i> Đã đặt</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">3</span>
-                            <span class="cal-price">1.500k</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">4</span>
-                            <span class="cal-price">1.500k</span>
-                        </div>
-                        <div class="cal-cell selected" style="background:#e3f2fd;">
-                            <span class="cal-date">5</span>
-                            <span class="cal-price">1.500k</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">6</span>
-                            <span class="cal-price">1.200k</span>
-                        </div>
-                        
-                        <!-- Row 2 -->
-                        <div class="cal-cell">
-                            <span class="cal-date">7</span>
-                            <span class="cal-price" style="color:#28a745;">1.700k</span>
-                            <span class="cal-price text-muted text-decoration-line-through" style="font-size:11px;">1.200k</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">8</span>
-                            <span class="cal-price">1.200k</span>
-                        </div>
-                        <div class="cal-cell" style="background:#ffebee;">
-                            <span class="cal-date">9</span>
-                            <span class="cal-status booked"><i class="bi bi-lock-fill"></i> Đã đặt</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">10</span>
-                            <span class="cal-price">1.200k</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">11</span>
-                            <span class="cal-price">1.200k</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">12</span>
-                            <span class="cal-price">1.200k</span>
-                        </div>
-                        <div class="cal-cell">
-                            <span class="cal-date">13</span>
-                            <span class="cal-price">1.200k</span>
-                        </div>
-                        
-                        <!-- Row 3... (Mock) -->
-                        <div class="cal-cell"><span class="cal-date">14</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">15</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">16</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">17</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">18</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">19</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">20</span><span class="cal-price">1.200k</span></div>
-                        
-                        <!-- Row 4 -->
-                        <div class="cal-cell"><span class="cal-date">21</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">22</span><span class="cal-price">1.500k</span></div>
-                        <div class="cal-cell"><span class="cal-date">23</span><span class="cal-price" style="color:#28a745;">1.500k</span><span class="cal-price text-muted text-decoration-line-through" style="font-size:11px;">1.000k</span></div>
-                        <div class="cal-cell"><span class="cal-date">24</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell" style="background:#e3f2fd;"><span class="cal-date">25</span><span class="cal-price">1.800k</span></div>
-                        <div class="cal-cell"><span class="cal-date">26</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">27</span><span class="cal-price">1.200k</span></div>
-                        
-                        <!-- Row 5 -->
-                        <div class="cal-cell"><span class="cal-date">28</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">29</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">30</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell"><span class="cal-date">31</span><span class="cal-price">1.200k</span></div>
-                        <div class="cal-cell empty"></div>
-                        <div class="cal-cell empty"></div>
-                        <div class="cal-cell empty"></div>
+                        {% endfor %}
                     </div>
+                    <div class="host-pricing-hint"><i class="bi bi-info-circle me-1"></i> Hướng dẫn: Chọn một hoặc nhiều ngày trên lịch để thiết lập giá riêng</div>
                 </div>
             </div>
-            
-            <div class="section-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="h5 fw-bold mb-0">Quy tắc giá tự động</h4>
-                    <button class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Thêm quy tắc mới</button>
+
+            <div class="host-pricing-cta">
+                <p class="mb-2 fw-semibold">Gợi ý: Bạn khó lựa chọn giá? Hệ thống sẽ gợi ý giá tối ưu cho phòng này.</p>
+                <a href="{{ url_for('accommodation.room_price_suggestions', acc_id=acc.id, room_id=room.id) }}" class="btn btn-outline-primary fw-semibold px-4">Xem gợi ý giá</a>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="section-card p-4 mb-4">
+                <h3 class="h6 fw-bold mb-3">Thiết lập giá cho ngày đã chọn</h3>
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Mức giá mới (VND)</label>
+                    <input type="text" class="form-control" value="{{ '{:,.0f}'.format(room.base_price).replace(',', '.') }}">
                 </div>
-                
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Ghi chú / Loại giá</label>
+                    <input type="text" class="form-control" placeholder="Ví dụ: Giáng sinh, Cuối tuần...">
+                </div>
+                <button class="btn btn-primary w-100 fw-semibold"><i class="bi bi-save me-1"></i> Lưu cài đặt giá</button>
+            </div>
+
+            <div class="section-card p-4">
+                <h3 class="h6 fw-bold mb-3">Các khoảng giá đã thiết lập</h3>
                 <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead class="text-muted small border-bottom">
-                            <tr>
-                                <th>Tên quy tắc</th>
-                                <th>Điều kiện</th>
-                                <th>Điều chỉnh</th>
-                                <th>Trạng thái</th>
-                            </tr>
+                    <table class="table table-sm align-middle small mb-0">
+                        <thead class="text-muted border-bottom">
+                            <tr><th>Ngày áp dụng</th><th>Mức giá</th><th>Loại</th></tr>
                         </thead>
-                        <tbody class="small">
+                        <tbody>
+                            {% for r in price_ranges %}
                             <tr>
-                                <td class="fw-bold">Cuối tuần</td>
-                                <td>Thứ 6, Thứ 7 & Chủ Nhật hàng tuần</td>
-                                <td class="text-success fw-bold">+20%</td>
-                                <td>
-                                    <div class="form-check form-switch d-inline-block me-3">
-                                        <input class="form-check-input" type="checkbox" checked>
-                                    </div>
-                                    <i class="bi bi-pencil" style="cursor:pointer;"></i>
-                                </td>
+                                <td>{{ r.from }}{% if r.to != r.from %}<br>{{ r.to }}{% endif %}</td>
+                                <td class="fw-bold text-primary">{{ r.price }}</td>
+                                <td><span class="type-badge">{{ r.type }}</span></td>
                             </tr>
-                            <tr>
-                                <td class="fw-bold">Đặt muộn (Last-minute)</td>
-                                <td>Trong vòng 24h trước khi check-in</td>
-                                <td class="text-danger fw-bold">-15%</td>
-                                <td>
-                                    <div class="form-check form-switch d-inline-block me-3">
-                                        <input class="form-check-input" type="checkbox" checked>
-                                    </div>
-                                    <i class="bi bi-pencil" style="cursor:pointer;"></i>
-                                </td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-link btn-sm text-decoration-none" data-bs-toggle="modal" data-bs-target="#priceHistoryModal">Xem tất cả lịch sử</button>
+                </div>
             </div>
         </div>
-        
-        <!-- Right Col: Sidebar -->
-        <div class="col-lg-4">
-            
-            <!-- AI Suggestion Panel -->
-            <div class="section-card border-primary p-0 overflow-hidden mb-4 shadow-sm">
-                <div class="bg-primary text-white p-3">
-                    <h5 class="fw-bold mb-0 d-flex justify-content-between align-items-center">
-                        Phân tích ngày 25/12 
-                        <span class="badge bg-white text-primary rounded-pill small" style="font-size:10px;">LỄ GIÁNG SINH</span>
-                    </h5>
-                </div>
-                <div class="p-3 bg-light text-center border-bottom">
-                    <div class="d-flex justify-content-center align-items-center gap-3">
-                        <div>
-                            <small class="text-muted d-block">Hiện tại</small>
-                            <span class="fw-bold fs-5 text-muted text-decoration-line-through">1.500.000đ</span>
-                        </div>
-                        <i class="bi bi-arrow-right text-primary fs-4"></i>
-                        <div>
-                            <small class="text-primary fw-bold d-block">Gợi ý AI</small>
-                            <span class="fw-bold fs-4 text-primary">1.800.000đ</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-3">
-                    <p class="small fw-bold text-muted mb-2">LÝ DO ĐIỀU CHỈNH</p>
-                    <ul class="list-unstyled small mb-4">
-                        <li class="mb-2 d-flex gap-2">
-                            <i class="bi bi-calendar-event text-primary mt-1"></i>
-                            <span>Rơi vào thứ Năm nhưng trùng dịp Lễ Giáng sinh.</span>
-                        </li>
-                        <li class="mb-2 d-flex gap-2">
-                            <i class="bi bi-graph-up-arrow text-primary mt-1"></i>
-                            <span>Tỉ lệ lấp đầy khu vực Đà Lạt hiện tại đã đạt <strong>91%</strong>.</span>
-                        </li>
-                        <li class="mb-2 d-flex gap-2">
-                            <i class="bi bi-people text-primary mt-1"></i>
-                            <span>Đối thủ cạnh tranh cùng phân khúc đang niêm yết từ 1.700k - 2.000k.</span>
-                        </li>
-                    </ul>
-                    <button class="btn btn-primary w-100 fw-semibold"><i class="bi bi-magic"></i> Áp dụng giá gợi ý</button>
-                </div>
-            </div>
+    </div>
+</div>
 
-            <!-- Manual Pricing Form -->
-            <div class="section-card">
-                <h4 class="fw-bold mb-3 fs-6">Thiết lập giá cho ngày đã chọn</h4>
-                
-                <div class="mb-3">
-                    <label class="form-label small">Mức giá mới (VND)</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="1.500.000">
-                        <span class="input-group-text">đ</span>
-                    </div>
+<div class="modal fade host-history-modal" id="priceHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title fw-bold text-uppercase mb-0">Lịch sử thay đổi giá</h5>
+                    <div class="small text-muted">{{ room.name }}</div>
                 </div>
-                
-                <div class="mb-3">
-                    <label class="form-label small">Ghi chú / Loại giá</label>
-                    <input type="text" class="form-control" placeholder="Ví dụ: Giáng sinh, Cuối tuần...">
-                </div>
-                
-                <button class="btn btn-primary w-100"><i class="bi bi-save"></i> Lưu cài đặt giá</button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            
-            <div class="section-card">
-                <h4 class="fw-bold mb-3 fs-6">Các khoảng giá đã thiết lập</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle small">
-                        <thead class="text-muted border-bottom">
+            <div class="modal-body">
+                <div class="d-flex gap-2 mb-3 flex-wrap">
+                    <div class="position-relative flex-grow-1" style="min-width:200px;">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" class="form-control ps-5" placeholder="Tìm theo loại giá">
+                    </div>
+                    <select class="form-select w-auto"><option>Ngày thay đổi</option></select>
+                </div>
+                <div class="table-responsive border rounded">
+                    <table class="table table-hover mb-0 small">
+                        <thead class="table-light">
                             <tr>
-                                <th>Ngày áp dụng</th>
-                                <th>Mức giá</th>
-                                <th>Loại</th>
+                                <th>Ngày thay đổi</th><th>Ngày áp dụng</th><th>Mức giá cũ</th><th>Mức giá mới</th><th>Loại giá</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for h in price_history %}
                             <tr>
-                                <td>03/01/2025-<br>05/01/2025</td>
-                                <td class="fw-bold text-primary">1.500.000đ</td>
-                                <td><span class="badge bg-light text-dark">Ngày lễ</span></td>
+                                <td>{{ h.changed }}</td>
+                                <td>{{ h.applied }}</td>
+                                <td>{{ h.old }}</td>
+                                <td class="fw-bold text-primary">{{ h.new }}</td>
+                                <td><span class="type-badge">{{ h.type }}</span></td>
                             </tr>
-                            <tr>
-                                <td>27/12/2024</td>
-                                <td class="fw-bold text-primary">1.500.000đ</td>
-                                <td><span class="badge bg-light text-dark">Cuối tuần</span></td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                <div class="text-center mt-2">
-                    <a href="#" class="text-decoration-none small">Xem tất cả lịch sử</a>
+                <div class="d-flex justify-content-between align-items-center mt-3 small text-muted">
+                    <span>Hiển thị 1 - {{ price_history|length }} trong số {{ price_history|length }} thay đổi</span>
+                    <nav><ul class="pagination pagination-sm mb-0"><li class="page-item active"><span class="page-link">1</span></li></ul></nav>
                 </div>
             </div>
-            
         </div>
     </div>
 </div>

@@ -1,0 +1,197 @@
+{% extends 'host/layout/base.html' %}
+
+{% block title %}Gợi ý giá thông minh - Rovva Host{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    .page-title { color: var(--rovva-black-blue); font-weight: 800; }
+    .kpi-card { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; padding: 20px; height: 100%; }
+    .section-card { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; padding: 20px; margin-bottom: 24px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid #e2e8f0; }
+    .cal-cell { border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; min-height: 64px; padding: 6px; font-size: 12px; }
+    .cal-cell.header { text-align: center; font-weight: 600; background: #f8fafc; padding: 8px; }
+    .ai-panel { border: 2px solid #3b82f6; border-radius: 12px; overflow: hidden; }
+    .ai-panel-head { background: #3b82f6; color: #fff; padding: 14px 16px; font-weight: 700; }
+    .rule-row { cursor: pointer; transition: background 0.15s; }
+    .rule-row:hover { background: #f8fafc; }
+    .rule-row.is-selected { background: #eff6ff; }
+    .rule-detail-panel { border: 1px solid #dbeafe; border-radius: 10px; background: #f8fafc; padding: 16px; }
+    .revenue-chart-wrap { height: 260px; position: relative; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid host-page host-page--wide" id="price-suggestions-page"
+    data-revenue-labels='{{ revenue_labels | tojson }}'
+    data-revenue-actual='{{ revenue_actual | tojson }}'
+    data-revenue-predicted='{{ revenue_predicted | tojson }}'>
+    <nav aria-label="breadcrumb" class="host-breadcrumb host-breadcrumb--static">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.detail', id=acc.id) }}">{{ acc.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.room_detail', acc_id=acc.id, room_id=room.id) }}">{{ room.name.split(' - ')[0] if ' - ' in room.name else room.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('accommodation.room_pricing', acc_id=acc.id, room_id=room.id) }}">Quản lý giá và lịch</a></li>
+            <li class="breadcrumb-item active">Gợi ý giá</li>
+        </ol>
+    </nav>
+
+    <div class="mb-4">
+        <h1 class="page-title h3 mb-1">Gợi ý giá thông minh</h1>
+        <p class="text-muted mb-0">{{ room.name }}</p>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="kpi-card"><div class="small text-muted">Giá trung bình hiện tại</div><div class="fs-4 fw-bold text-primary">{{ "{:,.0f}".format(room.base_price).replace(",", ".") }}đ</div><div class="small text-success">+2% so với tháng trước</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="small text-muted">Doanh thu tháng này</div><div class="fs-4 fw-bold">45.000.000đ</div><div class="small text-success">+15% so với tháng trước</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="small text-muted">Tỉ lệ lấp đầy</div><div class="fs-4 fw-bold">78%</div><div class="small text-success">+5% so với tháng trước</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="small text-muted">Điểm tối ưu giá</div><div class="fs-4 fw-bold text-warning">72/100</div><div class="small text-warning">Cần ưu đãi cải thiện vào cuối tuần</div></div></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="section-card">
+                <div class="d-flex justify-content-between mb-3">
+                    <h2 class="h6 fw-bold mb-0">Tháng 12, 2024</h2>
+                    <div class="small text-muted">Trống · Đã đặt · Gợi ý tăng giá · Lễ hội</div>
+                </div>
+                <div class="calendar-grid mb-0">
+                    {% for d in ['CN','T2','T3','T4','T5','T6','T7'] %}<div class="cal-cell header">{{ d }}</div>{% endfor %}
+                    <div class="cal-cell"></div>
+                    {% for day in range(1, 32) %}
+                    <div class="cal-cell{% if day == 25 %} border border-primary border-2{% endif %}">
+                        <div class="fw-semibold">{{ day }}</div>
+                        {% if day not in [2, 9] %}<div class="text-primary fw-bold">{{ '1.800k' if day == 25 else '1.200k' }}</div>{% else %}<div class="text-danger small">Đã đặt</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h6 fw-bold mb-0">Quy tắc giá tự động</h2>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRuleModal"><i class="bi bi-plus"></i> Thêm quy tắc mới</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle small mb-0">
+                        <thead class="text-muted border-bottom">
+                            <tr><th>Tên quy tắc</th><th>Điều kiện</th><th>Điều chỉnh</th><th>Trạng thái</th></tr>
+                        </thead>
+                        <tbody id="pricing-rules-tbody"></tbody>
+                    </table>
+                </div>
+                <div id="rule-detail-panel" class="rule-detail-panel mt-3 d-none">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h3 class="h6 fw-bold mb-0" id="rule-detail-name"></h3>
+                        <span class="badge bg-primary-subtle text-primary" id="rule-detail-status"></span>
+                    </div>
+                    <p class="small text-muted mb-2"><strong>Điều kiện:</strong> <span id="rule-detail-condition"></span></p>
+                    <p class="small text-muted mb-2"><strong>Điều chỉnh:</strong> <span id="rule-detail-adjust" class="fw-bold"></span></p>
+                    <p class="small mb-0" id="rule-detail-note"></p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h2 class="h6 fw-bold mb-0">Xu hướng doanh thu 30 ngày</h2>
+                    <div class="d-flex gap-3 small">
+                        <span><i class="bi bi-circle-fill text-primary me-1" style="font-size:8px"></i> Thực tế</span>
+                        <span><i class="bi bi-circle-fill text-success me-1" style="font-size:8px"></i> Dự đoán</span>
+                    </div>
+                </div>
+                <div class="revenue-chart-wrap">
+                    <canvas id="priceRevenueChart"></canvas>
+                </div>
+                <div class="mt-3 p-3 bg-primary bg-opacity-10 rounded small">
+                    <strong>Tiềm năng tăng thêm +12.4M</strong> nếu áp dụng gợi ý
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="ai-panel mb-4">
+                <div class="ai-panel-head d-flex justify-content-between align-items-center">
+                    <span>Phân tích ngày 25/12</span>
+                    <span class="badge bg-white text-primary">LỄ GIÁNG SINH</span>
+                </div>
+                <div class="p-3 bg-light text-center border-bottom">
+                    <div class="d-flex justify-content-center align-items-center gap-3">
+                        <div><small class="text-muted d-block">Hiện tại</small><span class="text-decoration-line-through fw-bold">{{ "{:,.0f}".format(room.base_price).replace(",", ".") }}đ</span></div>
+                        <i class="bi bi-arrow-right text-primary"></i>
+                        <div><small class="text-primary fw-bold d-block">Gợi ý</small><span class="fs-4 fw-bold text-primary">{{ "{:,.0f}".format((room.base_price * 1.2)|int).replace(",", ".") }}đ</span></div>
+                    </div>
+                </div>
+                <div class="p-3 small">
+                    <p class="fw-bold text-muted mb-2">LÝ DO ĐIỀU CHỈNH</p>
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2"><i class="bi bi-calendar-event text-primary me-2"></i>Trùng dịp Lễ Giáng sinh</li>
+                        <li class="mb-2"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Tỉ lệ lấp đầy khu vực đạt <strong>91%</strong></li>
+                        <li><i class="bi bi-people text-primary me-2"></i>Đối thủ niêm yết 1.700k – 2.000k</li>
+                    </ul>
+                    <button type="button" class="btn btn-primary w-100 fw-semibold">Áp dụng giá gợi ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center py-4">
+        <button type="button" class="btn btn-primary fw-semibold px-4 me-2"><i class="bi bi-magic me-1"></i> Áp dụng tất cả gợi ý</button>
+        <a href="{{ url_for('accommodation.room_pricing', acc_id=acc.id, room_id=room.id) }}" class="btn btn-outline-primary fw-semibold px-4">Quay lại quản lý giá</a>
+        <p class="small text-muted mt-3 mb-0">Gợi ý dựa trên dữ liệu booking và thị trường — Host có thể chỉnh sửa trước khi lưu.</p>
+    </div>
+</div>
+
+<script type="application/json" id="pricing-rules-data">{{ pricing_rules | tojson }}</script>
+
+<div class="modal fade host-rule-modal" id="addRuleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Thêm quy tắc mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="rule-name-input">Tên quy tắc</label>
+                    <input type="text" class="form-control" id="rule-name-input" placeholder="VD: Cuối tuần">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="rule-condition-input">Điều kiện</label>
+                    <input type="text" class="form-control" id="rule-condition-input" placeholder="VD: Thứ 6, Thứ 7 & Chủ Nhật">
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="rule-adjust-type">Loại điều chỉnh</label>
+                        <select class="form-select" id="rule-adjust-type">
+                            <option value="percent_up">Tăng theo %</option>
+                            <option value="percent_down">Giảm theo %</option>
+                            <option value="fixed_up">Tăng giá cố định</option>
+                            <option value="fixed_down">Giảm giá cố định</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="rule-adjust-value">Giá trị</label>
+                        <input type="text" class="form-control" id="rule-adjust-value" placeholder="VD: 20">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="rule-note-input">Ghi chú</label>
+                    <textarea class="form-control" id="rule-note-input" rows="2" placeholder="Mô tả ngắn về quy tắc"></textarea>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="rule-active-input" checked>
+                    <label class="form-check-label" for="rule-active-input">Áp dụng ngay</label>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary px-4 fw-semibold" id="rule-save-btn">Lưu quy tắc</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
