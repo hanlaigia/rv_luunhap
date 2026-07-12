@@ -1,155 +1,168 @@
-# 🏨 ROVVA — Smart Stay Platform
+# ROVVA — Smart Stay Platform
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Framework](https://img.shields.io/badge/flask-latest-green.svg)](https://flask.palletsprojects.com/)
+[![Framework](https://img.shields.io/badge/flask-3.x-green.svg)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/license-Educational-orange.svg)]()
 
-> Nền tảng đặt phòng homestay và khách sạn thông minh, kết hợp AI để tối ưu trải nghiệm tìm kiếm và hỗ trợ vận hành. Xây dựng dựa trên Flask Framework và kiến trúc Server-Side Rendering (SSR).
+> Nền tảng đặt phòng homestay và khách sạn thông minh trên Flask SSR, phục vụ 3 vai trò: **Customer**, **Host**, **Admin**.
 
-Hệ thống được thiết kế tối ưu cho 3 nhóm người dùng: **Customer**, **Host** và **Admin**, cung cấp trải nghiệm liền mạch từ khâu tìm kiếm, đặt phòng đến vận hành và quản trị hệ thống.
-
----
-
-## 🌟 Các tính năng nổi bật
-
-### Dành cho Khách hàng (Customer)
-- **🧠 Smart Match (Tìm kiếm bằng ngôn ngữ tự nhiên):** Ứng dụng thuật toán TF-IDF và Cosine Similarity giúp người dùng tìm kiếm phòng thông qua các đoạn mô tả dài bằng tiếng Việt (ví dụ: *"Tôi muốn một căn hộ có ban công view biển, gần trung tâm cho 2 người"*).
-- **🛒 Luồng đặt phòng mượt mà:** Từ việc tìm kiếm, xem chi tiết phòng, kiểm tra tình trạng trống, giữ phòng, thanh toán mô phỏng (mock payment), cho đến xác nhận booking.
-- **🖼️ Hiển thị media tối ưu:** Hệ thống quản lý hình ảnh thông minh cho cơ sở lưu trú, phòng và avatar người dùng, có cơ chế fallback placeholder khi thiếu ảnh.
-
-### Dành cho Chủ nhà (Host)
-- **🤖 Host Copilot (Trợ lý vận hành thông minh):** Cung cấp các phân tích dữ liệu chuyên sâu:
-  - Phân tích chân dung khách hàng (Customer Persona).
-  - Radar cảnh báo bảo trì cơ sở vật chất.
-  - Gợi ý tối ưu giá bán và doanh thu (Revenue suggestions).
-- **📊 Quản lý toàn diện:** Bảng điều khiển (dashboard) trực quan giúp quản lý cơ sở lưu trú, danh sách phòng, và theo dõi booking hiệu quả.
-
-### Dành cho Quản trị viên (Admin)
-- **⚙️ Admin Panel:** Giao diện quản lý tập trung, giám sát toàn bộ hoạt động của hệ thống, quản lý người dùng, cơ sở lưu trú và các giao dịch.
+**Cập nhật tài liệu:** 12/07/2026 — đồng bộ với codebase hiện tại.
 
 ---
 
-## 🛠️ Công nghệ sử dụng (Tech Stack)
+## Tính năng chính
 
-Hệ thống được phát triển sử dụng các công nghệ hiện đại và phổ biến:
+### Customer
+- **Smart Match:** TF-IDF + cosine similarity — tìm phòng bằng câu tiếng Việt tự nhiên (`/customer/smart-search`).
+- **Đặt phòng:** Tìm kiếm → chi tiết CSLT → giữ chỗ **20 phút** → checkout → thanh toán **tiền mặt** hoặc **online QR** (mô phỏng VietinBank).
+- **Tài khoản:** Profile, chuyến đi, ví xu, hạng thành viên, yêu thích, đánh giá, tin nhắn host, bảo mật.
+- **AI Chat:** Trợ lý Groq (`/customer/chat`) — cần `GROQ_API_KEY`.
+- **Khách vãng lai:** Đặt phòng không cần đăng nhập; truy cập đơn qua session `anonymous_booking_codes`.
 
-| Thành phần | Công nghệ / Thư viện | Vai trò trong hệ thống |
-|:---|:---|:---|
-| **Backend Core** | `Python 3.10+`, `Flask` | Xử lý logic nghiệp vụ, routing, API |
-| **Authentication**| `Flask-Login`, `Werkzeug` | Quản lý session, mã hóa mật khẩu, phân quyền |
-| **Database ORM** | `SQLAlchemy` | Giao tiếp cơ sở dữ liệu |
-| **Database** | `SQLite` | Cơ sở dữ liệu quan hệ (dễ dàng deploy local) |
-| **Frontend** | `HTML5`, `Bootstrap 5`, `Jinja2`, `Vanilla JS` | Giao diện người dùng responsive, rendering view |
-| **AI / Data Science**| `pandas`, `scikit-learn` | Tiền xử lý văn bản, thuật toán gợi ý tìm kiếm |
+### Host
+- Dashboard, CRUD cơ sở lưu trú (CSLT) và phòng, booking, khuyến mãi, báo cáo.
+- Thanh toán & rút tiền, tranh chấp, tin nhắn khách, thông báo (UI).
+- **Trợ lý vận hành thông minh:** phân tích chân dung khách, radar cảnh báo bảo trì, gợi ý tối ưu giá bán và doanh thu — hiển thị trên dashboard; trang module riêng chưa kết nối route.
+- **Gợi ý giá & doanh thu:** thiết kế dùng mô hình máy học; hiện tại **chưa tích hợp ML** — chỉ giả lập bằng rule engine từ dữ liệu occupancy.
+- AI chat vận hành (`/host/ai-chat`).
+
+### Admin
+- Portal SPA một trang (`/admin/`) — 9 module: dashboard, users, hosts, rooms, bookings, disputes, payments, promotions, admins.
 
 ---
 
-## 🚀 Hướng dẫn Cài đặt & Chạy dự án
+## Tech stack
 
-### Yêu cầu hệ thống (Prerequisites)
-- [Python 3.10](https://www.python.org/downloads/) trở lên
-- Trình quản lý gói `pip`
-- Git
+| Thành phần | Công nghệ |
+|------------|-----------|
+| Backend | Python 3.10+, Flask 3, Flask-Login, Flask-SQLAlchemy |
+| Database | SQLite — `instance/rova_host.db` (13 bảng) |
+| Frontend | HTML5, Bootstrap 5.3.8, Jinja2, Vanilla JS |
+| AI / Data | pandas, scikit-learn (Smart Match); Groq API (AI chat) |
 
-### Các bước cài đặt
+---
 
-**Bước 1: Clone repository**
-```bash
+## Cài đặt & chạy
+
+### Yêu cầu
+- Python 3.10+
+- pip
+
+### Các bước
+
+```powershell
 git clone https://github.com/LeGiaVan/ROVVA.git
 cd ROVVA
-```
-
-**Bước 2: Khởi tạo và kích hoạt môi trường ảo (Virtual Environment)**
-```bash
 python -m venv venv
-
-# Kích hoạt trên Windows:
 venv\Scripts\activate
-
-# Kích hoạt trên macOS / Linux:
-source venv/bin/activate
-```
-
-**Bước 3: Cài đặt các thư viện cần thiết**
-```bash
 pip install -r requirements.txt
+py -m flask --app run seed
+py run.py
 ```
 
-**Bước 4: Khởi tạo cơ sở dữ liệu mẫu (Seed Data)**
-Lệnh này sẽ tạo cấu trúc bảng, reset dữ liệu cũ (nếu có) và thêm các dữ liệu mẫu (homestay, users, booking...)
-```bash
-python -m flask --app run seed
-```
+Truy cập: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-**Bước 5: Khởi chạy server**
-```bash
-python run.py
+### Biến môi trường (tùy chọn)
+
+Sao chép `.env.example` thành `.env`:
+
+```env
+SECRET_KEY=dev-rova-host-secret
+GROQ_API_KEY=your-groq-api-key-here
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
-> 🎉 **Thành công!** Truy cập hệ thống tại: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 ---
 
-## 🔑 Tài khoản Demo (Seed Data)
+## Tài khoản demo
 
-Sử dụng các tài khoản sau để trải nghiệm các tính năng của từng vai trò:
-
-| Vai trò | Email đăng nhập | Mật khẩu | Tính năng chính |
-|:---|:---|:---|:---|
-| 🧑‍💻 **Customer** | `1@ss` | `1` | Tìm kiếm, Smart Match, Đặt phòng |
-| 🏠 **Host** | `van.quangia@rova.vn` | `password123` | Host Dashboard, Copilot AI |
-| 🛡️ **Admin** | `admin@rova.vn` | `admin123` | Quản trị hệ thống tổng thể |
-
----
-
-## 🗺️ Các Endpoint (Routes) Chính
-
-| Chức năng | Đường dẫn (URL) | Mô tả |
-|:---|:---|:---|
-| **Trang chủ** | `/` | Landing page của hệ thống |
-| **Đăng nhập** | `/login` | Cổng xác thực người dùng |
-| **Customer Hub** | `/customer/` | Trang quản lý cá nhân của khách |
-| **Tìm kiếm thường**| `/customer/search` | Tìm phòng theo bộ lọc cơ bản |
-| **Smart Match** | `/customer/smart-search` | Tìm phòng bằng ngôn ngữ tự nhiên |
-| **Host Hub** | `/host/` | Bảng điều khiển của Chủ nhà |
-| **Host Copilot** | `/host/copilot/` | Công cụ phân tích và trợ lý AI |
-| **Admin Hub** | `/admin/` | Bảng điều khiển của Quản trị viên |
+| Vai trò | Email | Mật khẩu | Sau login |
+|---------|-------|----------|-----------|
+| Customer | `1@ss` | `1` | `/customer/` |
+| Host | `van.quangia@rova.vn` | `password123` | `/host/` |
+| Admin | `admin@rova.vn` | `admin123` | `/admin/` |
+| Host chờ duyệt | `host.pending@rova.vn` | `123456` | Duyệt tại Admin |
 
 ---
 
-## 📂 Cấu trúc mã nguồn (Project Structure)
+## Routes chính
+
+| Chức năng | URL |
+|-----------|-----|
+| Trang gốc (redirect theo role) | `/` |
+| Đăng nhập / đăng ký | `/login`, `/register` |
+| Customer hub | `/customer/` |
+| Tìm kiếm | `/customer/search` |
+| Smart Match | `/customer/smart-search` |
+| Chi tiết CSLT | `/customer/accommodation/<id>` |
+| Tạo booking | `POST /customer/booking/create/<room_id>` |
+| Checkout | `/customer/booking/checkout/<code>` |
+| Thanh toán online | `/customer/booking/payment/online/<code>` |
+| Chi tiết đơn | `/customer/booking/order/<code>` |
+| Chuyến đi | `/customer/trips` |
+| AI chat | `/customer/chat` |
+| Host dashboard | `/host/` |
+| Host CSLT | `/host/accommodation/accommodations/` |
+| Host booking | `/host/booking/bookings/` |
+| Host tin nhắn | `/host/message/messages/` |
+| Admin portal | `/admin/` |
+
+---
+
+## Cấu trúc dự án
 
 ```text
 ROVVA/
-├── backend/
-│   └── app/               # Logic chính của hệ thống
-│       ├── models/        # Định nghĩa các thực thể CSDL (SQLAlchemy)
-│       ├── routes/        # Định tuyến các endpoints
-│       ├── services/      # Chứa thuật toán xử lý (Smart Match, Copilot)
-│       └── seed.py        # Kịch bản khởi tạo dữ liệu mẫu
-├── frontend/              # Giao diện người dùng
-│   ├── static/            # CSS, JavaScript, Images
-│   └── templates/         # Jinja2 HTML templates
-├── docs/                  # Tài liệu dự án (SRS, ERD, Kiến trúc)
-├── scripts/               # Các script tiện ích (vd: xử lý ảnh demo)
-├── tests/                 # Unit tests và Integration tests
-├── instance/              # Thư mục chứa file SQLite (tạo ra khi chạy)
-├── requirements.txt       # Danh sách dependencies
-└── run.py                 # Điểm khởi chạy (Entry point) của ứng dụng
+├── backend/app/
+│   ├── models/          # 13 ORM models
+│   ├── routes/          # auth, customer, host (9 module), admin
+│   ├── services/        # smart_match, ai_chat, host_copilot, …
+│   ├── utils/           # media, display helpers
+│   └── seed.py          # Dữ liệu demo + patch schema
+├── frontend/
+│   ├── templates/       # 144 HTML (customer 71, host 43, admin 24, auth 6)
+│   └── static/          # CSS, JS, images
+├── docs/                # Tài liệu dự án
+├── scripts/             # fill_accommodation_images.py
+├── instance/            # SQLite (tạo khi chạy)
+├── requirements.txt
+└── run.py
 ```
 
 ---
 
-## 📚 Tài liệu tham khảo dự án
+## Hạn chế đã biết (demo)
 
-Để hiểu rõ hơn về cách thiết kế và vận hành, vui lòng tham khảo các tài liệu phân tích trong thư mục `docs/`:
+| Hạng mục | Trạng thái |
+|----------|------------|
+| Payment gateway / SMTP | Mô phỏng |
+| `/customer/become-host` | Template `host_registration.html` thiếu → 404 |
+| `/forgot-password`, `/reset-password` | Template thiếu → 404 |
+| Trang trợ lý vận hành thông minh | Module riêng chưa kết nối route |
+| Gợi ý giá & doanh thu (ML) | Chưa tích hợp mô hình — đang giả lập |
+| Ví xu tại checkout | Giảm giá UI, chưa trừ `wallet_transactions` |
+| Promotion host | Chưa dùng ở checkout (mã cứng `WELCOME10`, `ROVVA50`) |
+| Hủy booking / check-in-out | Chưa có route customer |
+| Automated tests | Chưa có |
 
-- 📑 [**SRS (Software Requirements Specification)**](docs/SRS.md) — Đặc tả yêu cầu kỹ thuật chi tiết.
-- 🗄️ [**ERD (Entity-Relationship Diagram)**](docs/ERD.md) — Sơ đồ quan hệ cơ sở dữ liệu.
-- 🏗️ [**Architecture**](docs/ARCHITECTURE.md) — Sơ đồ kiến trúc tổng thể của hệ thống.
-- 📈 [**Báo cáo tiến độ**](docs/BAO_CAO_SRS.md) — Đánh giá tiến độ hoàn thiện so với tài liệu SRS.
+Chi tiết: [docs/BAO_CAO_SRS.md](docs/BAO_CAO_SRS.md).
 
 ---
 
-## 📄 Bản quyền (License)
+## Tài liệu
 
-Dự án này được phát triển độc quyền nhằm mục đích học tập, nghiên cứu và thử nghiệm công nghệ. 
+| Tài liệu | Mô tả |
+|----------|-------|
+| [SRS.md](docs/SRS.md) | Đặc tả yêu cầu + quy trình nghiệp vụ |
+| [ERD.md](docs/ERD.md) | Sơ đồ 13 bảng SQLite |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Kiến trúc, blueprints, luồng đặt phòng |
+| [BAO_CAO_SRS.md](docs/BAO_CAO_SRS.md) | Đối chiếu SRS ↔ codebase |
+| [ManHinh.md](docs/ManHinh.md) | Mô tả từng màn hình & luồng stakeholder |
+| [VietBai.md](docs/VietBai.md) | Nội dung viết bài đồ án |
+| [HUONG_DAN_ANH_DEMO.md](docs/HUONG_DAN_ANH_DEMO.md) | Quy ước ảnh & script fill |
+
+---
+
+## License
+
+Dự án phục vụ mục đích học tập, nghiên cứu và thử nghiệm công nghệ.

@@ -1,149 +1,219 @@
-# TÀI LIỆU ĐẶC TẢ YÊU CẦU HỆ THỐNG (SRS) - DỰ ÁN HOMESTAY
+# Tài liệu đặc tả yêu cầu hệ thống (SRS) — ROVVA
 
-Tài liệu này cung cấp toàn bộ bối cảnh nghiệp vụ, yêu cầu chức năng (FR), yêu cầu phi chức năng (NFR) và các luồng quy trình (BPMN) để phát triển hệ thống Homestay đa người dùng (Customer, Host, Admin).
-
----
-
-## 1. YÊU CẦU PHI CHỨC NĂNG (NON-FUNCTIONAL REQUIREMENTS - NFR)
-
-Ràng buộc hệ thống, tiêu chuẩn kỹ thuật và các yếu tố chất lượng bắt buộc.
-
-| Mã số | Hạng mục | Mô tả chi tiết | Ưu tiên |
-| :--- | :--- | :--- | :--- |
-| **NFR-01** | Hiệu năng | Thời gian phản hồi các chức năng chính (tìm kiếm, đăng nhập, đặt phòng) < 3s (tải bình thường). | Cao |
-| **NFR-02** | Hiệu năng | Hỗ trợ tối thiểu 100 CCU (người dùng truy cập đồng thời) không giảm hiệu suất. | Cao |
-| **NFR-03** | Bảo mật | Mật khẩu phải mã hóa (Hash); Truyền tải dữ liệu qua HTTPS/TLS. | Cao |
-| **NFR-04** | Phân quyền | Áp dụng Role-based Access Control (RBAC): Khách hàng, Host, Admin. | Cao |
-| **NFR-05** | Toàn vẹn dữ liệu | **Tuyệt đối không** xảy ra double booking (đặt trùng phòng) trong cùng thời gian. | Cao |
-| **NFR-06** | Chịu lỗi | Xử lý lỗi giao dịch/thanh toán không làm mất dữ liệu booking hiện tại. | Cao |
-| **NFR-07** | Backup | Dữ liệu phải được sao lưu tự động định kỳ. | Cao |
-| **NFR-08** | Mở rộng | Kiến trúc hỗ trợ scale số lượng người dùng và phòng trong tương lai. | Trung bình |
-| **NFR-09** | UI/UX | Giao diện trực quan, Responsive (tương thích Web/Mobile). | Cao |
-| **NFR-10** | Bảo trì | Mã nguồn cấu trúc module rõ ràng (Modular architecture). | Trung bình |
-| **NFR-11** | Uptime | Đảm bảo thời gian hoạt động (Uptime) tối thiểu 99%. | Cao |
-| **NFR-12** | Usability | Tối ưu số bước thao tác; Thông báo lỗi phải rõ ràng cho end-user. | Trung bình |
+> Đặc tả yêu cầu cho nền tảng đặt phòng homestay/khách sạn đa vai trò (Customer, Host, Admin).  
+> **Cập nhật:** 12/07/2026 — mục 4 mô tả **triển khai thực tế** trong codebase; đối chiếu chi tiết tại [BAO_CAO_SRS.md](BAO_CAO_SRS.md).
 
 ---
 
-## 2. YÊU CẦU CHỨC NĂNG (FUNCTIONAL REQUIREMENTS - FR)
+## 1. Yêu cầu phi chức năng (NFR)
 
-### 2.1 Quản lý tài khoản (Account Management)
-| Mã số | Yêu cầu chức năng | Mô tả chi tiết | Ưu tiên |
-| :--- | :--- | :--- | :--- |
-| FR-A-01 | Đăng ký tài khoản | Đăng ký bằng email, mật khẩu, thông tin cơ bản. Validate dữ liệu đầu vào. | Cao |
-| FR-A-02 | Xác thực email | Gửi email chứa link/OTP để kích hoạt tài khoản. | Cao |
-| FR-A-03 | Đăng nhập hệ thống | Đăng nhập bằng Email/Password; Phân quyền theo Role. | Cao |
-| FR-A-04 | Quên mật khẩu | Yêu cầu reset password qua email đã đăng ký. | Cao |
-| FR-A-05 | Cập nhật thông tin | Đổi họ tên, SĐT, avatar. | Trung bình |
-| FR-A-06 | Đăng xuất | Kết thúc session/token, quay về trang chủ. | Trung bình |
-
-### 2.2 Đăng ký cho thuê (Host Registration)
-| Mã số | Yêu cầu chức năng | Mô tả chi tiết | Ưu tiên |
-| :--- | :--- | :--- | :--- |
-| FR-H-01 | Đăng ký Host | Gửi yêu cầu + cung cấp thông tin/giấy tờ kinh doanh để thành Host. | Cao |
-| FR-H-02 | Kiểm duyệt thông tin | Hệ thống (Admin) kiểm tra tính hợp lệ của hồ sơ. | Cao |
-| FR-H-03 | Cập nhật Role Host | Chuyển Role -> Host sau khi duyệt thành công. | Cao |
-| FR-H-04 | Quản lý thông tin Host | Host cập nhật profile kinh doanh/cho thuê. | Trung bình |
-
-### 2.3 Quản lý nơi cư trú (Property Management)
-| Mã số | Yêu cầu chức năng | Mô tả chi tiết | Ưu tiên |
-| :--- | :--- | :--- | :--- |
-| FR-R-01 | Đăng phòng mới | Host tạo phòng: Mô tả, địa chỉ, giá, tiện ích (Cần Admin duyệt). | Cao |
-| FR-R-02 | Cập nhật phòng | Chỉnh sửa thông tin phòng đã đăng. | Cao |
-| FR-R-03 | Quản lý giá thuê | Thiết lập/cập nhật giá theo thời điểm (Dynamic pricing). | Trung bình |
-| FR-R-04 | Quản lý trạng thái | Đổi trạng thái: Trống, Đã đặt, Tạm ngừng hoạt động. | Cao |
-| FR-R-05 | Quản lý hình ảnh | Upload, xóa, sửa ảnh minh họa phòng. | Trung bình |
-| FR-R-06 | Đồng bộ lịch phòng | Tự động block lịch khi có booking thành công. | Cao |
-
-### 2.4 Đặt phòng (Booking Workflow)
-| Mã số | Yêu cầu chức năng | Mô tả chi tiết | Ưu tiên |
-| :--- | :--- | :--- | :--- |
-| FR-B-01 | Tìm kiếm phòng | Bộ lọc: Địa điểm, thời gian, số khách, giá, tiện ích. | Cao |
-| FR-B-02 | Xem chi tiết | Hiển thị full thông tin phòng trước khi đặt. | Cao |
-| FR-B-03 | Giữ phòng tạm thời | Lock phòng (Giữ chỗ) trong lúc chờ thanh toán. | Cao |
-| FR-B-04 | Tạo Booking | Lưu record booking khi hoàn tất quy trình. | Cao |
-| FR-B-05 | Hủy Booking | Hủy theo chính sách của Host/Hệ thống. | Trung bình |
-| FR-B-06 | Thông báo Booking | Gắn trigger gửi Email/Noti cho Host và Khách. | Trung bình |
-
-### 2.5 Thanh toán (Payment)
-| Mã số | Yêu cầu chức năng | Mô tả chi tiết | Ưu tiên |
-| :--- | :--- | :--- | :--- |
-| FR-P-01 | Thanh toán Online | Chuyển khoản trực tuyến qua Payment Gateway. | Cao |
-| FR-P-02 | Thanh toán Tiền mặt | Trả tiền mặt khi check-in (Tùy chính sách Host). | Trung bình |
-| FR-P-03 | Verify Giao dịch | Xác minh callback từ Gateway trước khi chốt Booking. | Cao |
-| FR-P-04 | Cập nhật trạng thái | Đổi status: "Đã thanh toán" / "Thất bại". | Cao |
-| FR-P-05 | Lịch sử giao dịch | Lưu log để đối soát, tra cứu. | Trung bình |
-
-### 2.6 Quản lý lưu trú (Stay/Check-in Management)
-| Mã số | Yêu cầu chức năng | Mô tả chi tiết | Ưu tiên |
-| :--- | :--- | :--- | :--- |
-| FR-S-01 | Check-in | Khách thao tác nhận phòng cho booking hợp lệ. | Cao |
-| FR-S-02 | Check-out | Khách thao tác trả phòng. | Cao |
-| FR-S-03 | Tranh chấp/Hỗ trợ | Mở ticket report/hỗ trợ trong thời gian ở. | Trung bình |
-| FR-S-04 | Đánh giá (Review) | Rate & Review sau khi check-out thành công. | Trung bình |
-| FR-S-05 | Trạng thái lưu trú | Cập nhật status check-in/check-out của record booking. | Cao |
+| Mã | Hạng mục | Mô tả | Ưu tiên |
+|----|----------|-------|---------|
+| NFR-01 | Hiệu năng | Phản hồi chức năng chính < 3s (tải bình thường) | Cao |
+| NFR-02 | Hiệu năng | Hỗ trợ tối thiểu 100 CCU | Cao |
+| NFR-03 | Bảo mật | Mật khẩu hash; truyền tải HTTPS/TLS | Cao |
+| NFR-04 | Phân quyền | RBAC: Customer, Host, Admin | Cao |
+| NFR-05 | Toàn vẹn | Không double booking cùng thời gian | Cao |
+| NFR-06 | Chịu lỗi | Lỗi thanh toán không mất dữ liệu booking | Cao |
+| NFR-07 | Backup | Sao lưu định kỳ | Cao |
+| NFR-08 | Mở rộng | Kiến trúc scale được | Trung bình |
+| NFR-09 | UI/UX | Responsive Web/Mobile | Cao |
+| NFR-10 | Bảo trì | Modular architecture | Trung bình |
+| NFR-11 | Uptime | ≥ 99% | Cao |
+| NFR-12 | Usability | Ít bước thao tác; thông báo lỗi rõ ràng | Trung bình |
 
 ---
 
-## 3. QUY TRÌNH NGHIỆP VỤ (BUSINESS PROCESSES & RULES)
+## 2. Yêu cầu chức năng (FR)
 
-### 3.1 Quy trình Đăng ký & Đăng nhập (Auth Flow)
-* **Mô tả:** Quản lý luồng truy cập và xác thực. Khách hàng đăng ký -> Kích hoạt Email -> Đăng nhập. Người dùng có thể nâng cấp lên Host (chờ Admin duyệt).
-* **Quy tắc nghiệp vụ (Business Rules):**
-  - `Email` là Unique Key (1 email = 1 account).
-  - Phải Verify Email mới được phép Login.
-  - Cấp quyền Host = `Pending` -> `Admin Approved` -> `Active`.
-  - Mật khẩu cần policy độ khó. Link reset password có thời hạn.
-  - Log lại lịch sử thay đổi quyền (Audit log).
-  - Tạm khóa tài khoản nếu login sai nhiều lần (Brute-force protection).
-* **Ngoại lệ (Exceptions):**
-  - Trùng Email -> Báo lỗi.
-  - Link reset hết hạn -> Request link mới.
+### 2.1 Quản lý tài khoản
 
-### 3.2 Quy trình Đăng ký cho thuê (Host Onboarding)
-* **Mô tả:** User submit form thông tin/giấy tờ -> Chờ duyệt -> Admin check -> Approve/Reject.
-* **Quy tắc nghiệp vụ:**
-  - Yêu cầu Auth (Must be logged in).
-  - Yêu cầu Submit 1 lần duy nhất cho 1 Account.
-  - Chỉ Admin mới có quyền đổi trạng thái Role -> Host.
-  - Giấy tờ upload phải validate định dạng/dung lượng (e.g., PDF/JPG, < 5MB).
-  - Nếu bị Reject, cho phép update và re-submit.
-* **Ngoại lệ:**
-  - Đã là Host -> Chặn truy cập form.
-  - Upload file sai -> Báo lỗi UI ngay lập tức.
+| Mã | Yêu cầu | Mô tả | Ưu tiên |
+|----|---------|-------|---------|
+| FR-A-01 | Đăng ký | Email, mật khẩu, thông tin cơ bản; validate | Cao |
+| FR-A-02 | Xác thực email | Link/OTP kích hoạt tài khoản | Cao |
+| FR-A-03 | Đăng nhập | Email/password; phân quyền role | Cao |
+| FR-A-04 | Quên mật khẩu | Reset qua email | Cao |
+| FR-A-05 | Cập nhật thông tin | Họ tên, SĐT, avatar | Trung bình |
+| FR-A-06 | Đăng xuất | Kết thúc session | Trung bình |
 
-### 3.3 Quy trình Đặt phòng (Booking Flow)
-* **Mô tả:** Khách tìm phòng trống -> Xem chi tiết -> Nhập thông tin đặt -> Hệ thống khóa phòng (Hold) -> Thanh toán -> Sinh Booking Record.
-* **Quy tắc nghiệp vụ:**
-  - Chỉ hiển thị phòng trạng thái `Active` và không bị block lịch trong ngày khách chọn.
-  - **Critical:** Phải check lại Availability tại giây phút nhấn "Đặt phòng" (tránh race condition).
-  - Trạng thái `Hold`: Tự động giải phóng (Release) nếu quá hạn thanh toán (VD: 15 phút).
-  - Phòng đang `Hold` hoặc `Booked` -> Ẩn khỏi kết quả tìm kiếm ngày đó.
-  - Hủy phòng (Cancel) -> Release lịch -> Hiển thị lại trên trang tìm kiếm.
-  - 1 User không được đặt trùng thời gian cho cùng 1 phòng (Spam protection).
-* **Ngoại lệ:**
-  - Có người khác nhanh tay hơn -> Báo "Phòng không còn khả dụng".
-  - Hết time giữ phòng -> Hủy session đặt phòng.
+### 2.2 Đăng ký Host
 
-### 3.4 Quy trình Thanh toán (Payment Flow)
-* **Mô tả:** Booking ở trạng thái `Pending Payment` -> Chọn hình thức -> Gọi Gateway/Tiền mặt -> Xử lý Callback -> Đổi trạng thái Booking & Phòng -> Thông báo.
-* **Quy tắc nghiệp vụ:**
-  - Checkout thành công -> Trạng thái Booking = `Confirmed`, Trạng thái lịch phòng = `Booked`.
-  - Tiền mặt -> Trạng thái Payment update thủ công khi Host xác nhận.
-  - Hệ thống tính phí hoa hồng (Commission) tự động để đối soát với Host sau này.
-  - Lưu mã Transaction ID của bên thứ 3.
-* **Ngoại lệ:**
-  - User tắt trình duyệt khi thanh toán -> Booking hết hạn -> Tự hủy.
-  - Lỗi Gateway -> Giữ booking `Pending Payment` để user thử lại.
-  - Tiền đã trừ nhưng Callback lỗi -> Cần cơ chế Admin đối soát tay.
+| Mã | Yêu cầu | Mô tả | Ưu tiên |
+|----|---------|-------|---------|
+| FR-H-01 | Đăng ký Host | Gửi hồ sơ + giấy tờ | Cao |
+| FR-H-02 | Kiểm duyệt | Admin duyệt hồ sơ | Cao |
+| FR-H-03 | Cập nhật role | `role=host` sau duyệt | Cao |
+| FR-H-04 | Profile Host | Host cập nhật thông tin kinh doanh | Trung bình |
 
-### 3.5 Quy trình Quản lý Nơi cư trú (Property/Stay Management)
-* **Mô tả:** Host tạo phòng mới -> Chờ Admin duyệt -> Hiển thị public -> Host chỉnh sửa, quản lý giá, quản lý lịch (Block/Unblock).
-* **Quy tắc nghiệp vụ:**
-  - Chỉ Role `Host` được truy cập.
-  - Phòng tạo mới/Sửa thông tin nhạy cảm -> Cần Admin duyệt lại (`Pending Approval`).
-  - Lịch sử update phải được lưu lại.
-  - Cho phép cấu hình giá linh hoạt (Ngày thường vs Cuối tuần).
-  - Khi Host chủ động "Tạm ngừng" phòng -> Ẩn public, nhưng KHÔNG ảnh hưởng các booking đã Confirmed.
-* **Ngoại lệ:**
-  - Đang sửa phòng thì có khách đặt -> Cảnh báo đồng bộ.
+### 2.3 Quản lý nơi cư trú
+
+| Mã | Yêu cầu | Mô tả | Ưu tiên |
+|----|---------|-------|---------|
+| FR-R-01 | Đăng phòng | Host tạo CSLT/phòng; admin duyệt | Cao |
+| FR-R-02 | Cập nhật phòng | Sửa thông tin | Cao |
+| FR-R-03 | Dynamic pricing | Giá theo thời điểm | Trung bình |
+| FR-R-04 | Trạng thái | active / paused / pending / draft | Cao |
+| FR-R-05 | Hình ảnh | Upload ảnh minh họa | Trung bình |
+| FR-R-06 | Đồng bộ lịch | Block lịch khi booking thành công | Cao |
+
+### 2.4 Đặt phòng
+
+| Mã | Yêu cầu | Mô tả | Ưu tiên |
+|----|---------|-------|---------|
+| FR-B-01 | Tìm kiếm | Lọc địa điểm, giá, tiện ích, số khách | Cao |
+| FR-B-02 | Chi tiết | Full thông tin trước khi đặt | Cao |
+| FR-B-03 | Giữ phòng | Lock tạm khi chờ thanh toán | Cao |
+| FR-B-04 | Tạo booking | Lưu record sau quy trình | Cao |
+| FR-B-05 | Hủy booking | Hủy theo chính sách | Trung bình |
+| FR-B-06 | Thông báo | Email/notification cho host và khách | Trung bình |
+
+### 2.5 Thanh toán
+
+| Mã | Yêu cầu | Mô tả | Ưu tiên |
+|----|---------|-------|---------|
+| FR-P-01 | Online | Chuyển khoản qua gateway | Cao |
+| FR-P-02 | Tiền mặt | Trả khi check-in | Trung bình |
+| FR-P-03 | Verify | Xác minh callback gateway | Cao |
+| FR-P-04 | Trạng thái | Đã thanh toán / thất bại | Cao |
+| FR-P-05 | Lịch sử | Log đối soát | Trung bình |
+
+### 2.6 Quản lý lưu trú
+
+| Mã | Yêu cầu | Mô tả | Ưu tiên |
+|----|---------|-------|---------|
+| FR-S-01 | Check-in | Nhận phòng | Cao |
+| FR-S-02 | Check-out | Trả phòng | Cao |
+| FR-S-03 | Tranh chấp | Mở ticket hỗ trợ | Trung bình |
+| FR-S-04 | Review | Đánh giá sau lưu trú | Trung bình |
+| FR-S-05 | Trạng thái lưu trú | Cập nhật lifecycle booking | Cao |
+
+### 2.7 Yêu cầu mở rộng (đã triển khai ngoài SRS gốc)
+
+| Mã | Yêu cầu | Mô tả |
+|----|---------|-------|
+| FR-X-01 | Smart Match | Tìm phòng bằng ngôn ngữ tự nhiên (TF-IDF) |
+| FR-X-02 | AI Chat | Trợ lý Groq cho customer và host |
+| FR-X-03 | Trợ lý vận hành thông minh | Chân dung khách, radar bảo trì, gợi ý giá & doanh thu (ML — hiện giả lập) |
+| FR-X-04 | Tin nhắn | Chat hai chiều guest ↔ host |
+| FR-X-05 | Ví xu & hạng thành viên | Loyalty customer |
+| FR-X-06 | Yêu thích | Lưu CSLT yêu thích |
+
+---
+
+## 3. Quy trình nghiệp vụ (theo triển khai hiện tại)
+
+### 3.1 Đăng ký & đăng nhập
+
+**Luồng thực tế:**
+- `POST /register` → tạo `User` role `guest`, token verify → redirect `verify_notice.html`.
+- `GET /verify-email/<token>` → `is_email_verified=True`.
+- `POST /login` → Flask-Login session; redirect `/customer/`, `/host/`, `/admin/` theo role.
+- `GET /logout` → kết thúc session.
+
+**Quy tắc:**
+- Email unique (`users.email`).
+- Mật khẩu Werkzeug hash.
+- Login sai nhiều lần: cột `failed_login_attempts`, `is_locked` (admin có thể toggle lock).
+- Quên MK: logic token trong `auth/routes.py` — template `forgot_password.html` / `reset_password.html` **chưa có** → route 404.
+
+### 3.2 Host onboarding
+
+**Luồng thực tế:**
+- `GET/POST /customer/become-host` — lưu `id_card`, `host_document_path`, `host_status=pending`.
+- Template `host_registration.html` **thiếu** → 404; trang marketing `become-host.html` chỉ tĩnh.
+- Admin `POST /admin/hosts/<id>/approve` → `role=host`, `host_status=approved`.
+- Admin reject → `host_status=rejected`.
+
+### 3.3 Đặt phòng
+
+**Luồng thực tế:**
+
+```text
+Tìm kiếm (/customer/search) hoặc Smart Match (/customer/smart-search)
+  → Chi tiết CSLT (/customer/accommodation/<id>)
+  → POST /customer/booking/create/<room_id>
+  → Booking status=holding, hold_expiry_at = now + 20 phút
+  → Checkout (/customer/booking/checkout/<code>)
+  → Thanh toán → order detail
+```
+
+**Quy tắc:**
+- Overlap check với booking `confirmed` + `holding` tại thời điểm POST create.
+- Homestay/Villa (`books_whole_unit`): chặn mọi phòng trong CSLT.
+- Khách vãng lai: `guest_id=NULL`, session `anonymous_booking_codes`.
+- Hết 20 phút: hủy lazy khi truy cập checkout/payment — không có cron.
+- Ô ngày trên search bar **chưa** lọc availability backend.
+- Customer **chưa có** route hủy booking.
+
+### 3.4 Thanh toán
+
+**Luồng thực tế:**
+- Checkout chọn **Thanh toán tiền mặt** → `status=confirmed`, `payment_status=pending`, `commission_fee` 15%.
+- Checkout chọn **Thanh toán online** → `/customer/booking/payment/online/<code>`:
+  - QR VietinBank mock, countdown `hold_expiry_at`.
+  - Nút "Tôi đã chuyển khoản" → popup ~3s → `POST confirm` → callback `?status=success` → `payment_status=paid`.
+- Mã promo checkout: `WELCOME10` (10%), `ROVVA50` (50.000đ) — hardcoded.
+- Checkbox xu: giảm 50.000đ — **chưa** ghi `wallet_transactions`.
+- Gateway thật: **không** — mock hoàn toàn.
+
+### 3.5 Quản lý CSLT (Host)
+
+**Luồng thực tế:**
+- Host CRUD tại `/host/accommodation/accommodations/`.
+- CSLT mới thường `status=pending` — admin duyệt tại portal.
+- Phòng: create/edit/pause/delete; `base_price` integer VND/đêm.
+- Trang pricing (`room/pricing.html`) — UI demo, **chưa** lưu giá theo ngày.
+- Ảnh: file tĩnh theo ID + script fill; host profile có upload avatar.
+
+### 3.6 Lưu trú, review, tranh chấp
+
+- Booking `completed`: admin đặt thủ công qua portal — **không** auto sau ngày check-out.
+- Review: member viết tại `/customer/account/reviews/write/<booking_id>` khi booking `completed`.
+- Dispute: host phản hồi + admin resolve; customer **không** mở ticket.
+- Check-in/check-out: **chưa** có route.
+
+---
+
+## 4. Phụ lục — Ánh xạ triển khai
+
+### 4.1 Công nghệ
+
+| Thành phần | Triển khai |
+|------------|------------|
+| Backend | Flask 3, Python 3.10+ |
+| ORM / DB | SQLAlchemy, SQLite 13 bảng |
+| Auth | Flask-Login, Werkzeug hash |
+| Frontend | Jinja2, Bootstrap 5.3.8, Vanilla JS |
+| AI | scikit-learn (Smart Match), Groq (chat) |
+
+### 4.2 Hằng số nghiệp vụ
+
+| Hằng số | Giá trị | File |
+|---------|---------|------|
+| Giữ chỗ | 20 phút | `booking.py` — `HOLD_MINUTES = 20` |
+| Hoa hồng | 15% | `booking.py` — checkout |
+| Host share | 90% | `host/payment.py` — `HOST_SHARE = 0.9` |
+| Giảm xu | 50.000đ | `booking.py` — `XU_DISCOUNT` |
+| Promo codes | WELCOME10, ROVVA50 | `booking.py` — `PROMO_CODES` |
+
+### 4.3 Routes chính
+
+Xem [ARCHITECTURE.md](ARCHITECTURE.md) và [ManHinh.md](ManHinh.md).
+
+### 4.4 Tài khoản demo
+
+| Role | Email | Password |
+|------|-------|----------|
+| Customer | `1@ss` | `1` |
+| Host | `van.quangia@rova.vn` | `password123` |
+| Admin | `admin@rova.vn` | `admin123` |
+
+---
+
+## 5. Tài liệu liên quan
+
+- [BAO_CAO_SRS.md](BAO_CAO_SRS.md) — Bảng đối chiếu FR/NFR ↔ trạng thái code
+- [ERD.md](ERD.md) — Schema database
+- [ARCHITECTURE.md](ARCHITECTURE.md) — Kiến trúc kỹ thuật
+- [ManHinh.md](ManHinh.md) — Mô tả màn hình
