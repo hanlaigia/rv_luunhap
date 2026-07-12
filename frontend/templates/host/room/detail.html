@@ -22,110 +22,32 @@
     </div>
 
     {% set gallery = room.existing_image_urls %}
-    <div class="row g-4 align-items-start mb-4">
-        <div class="col-lg-8">
-            {% if gallery|length > 0 %}
-            <div class="room-detail__gallery d-none d-md-grid">
-                <img src="{{ gallery[0] }}" class="room-detail__gallery-main" alt="{{ room.name }}">
-                {% if gallery|length > 1 %}
-                <img src="{{ gallery[1] }}" alt="">
-                {% else %}
-                <img src="{{ gallery[0] }}" alt="">
-                {% endif %}
-                <div class="position-relative">
-                    <img src="{{ gallery[2] if gallery|length > 2 else gallery[0] }}" alt="">
-                    {% if gallery|length > 3 %}
-                    <div class="room-detail__gallery-more">+{{ gallery|length - 3 }} ảnh</div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="d-block d-md-none">
-                <img src="{{ gallery[0] }}" class="img-fluid rounded w-100" alt="{{ room.name }}" style="height:250px;object-fit:cover">
-            </div>
-            {% else %}
-            <img src="{{ room.image_url }}" class="img-fluid rounded w-100" alt="{{ room.name }}" style="min-height:300px;object-fit:cover">
-            {% endif %}
-        </div>
-
-        <div class="col-lg-4">
-            <aside class="room-detail__sidebar">
-                <div class="room-detail__panel">
-                    <div class="room-detail__panel-label">Giá cơ bản</div>
-                    <div class="room-detail__price mb-0">
-                        <span class="room-detail__price-value">{{ "{:,.0f}".format(room.base_price).replace(",", ".") }}đ</span>
-                        <span class="room-detail__price-unit">/ đêm</span>
-                    </div>
-                </div>
-
-                <div class="room-detail__panel">
-                    <div class="room-detail__panel-title">Chính sách lưu trú</div>
-                    <div class="room-detail__policy-row">
-                        <span class="room-detail__policy-label"><i class="bi bi-box-arrow-in-right me-1"></i>Nhận phòng</span>
-                        <span class="room-detail__policy-value">Sau {{ room.check_in_time }}</span>
-                    </div>
-                    <div class="room-detail__policy-row mb-3">
-                        <span class="room-detail__policy-label"><i class="bi bi-box-arrow-right me-1"></i>Trả phòng</span>
-                        <span class="room-detail__policy-value">Trước {{ room.check_out_time }}</span>
-                    </div>
-                    <div class="room-detail__cancel-box">
-                        <i class="bi bi-shield-exclamation me-1"></i>
-                        <strong>Chính sách hủy:</strong> {{ room.cancellation_policy }}
-                    </div>
-                </div>
-
-                <div class="room-detail__panel room-detail__panel--muted">
-                    <div class="room-detail__panel-label mb-2">Trạng thái</div>
-                    {% if room.status == 'active' %}
-                    <span class="room-detail__status-badge active"><i class="bi bi-circle-fill" style="font-size:8px"></i> Đang hoạt động</span>
-                    {% elif room.status == 'paused' %}
-                    <span class="room-detail__status-badge paused"><i class="bi bi-pause-circle-fill"></i> Tạm ngưng</span>
+    <div class="row g-4 align-items-start room-detail__layout">
+        <div class="col-lg-8 room-detail__main">
+            <div class="room-detail__panel room-detail__media-card mb-4">
+                {% if gallery|length > 0 %}
+                <div class="room-detail__gallery d-none d-md-grid">
+                    <img src="{{ gallery[0] }}" class="room-detail__gallery-main" alt="{{ room.name }}">
+                    {% if gallery|length > 1 %}
+                    <img src="{{ gallery[1] }}" alt="">
                     {% else %}
-                    <span class="room-detail__status-badge draft">{{ room.status_label }}</span>
+                    <img src="{{ gallery[0] }}" alt="">
                     {% endif %}
-                </div>
-
-                <div class="room-detail__panel room-detail__actions d-grid gap-2">
-                    <a href="{{ url_for('accommodation.room_edit', acc_id=acc.id, room_id=room.id) }}" class="btn btn-outline-primary">
-                        <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa phòng
-                    </a>
-                    {% if room.status == 'active' %}
-                    <button type="button" class="btn btn-outline-danger" id="room-pause-trigger"
-                        data-pause-url="{{ url_for('accommodation.room_pause', acc_id=acc.id, room_id=room.id) }}"
-                        data-staying-count="{{ staying_count }}">
-                        <i class="bi bi-pause-circle me-1"></i> Tạm ngưng
-                    </button>
-                    {% elif room.status == 'paused' %}
-                    <form method="POST" action="{{ url_for('accommodation.room_pause', acc_id=acc.id, room_id=room.id) }}">
-                        <button type="submit" class="btn btn-outline-success w-100">
-                            <i class="bi bi-play-circle me-1"></i> Kích hoạt lại
-                        </button>
-                    </form>
-                    {% endif %}
-                    <a href="{{ url_for('accommodation.room_pricing', acc_id=acc.id, room_id=room.id) }}" class="btn btn-primary">
-                        <i class="bi bi-calendar-check me-1"></i> Quản lý giá &amp; Lịch
-                    </a>
-                </div>
-
-                <div class="room-detail__panel room-detail__panel--muted">
-                    <div class="room-detail__panel-title text-primary mb-3">Thống kê nhanh</div>
-                    <div class="room-detail__stat-row">
-                        <span class="text-muted">Tỉ lệ lấp đầy tháng này</span>
-                        <strong>{{ room_stats.occupancy_percent }}%</strong>
-                    </div>
-                    <div class="progress mb-3" style="height:6px">
-                        <div class="progress-bar bg-primary" style="width:{{ room_stats.occupancy_percent }}%"></div>
-                    </div>
-                    <div class="room-detail__stat-row">
-                        <span class="text-muted">Số booking hoàn tất</span>
-                        <strong>{{ room_stats.completed_bookings }}</strong>
+                    <div class="position-relative">
+                        <img src="{{ gallery[2] if gallery|length > 2 else gallery[0] }}" alt="">
+                        {% if gallery|length > 3 %}
+                        <div class="room-detail__gallery-more">+{{ gallery|length - 3 }} ảnh</div>
+                        {% endif %}
                     </div>
                 </div>
-            </aside>
-        </div>
-    </div>
+                <div class="d-block d-md-none">
+                    <img src="{{ gallery[0] }}" class="img-fluid rounded w-100 room-detail__gallery-mobile" alt="{{ room.name }}">
+                </div>
+                {% else %}
+                <img src="{{ room.image_url }}" class="img-fluid w-100 room-detail__gallery-fallback" alt="{{ room.name }}">
+                {% endif %}
+            </div>
 
-    <div class="row">
-        <div class="col-lg-8">
             <ul class="nav room-detail__tabs mb-4" id="roomTabs">
                 <li class="nav-item">
                     <a class="nav-link active" href="#tab-info" data-room-tab="tab-info">Thông tin chi tiết</a>
@@ -280,6 +202,82 @@
                     {% endfor %}
                 </div>
             </div>
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="room-detail__sidebar">
+                <div class="room-detail__panel room-detail__price-card">
+                    <div class="room-detail__panel-label">Giá cơ bản</div>
+                    <div class="room-detail__price mb-0">
+                        <span class="room-detail__price-value">{{ "{:,.0f}".format(room.base_price).replace(",", ".") }}đ</span>
+                        <span class="room-detail__price-unit">/ đêm</span>
+                    </div>
+                </div>
+
+                <div class="room-detail__panel">
+                    <div class="room-detail__panel-title">Chính sách lưu trú</div>
+                    <div class="room-detail__policy-row">
+                        <span class="room-detail__policy-label"><i class="bi bi-box-arrow-in-right me-1"></i>Nhận phòng</span>
+                        <span class="room-detail__policy-value">Sau {{ room.check_in_time }}</span>
+                    </div>
+                    <div class="room-detail__policy-row mb-3">
+                        <span class="room-detail__policy-label"><i class="bi bi-box-arrow-right me-1"></i>Trả phòng</span>
+                        <span class="room-detail__policy-value">Trước {{ room.check_out_time }}</span>
+                    </div>
+                    <div class="room-detail__cancel-box">
+                        <i class="bi bi-shield-exclamation me-1"></i>
+                        <strong>Chính sách hủy:</strong> {{ room.cancellation_policy }}
+                    </div>
+                </div>
+
+                <div class="room-detail__panel room-detail__panel--muted">
+                    <div class="room-detail__panel-label mb-2">Trạng thái</div>
+                    {% if room.status == 'active' %}
+                    <span class="room-detail__status-badge active"><i class="bi bi-circle-fill" style="font-size:8px"></i> Đang hoạt động</span>
+                    {% elif room.status == 'paused' %}
+                    <span class="room-detail__status-badge paused"><i class="bi bi-pause-circle-fill"></i> Tạm ngưng</span>
+                    {% else %}
+                    <span class="room-detail__status-badge draft">{{ room.status_label }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="room-detail__panel room-detail__actions d-grid gap-2">
+                    <a href="{{ url_for('accommodation.room_edit', acc_id=acc.id, room_id=room.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa phòng
+                    </a>
+                    {% if room.status == 'active' %}
+                    <button type="button" class="btn btn-outline-danger" id="room-pause-trigger"
+                        data-pause-url="{{ url_for('accommodation.room_pause', acc_id=acc.id, room_id=room.id) }}"
+                        data-staying-count="{{ staying_count }}">
+                        <i class="bi bi-pause-circle me-1"></i> Tạm ngưng
+                    </button>
+                    {% elif room.status == 'paused' %}
+                    <form method="POST" action="{{ url_for('accommodation.room_pause', acc_id=acc.id, room_id=room.id) }}">
+                        <button type="submit" class="btn btn-outline-success w-100">
+                            <i class="bi bi-play-circle me-1"></i> Kích hoạt lại
+                        </button>
+                    </form>
+                    {% endif %}
+                    <a href="{{ url_for('accommodation.room_pricing', acc_id=acc.id, room_id=room.id) }}" class="btn btn-primary">
+                        <i class="bi bi-calendar-check me-1"></i> Quản lý giá &amp; Lịch
+                    </a>
+                </div>
+
+                <div class="room-detail__panel room-detail__panel--muted">
+                    <div class="room-detail__panel-title text-primary mb-3">Thống kê nhanh</div>
+                    <div class="room-detail__stat-row">
+                        <span class="text-muted">Tỉ lệ lấp đầy tháng này</span>
+                        <strong>{{ room_stats.occupancy_percent }}%</strong>
+                    </div>
+                    <div class="progress mb-3" style="height:6px">
+                        <div class="progress-bar bg-primary" style="width:{{ room_stats.occupancy_percent }}%"></div>
+                    </div>
+                    <div class="room-detail__stat-row">
+                        <span class="text-muted">Số booking hoàn tất</span>
+                        <strong>{{ room_stats.completed_bookings }}</strong>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 </div>

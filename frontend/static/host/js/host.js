@@ -1068,37 +1068,65 @@ function initPriceSuggestionsPage() {
 
   var rulesDataEl = document.getElementById("pricing-rules-data");
   var tbody = document.getElementById("pricing-rules-tbody");
-  var detailPanel = document.getElementById("rule-detail-panel");
+  var ruleModal = document.getElementById("ruleModal");
   if (!rulesDataEl || !tbody) return;
 
   var rules = [];
   try { rules = JSON.parse(rulesDataEl.textContent || "[]"); } catch (e) { rules = []; }
   var nextId = rules.reduce(function (m, r) { return Math.max(m, r.id || 0); }, 0) + 1;
   var selectedId = null;
+  var editingRuleId = null;
 
-  function showRuleDetail(rule) {
-    if (!detailPanel || !rule) return;
-    selectedId = rule.id;
-    document.getElementById("rule-detail-name").textContent = rule.name;
-    document.getElementById("rule-detail-condition").textContent = rule.condition;
-    var adjEl = document.getElementById("rule-detail-adjust");
-    adjEl.textContent = rule.adjust;
-    adjEl.className = "fw-bold " + (String(rule.adjust).startsWith("+") ? "text-success" : "text-danger");
-    document.getElementById("rule-detail-status").textContent = rule.active ? "Đang bật" : "Đã tắt";
-    document.getElementById("rule-detail-note").textContent = rule.note || "Không có ghi chú.";
-    detailPanel.classList.remove("d-none");
+  function highlightRuleRow(id) {
+    tbody.querySelectorAll(".rule-row").forEach(function (row) {
+      row.classList.toggle("is-selected", id != null && Number(row.dataset.ruleId) === id);
+    });
+  }
+
+  function resetRuleForm() {
+    document.getElementById("rule-name-input").value = "";
+    document.getElementById("rule-condition-input").value = "";
+    document.getElementById("rule-adjust-type").value = "percent_up";
+    document.getElementById("rule-adjust-value").value = "";
+    document.getElementById("rule-note-input").value = "";
+    document.getElementById("rule-active-input").checked = true;
+  }
+
+  function openRuleModal(rule, isNew) {
+    if (!ruleModal || !window.bootstrap) return;
+    editingRuleId = isNew ? null : rule.id;
+    selectedId = isNew ? null : rule.id;
+    highlightRuleRow(selectedId);
+
+    var titleEl = document.getElementById("rule-modal-title");
+    var saveBtn = document.getElementById("rule-save-btn");
+    if (titleEl) titleEl.textContent = isNew ? "Thêm quy tắc mới" : "Chi tiết quy tắc";
+    if (saveBtn) saveBtn.textContent = isNew ? "Lưu quy tắc" : "Lưu thay đổi";
+
+    if (isNew) {
+      resetRuleForm();
+    } else if (rule) {
+      document.getElementById("rule-name-input").value = rule.name || "";
+      document.getElementById("rule-condition-input").value = rule.condition || "";
+      document.getElementById("rule-adjust-type").value = rule.adjust_type || "percent_up";
+      document.getElementById("rule-adjust-value").value = rule.adjust_value || "";
+      document.getElementById("rule-note-input").value = rule.note || "";
+      document.getElementById("rule-active-input").checked = !!rule.active;
+    }
+
+    bootstrap.Modal.getOrCreateInstance(ruleModal).show();
   }
 
   function renderRules() {
     tbody.innerHTML = "";
     if (!rules.length) {
       tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Chưa có quy tắc nào.</td></tr>';
-      detailPanel && detailPanel.classList.add("d-none");
       return;
     }
     rules.forEach(function (rule) {
       var tr = document.createElement("tr");
       tr.className = "rule-row" + (selectedId === rule.id ? " is-selected" : "");
+      tr.dataset.ruleId = String(rule.id);
       tr.innerHTML =
         '<td class="fw-bold">' + escapeHtml(rule.name) + "</td>" +
         "<td>" + escapeHtml(rule.condition) + "</td>" +
@@ -1106,22 +1134,25 @@ function initPriceSuggestionsPage() {
         '<td><div class="form-check form-switch m-0"><input class="form-check-input rule-active-toggle" type="checkbox" data-rule-id="' + rule.id + '"' + (rule.active ? " checked" : "") + "></div></td>";
       tr.addEventListener("click", function (e) {
         if (e.target.closest(".rule-active-toggle")) return;
-        tbody.querySelectorAll(".rule-row").forEach(function (r) { r.classList.remove("is-selected"); });
-        tr.classList.add("is-selected");
-        showRuleDetail(rule);
+        openRuleModal(rule, false);
       });
       tr.querySelector(".rule-active-toggle").addEventListener("change", function (e) {
         e.stopPropagation();
         rule.active = e.target.checked;
-        if (selectedId === rule.id) showRuleDetail(rule);
       });
       tbody.appendChild(tr);
     });
-    if (selectedId) {
-      var current = rules.find(function (r) { return r.id === selectedId; });
-      if (current) showRuleDetail(current);
-    }
   }
+
+  document.getElementById("rule-add-btn")?.addEventListener("click", function () {
+    openRuleModal(null, true);
+  });
+
+  ruleModal?.addEventListener("hidden.bs.modal", function () {
+    selectedId = null;
+    editingRuleId = null;
+    highlightRuleRow(null);
+  });
 
   document.getElementById("rule-save-btn")?.addEventListener("click", function () {
     var name = document.getElementById("rule-name-input")?.value.trim();
@@ -1134,34 +1165,37 @@ function initPriceSuggestionsPage() {
       showHostAlert("Vui lòng nhập đầy đủ tên, điều kiện và giá trị điều chỉnh.");
       return;
     }
-    var rule = {
-      id: nextId++,
-      name: name,
-      condition: condition,
-      adjust: formatRuleAdjust(adjustType, adjustValue),
-      adjust_type: adjustType,
-      adjust_value: adjustValue,
-      active: !!active,
-      note: note || "",
-    };
-    rules.push(rule);
-    selectedId = rule.id;
+
+    if (editingRuleId) {
+      var existing = rules.find(function (r) { return r.id === editingRuleId; });
+      if (existing) {
+        existing.name = name;
+        existing.condition = condition;
+        existing.adjust = formatRuleAdjust(adjustType, adjustValue);
+        existing.adjust_type = adjustType;
+        existing.adjust_value = adjustValue;
+        existing.active = !!active;
+        existing.note = note || "";
+      }
+    } else {
+      rules.push({
+        id: nextId++,
+        name: name,
+        condition: condition,
+        adjust: formatRuleAdjust(adjustType, adjustValue),
+        adjust_type: adjustType,
+        adjust_value: adjustValue,
+        active: !!active,
+        note: note || "",
+      });
+    }
+
     renderRules();
-    showRuleDetail(rule);
-    document.getElementById("rule-name-input").value = "";
-    document.getElementById("rule-condition-input").value = "";
-    document.getElementById("rule-adjust-value").value = "";
-    document.getElementById("rule-note-input").value = "";
-    document.getElementById("rule-active-input").checked = true;
-    var modal = document.getElementById("addRuleModal");
-    if (modal && window.bootstrap) bootstrap.Modal.getInstance(modal)?.hide();
+    resetRuleForm();
+    if (ruleModal && window.bootstrap) bootstrap.Modal.getInstance(ruleModal)?.hide();
   });
 
   renderRules();
-  if (rules.length) {
-    selectedId = rules[0].id;
-    renderRules();
-  }
 
   var chartEl = document.getElementById("priceRevenueChart");
   if (chartEl && window.Chart) {

@@ -3,7 +3,7 @@
 {% block body_attrs %}data-page="support" data-variant="chat"{% endblock %}
 
 {% block content %}
-<div class="ai-shell">
+<div class="ai-shell" data-api-url="{{ url_for('customer_booking.ai_chat_api') }}">
   <aside class="ai-side ai-side--left">
     <button type="button" class="ai-new-chat" id="ai-new-chat">
       <i class="bi bi-plus-lg"></i> Cuộc trò chuyện mới

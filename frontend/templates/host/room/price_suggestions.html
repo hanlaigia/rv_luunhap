@@ -16,7 +16,6 @@
     .rule-row { cursor: pointer; transition: background 0.15s; }
     .rule-row:hover { background: #f8fafc; }
     .rule-row.is-selected { background: #eff6ff; }
-    .rule-detail-panel { border: 1px solid #dbeafe; border-radius: 10px; background: #f8fafc; padding: 16px; }
     .revenue-chart-wrap { height: 260px; position: relative; }
 </style>
 {% endblock %}
@@ -70,7 +69,7 @@
             <div class="section-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="h6 fw-bold mb-0">Quy tắc giá tự động</h2>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRuleModal"><i class="bi bi-plus"></i> Thêm quy tắc mới</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="rule-add-btn"><i class="bi bi-plus"></i> Thêm quy tắc mới</button>
                 </div>
                 <div class="table-responsive">
                     <table class="table align-middle small mb-0">
@@ -79,15 +78,6 @@
                         </thead>
                         <tbody id="pricing-rules-tbody"></tbody>
                     </table>
-                </div>
-                <div id="rule-detail-panel" class="rule-detail-panel mt-3 d-none">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h3 class="h6 fw-bold mb-0" id="rule-detail-name"></h3>
-                        <span class="badge bg-primary-subtle text-primary" id="rule-detail-status"></span>
-                    </div>
-                    <p class="small text-muted mb-2"><strong>Điều kiện:</strong> <span id="rule-detail-condition"></span></p>
-                    <p class="small text-muted mb-2"><strong>Điều chỉnh:</strong> <span id="rule-detail-adjust" class="fw-bold"></span></p>
-                    <p class="small mb-0" id="rule-detail-note"></p>
                 </div>
             </div>
 
@@ -143,11 +133,11 @@
 
 <script type="application/json" id="pricing-rules-data">{{ pricing_rules | tojson }}</script>
 
-<div class="modal fade host-rule-modal" id="addRuleModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade host-rule-modal" id="ruleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold">Thêm quy tắc mới</h5>
+                <h5 class="modal-title fw-bold" id="rule-modal-title">Thêm quy tắc mới</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

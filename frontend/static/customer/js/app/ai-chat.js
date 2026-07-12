@@ -22,7 +22,11 @@ function appendBubbleMessage(container, role, text, extraClass) {
 
 async function fetchAiReply(message) {
   var widget = document.getElementById("rova-ai-widget");
-  var apiUrl = widget ? widget.getAttribute("data-api-url") : null;
+  var shell = document.querySelector(".ai-shell");
+  var apiUrl =
+    (widget && widget.getAttribute("data-api-url")) ||
+    (shell && shell.getAttribute("data-api-url")) ||
+    null;
   if (!apiUrl) throw new Error("API chưa cấu hình");
 
   var res = await fetch(apiUrl, {

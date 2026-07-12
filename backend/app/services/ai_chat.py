@@ -20,27 +20,39 @@ DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
 
 def _api_key() -> str | None:
+    from backend.app.config import _load_dotenv
+
+    _load_dotenv()
+    key = (os.environ.get("GROQ_API_KEY") or "").strip()
+    if key:
+        return key
     try:
         from flask import current_app
 
-        key = current_app.config.get("GROQ_API_KEY")
+        key = (current_app.config.get("GROQ_API_KEY") or "").strip()
         if key:
             return key
     except RuntimeError:
         pass
-    return os.environ.get("GROQ_API_KEY")
+    return None
 
 
 def _model_name() -> str:
+    from backend.app.config import _load_dotenv
+
+    _load_dotenv()
+    model = (os.environ.get("GROQ_MODEL") or "").strip()
+    if model:
+        return model
     try:
         from flask import current_app
 
-        model = current_app.config.get("GROQ_MODEL")
+        model = (current_app.config.get("GROQ_MODEL") or "").strip()
         if model:
             return model
     except RuntimeError:
         pass
-    return os.environ.get("GROQ_MODEL", DEFAULT_MODEL)
+    return DEFAULT_MODEL
 
 
 HOST_SYSTEM_PROMPT = (
