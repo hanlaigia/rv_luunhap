@@ -5,8 +5,11 @@
 <main>
   <!-- Welcome & Search -->
   <section class="home-hero home-hero--member">
-    <div class="container home-hero__inner px-3 px-lg-4">
-      <div class="home-hero__content text-center">
+    <div class="home-hero__banner d-lg-none">
+      <h1 class="home-hero__title">Tìm kiếm kỳ nghỉ mơ ước của bạn</h1>
+    </div>
+    <div class="container-xxl home-hero__inner px-3 px-lg-4">
+      <div class="home-hero__content text-center d-none d-lg-block">
         <h1 class="home-hero__title home-hero__title--welcome">Chào mừng trở lại, <span data-rova-welcome-name>Lại Gia Hân</span>!</h1>
         <p class="home-hero__subtitle">Hôm nay bạn muốn đi đâu để tận hưởng kỳ nghỉ tiếp theo?</p>
       </div>
@@ -17,15 +20,15 @@
   </section>
 
   <!-- Quà tặng dành riêng cho bạn -->
-  <section class="home-section">
-    <div class="container px-3 px-lg-4">
-      <div class="mb-3">
-        <h2 class="fw-bold m-0" style="color: #0F294D; font-size: 20px;">Quà tặng dành riêng cho bạn</h2>
-        <p class="text-muted small m-0">Ưu đãi đặc biệt dành cho mọi thành viên của Smart Stay</p>
+  <section class="home-section home-section--member-offers">
+    <div class="container-xxl px-3 px-lg-4">
+      <div class="mb-3 member-offers-heading">
+        <h2 class="fw-bold m-0 section-heading__title">Quà tặng dành riêng cho bạn</h2>
+        <p class="text-muted small m-0 d-none d-lg-block">Ưu đãi đặc biệt dành cho mọi thành viên của Smart Stay</p>
       </div>
-      <div class="row g-3">
+      <div class="row g-3 member-offers">
         <!-- Card 1 -->
-        <div class="col-md-4">
+        <div class="col-md-4 member-offers__item">
           <div class="member-promo-card member-promo-card--blue h-100 p-4 rounded-4 shadow-sm d-flex flex-column">
             <span class="member-promo-card__badge">Ưu đãi thành viên mới</span>
             <h3 class="member-promo-card__title">Giảm 10% cho lần đặt phòng đầu tiên</h3>
@@ -34,7 +37,7 @@
           </div>
         </div>
         <!-- Card 2 -->
-        <div class="col-md-4">
+        <div class="col-md-4 member-offers__item">
           <div class="member-promo-card member-promo-card--green h-100 p-4 rounded-4 shadow-sm d-flex flex-column">
             <span class="member-promo-card__badge">Đặc quyền thành viên</span>
             <h3 class="member-promo-card__title">Miễn phí bữa sáng cho các kỳ nghỉ cuối tuần</h3>
@@ -43,7 +46,7 @@
           </div>
         </div>
         <!-- Card 3 -->
-        <div class="col-md-4">
+        <div class="col-md-4 member-offers__item">
           <div class="member-promo-card member-promo-card--gold h-100 p-4 rounded-4 shadow-sm d-flex flex-column">
             <span class="member-promo-card__badge">Tích lũy xu</span>
             <h3 class="member-promo-card__title">Nhận ngay xu thưởng khi hoàn thành đơn đặt phòng</h3>

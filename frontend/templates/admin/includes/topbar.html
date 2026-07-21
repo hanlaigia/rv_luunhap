@@ -1,8 +1,12 @@
 <header class="admin-topbar">
   <div class="admin-topbar__left">
-    <button type="button" class="admin-topbar__toggle" id="admin-sidebar-toggle" aria-label="Mở menu">
+    <button type="button" class="admin-topbar__toggle" id="admin-sidebar-toggle" aria-label="Mở menu" aria-controls="admin-sidebar">
       <i class="bi bi-list"></i>
     </button>
+    <div class="admin-topbar__brand" aria-hidden="true">
+      <span class="admin-topbar__brand-mark">ROVVA</span>
+      <span class="admin-topbar__brand-sub">Admin</span>
+    </div>
     <div class="admin-topbar__search">
       <i class="bi bi-search"></i>
       <input type="text" placeholder="Tìm kiếm nhanh..." disabled>

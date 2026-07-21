@@ -54,10 +54,16 @@
 git clone https://github.com/LeGiaVan/ROVVA.git
 cd ROVVA
 python -m venv venv
-venv\Scripts\activate
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 py -m flask --app run seed
 py run.py
+```
+
+Nếu PowerShell chặn script, chạy trước:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
 Truy cập: [http://127.0.0.1:5000](http://127.0.0.1:5000)
@@ -81,7 +87,7 @@ GROQ_MODEL=llama-3.3-70b-versatile
 | Customer | `1@ss` | `1` | `/customer/` |
 | Host | `van.quangia@rova.vn` | `password123` | `/host/` |
 | Admin | `admin@rova.vn` | `admin123` | `/admin/` |
-| Host chờ duyệt | `host.pending@rova.vn` | `123456` | Duyệt tại Admin |
+| Host chờ duyệt | `phong@gmail.com` | `123456` | Duyệt tại Admin |
 
 ---
 

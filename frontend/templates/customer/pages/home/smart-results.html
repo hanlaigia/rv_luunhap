@@ -1,19 +1,22 @@
 {% extends 'customer/base.html' %}
 {% block title %}Kết quả Smart Match — Rovva{% endblock %}
+{% block body_attrs %}data-page="search"{% endblock %}
 
 {% block content %}
-<main class="page-content">
-  <section class="home-hero home-hero--compact">
+<div class="search-results-page">
+  <section class="home-hero home-hero--compact home-hero--accommodation search-results-hero">
     <div class="container-xxl home-hero__inner px-3 px-lg-4">
       <h1 class="home-hero__title home-hero__title--search">
         <i class="bi bi-stars text-warning"></i> Smart Match
       </h1>
       <p class="home-hero__subtitle">Gợi ý phòng phù hợp nhất dựa trên mô tả nhu cầu của bạn</p>
-      {% include 'customer/includes/layout/search-bar.html' %}
+      <div class="home-hero__search">
+        {% include 'customer/includes/layout/search-bar.html' %}
+      </div>
     </div>
   </section>
 
-  <div class="container-xxl px-3 px-lg-4 py-4 py-lg-5">
+  <div class="search-results-body">
     {% if query %}
     <p class="text-secondary mb-4">
       Kết quả cho: <span class="fw-semibold text-dark">"{{ query }}"</span>
@@ -81,5 +84,5 @@
     </div>
     {% endif %}
   </div>
-</main>
+</div>
 {% endblock %}

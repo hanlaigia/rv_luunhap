@@ -426,3 +426,669 @@ tr[data-href]:hover {
     max-width: 1400px; 
 }
 
+/* ==========================================================================
+   HOST MOBILE / TABLET HEADER + DRAWER + DASHBOARD (≤991.98px)
+   ========================================================================== */
+
+.host-mobile-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 4px;
+}
+
+.host-mobile-bar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: #464343;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.host-mobile-bar__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.host-mobile-bar__logo img {
+  width: 100px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.host-mobile-bar__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding-right: 8px;
+}
+
+.host-mobile-bar__actions .rovva-noti-btn {
+  padding: 8px 4px;
+}
+
+.host-mobile-bar__actions .rovva-noti-btn i {
+  font-size: 16px;
+  color: var(--rovva-black-blue, #0F294D);
+}
+
+.host-mobile-bar__actions .rovva-noti-badge {
+  top: 8px;
+  left: 0.01px;
+  right: auto;
+  width: 8px;
+  height: 8px;
+}
+
+.host-mobile-bar__avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.host-drawer {
+  width: min(280px, 85vw);
+  border: 0;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.host-drawer__hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 12px;
+  background: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.host-drawer__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.host-drawer__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 2px solid rgba(216, 226, 255, 0.5);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.host-drawer__name {
+  color: #191B23;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 14px;
+  margin-bottom: 4px;
+}
+
+.host-drawer__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.host-drawer__badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 88, 190, 0.1);
+  color: #0058BE;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 10px;
+}
+
+.host-drawer__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #424753;
+  font-size: 10px;
+}
+
+.host-drawer__rating i {
+  color: #F59E0B;
+  font-size: 10px;
+}
+
+.host-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: #424753;
+  flex-shrink: 0;
+}
+
+.host-drawer__body {
+  padding: 8px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.host-drawer__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+}
+
+.host-drawer__section--help {
+  border-top: 1px solid #C2C6D5;
+  margin-top: 4px;
+}
+
+.host-drawer__section-title {
+  padding: 8px 12px;
+  color: #424753;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+  line-height: 1.5;
+}
+
+.host-drawer__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 8px;
+  color: #424753;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.host-drawer__link:hover {
+  background: rgba(0, 88, 190, 0.06);
+  color: #0058BE;
+}
+
+.host-drawer__link.is-active {
+  background: rgba(0, 88, 190, 0.1);
+  color: #0058BE;
+  font-weight: 600;
+}
+
+.host-drawer__help {
+  display: block;
+  padding: 8px 12px;
+  color: #424753;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.host-drawer__help:hover {
+  color: #0058BE;
+}
+
+.host-drawer__logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 16px 12px;
+  border-top: 1px solid #C2C6D5;
+  color: #BA1A1A;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.host-drawer__logout:hover {
+  color: #9f1414;
+}
+
+.host-booking-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.host-booking-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #C2C6D5;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  color: inherit;
+}
+
+.host-booking-card:hover {
+  color: inherit;
+}
+
+.host-booking-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.host-booking-card__code {
+  color: #004191;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.host-booking-card__name {
+  color: #191B23;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.host-booking-card__room {
+  color: #424753;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.host-booking-card__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(194, 198, 213, 0.3);
+}
+
+.host-booking-card__dates {
+  color: #424753;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.host-booking-card__price {
+  color: #191B23;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: right;
+}
+
+@media (max-width: 991.98px) {
+  .rovva-header {
+    height: auto;
+    min-height: 56px;
+  }
+
+  body.host-body {
+    background: #fff;
+  }
+
+  .host-dashboard {
+    padding: 16px !important;
+    max-width: none !important;
+  }
+
+  .host-dashboard .dashboard-header {
+    margin-bottom: 20px;
+  }
+
+  .host-dashboard .host-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 36px;
+    color: #0F294D;
+    margin-bottom: 8px;
+  }
+
+  .host-dashboard .dashboard-subtitle {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #424754;
+  }
+
+  .host-dashboard .host-stat-row {
+    --bs-gutter-y: 0;
+    margin-bottom: 20px !important;
+  }
+
+  .host-dashboard .host-stat-row > [class*="col-"] {
+    margin-bottom: 0;
+  }
+
+  .host-dashboard .stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 115px;
+    margin-bottom: 0;
+    padding: 16px 10px;
+    border: 1px solid #C2C6D5;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .host-dashboard .host-stat-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .host-dashboard .stat-icon {
+    width: auto;
+    height: auto;
+    padding: 4px;
+    margin-bottom: 0;
+    border-radius: 4px;
+    background: #D8E2FF;
+    color: #004191;
+    font-size: 1rem;
+  }
+
+  .host-dashboard .stat-badge {
+    position: static;
+    padding: 0;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 15px;
+  }
+
+  .host-dashboard .stat-card {
+    position: relative;
+  }
+
+  .host-dashboard .stat-card .stat-badge {
+    position: absolute;
+    top: 16px;
+    right: 10px;
+  }
+
+  .host-dashboard .stat-label {
+    margin-top: 16px;
+    margin-bottom: 4px;
+    color: #424753;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .host-dashboard .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 28px;
+    color: #004191;
+  }
+
+  .host-dashboard .host-stat-row > :nth-child(3) .stat-value,
+  .host-dashboard .host-stat-row > :nth-child(4) .stat-value {
+    color: #191B23;
+  }
+
+  .host-dashboard .chart-card,
+  .host-dashboard .noti-card,
+  .host-dashboard .table-card,
+  .host-dashboard .profile-card {
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    border: 1px solid rgba(66, 71, 84, 0.7);
+    border-radius: 24px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .host-dashboard .table-card {
+    padding: 16px;
+    border-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .host-dashboard .host-recent-bookings__all {
+    color: #004191;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .host-dashboard .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .host-dashboard .chart-title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.56;
+    color: #191B23;
+  }
+
+  .host-dashboard .chart-subtitle {
+    display: none;
+  }
+
+  .host-dashboard .host-chart-legend {
+    display: none;
+  }
+
+  .host-dashboard #dashboard-chart-period {
+    min-width: 126px;
+    border-radius: 8px;
+    border-color: rgba(66, 71, 84, 0.7);
+    font-size: 14px;
+    font-weight: 600;
+    color: #191B23;
+  }
+
+  .rova-ai-fab {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(180deg, #0058BE 0%, #3189EE 100%);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  @media (min-width: 768px) {
+    .rova-ai-fab {
+      width: 48px;
+      height: 48px;
+      font-size: 1.25rem;
+    }
+  }
+
+  .host-dashboard .noti-title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 26px;
+    margin-bottom: 16px;
+    color: #191B23;
+  }
+
+  .host-dashboard .noti-item {
+    padding-left: 24px;
+    margin-bottom: 24px;
+  }
+
+  .host-dashboard .noti-item::before {
+    width: 8px;
+    height: 8px;
+    top: 8px;
+  }
+
+  .host-dashboard .noti-item-title {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+
+  .host-dashboard .noti-item-desc {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14.4px;
+  }
+
+  .host-dashboard .noti-item-time {
+    margin-top: 4.8px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: #424754;
+  }
+
+  .host-dashboard .noti-card .btn {
+    border-radius: 12px;
+    border-color: rgba(66, 71, 84, 0.7);
+    color: #191B23;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .host-dashboard .tip-card {
+    margin-bottom: 20px;
+    padding: 16px;
+    border-radius: 24px;
+    background: #0058BE;
+    box-shadow: 0 8px 10px -6px rgba(0, 62, 171, 0.2), 0 20px 25px -5px rgba(0, 62, 171, 0.2);
+  }
+
+  .host-dashboard .tip-title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 26px;
+    margin-bottom: 10px;
+  }
+
+  .host-dashboard .tip-desc {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22.75px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 10px;
+  }
+
+  .host-dashboard .tip-card .btn {
+    border-radius: 12px;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .host-dashboard .profile-card {
+    padding: 12px;
+  }
+
+  .host-dashboard .profile-header {
+    margin-bottom: 0;
+  }
+
+  .host-dashboard .profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    border: 2px solid rgba(216, 226, 255, 0.5);
+  }
+
+  .host-dashboard .profile-name {
+    font-weight: 400;
+  }
+
+  .host-dashboard .profile-stats {
+    flex-direction: column;
+    gap: 0;
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .host-dashboard .profile-stats > div {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .host-dashboard .p-stat-val {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 48px;
+  }
+
+  .host-dashboard .p-stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14.4px;
+  }
+
+  .footer-host .rovva-footer__links-section,
+  .footer-host .rovva-footer__divider,
+  .footer-host .rovva-footer__copyright {
+    display: none;
+  }
+
+  .footer-host .rovva-footer__banner {
+    height: auto;
+    background: #F9F9FF;
+    background-image: none;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .footer-host .rovva-footer__banner::before {
+    display: none;
+  }
+
+  .footer-host .rovva-footer__banner-content {
+    flex-direction: column;
+    background: transparent;
+    height: auto;
+  }
+
+  .footer-host .rovva-footer__banner-logo,
+  .footer-host .rovva-footer__banner-graphic {
+    display: none;
+  }
+
+  .footer-host .rovva-footer__banner-contact {
+    flex: none;
+    width: 100%;
+    padding: 0;
+  }
+
+  .footer-host .rovva-footer__banner-contact h6 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0F294D;
+  }
+
+  .footer-host .rovva-footer__banner-contact p {
+    color: #0F294D;
+    font-weight: 500;
+  }
+
+  .footer-host .rovva-footer__banner-contact p:last-child {
+    display: none;
+  }
+}
+

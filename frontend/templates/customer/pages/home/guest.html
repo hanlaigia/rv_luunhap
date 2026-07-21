@@ -16,11 +16,11 @@
     </div>
   </section>
 
-  <section class="home-section">
+  <section class="home-section home-section--offers">
     <div class="container-xxl px-3 px-lg-4">
       <div class="section-heading">
         <h2 class="section-heading__title">Dành riêng cho người dùng mới</h2>
-        <p class="section-heading__subtitle">Ưu đãi độc quyền khi bạn đăng ký tài khoản Rovva</p>
+        <p class="section-heading__subtitle d-none d-lg-block">Ưu đãi độc quyền khi bạn đăng ký tài khoản Rovva</p>
       </div>
       <div class="guest-offers">
         <article class="guest-offer-card">
@@ -30,17 +30,23 @@
           <span class="guest-offer-card__tag">Đặc quyền mới</span>
           <h3 class="guest-offer-card__title">Ưu đãi giảm giá dành riêng cho người dùng mới</h3>
           <p class="guest-offer-card__desc">Nhận mã giảm giá khách sạn, homestay và nhiều ưu đãi du lịch khác ngay khi đăng ký.</p>
-          <a href="{{ url_for('auth.login') }}" class="guest-offer-card__btn guest-offer-card__btn--primary">Đăng nhập và nhận tất cả</a>
+          <a href="{{ url_for('auth.login') }}" class="guest-offer-card__btn guest-offer-card__btn--primary">
+            <span class="d-none d-lg-inline">Đăng nhập và nhận tất cả</span>
+            <span class="d-lg-none">Nhận Tất Cả</span>
+          </a>
         </article>
 
-        <article class="guest-offer-card">
+        <article class="guest-offer-card guest-offer-card--green">
           <div class="guest-offer-card__icon guest-offer-card__icon--sky">
             <i class="bi bi-airplane-fill"></i>
           </div>
           <span class="guest-offer-card__tag">Vé máy bay</span>
           <h3 class="guest-offer-card__title">Giảm giá đến 10%</h3>
           <p class="guest-offer-card__desc">Ưu đãi đặt vé trên ứng dụng Rovva — tiết kiệm cho mọi chuyến bay nội địa.</p>
-          <a href="{{ url_for('customer.show_page', page_path='pages/marketing/promotions.html') }}" class="guest-offer-card__btn">Nhận ưu đãi</a>
+          <a href="{{ url_for('customer.show_page', page_path='pages/marketing/promotions.html') }}" class="guest-offer-card__btn">
+            <span class="d-none d-lg-inline">Nhận ưu đãi</span>
+            <span class="d-lg-none">Xem ngay</span>
+          </a>
         </article>
 
         <article class="guest-offer-card">
@@ -56,10 +62,13 @@
     </div>
   </section>
 
-  <section class="home-section">
+  <section class="home-section home-section--destinations">
     <div class="container-xxl px-3 px-lg-4">
-      <div class="section-heading d-flex flex-wrap justify-content-between align-items-end gap-3">
+      <div class="section-heading d-flex flex-wrap justify-content-between align-items-end gap-2">
         <h2 class="section-heading__title mb-0">Điểm đến xu hướng</h2>
+        <a class="section-heading__more d-lg-none" href="{{ url_for('customer.search') }}">
+          Xem thêm <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </a>
       </div>
       <div class="destinations-grid">
         {% for d in trending %}
@@ -68,7 +77,10 @@
           <div class="destination-card__overlay">
             <div>
               <div class="destination-card__name">{{ d.city }}</div>
-              <p class="destination-card__meta">Việt Nam &bull; {{ d.count }}+ nơi lưu trú</p>
+              <p class="destination-card__meta">
+                <span class="d-none d-lg-inline">Việt Nam &bull; {{ d.count }}+ nơi lưu trú</span>
+                <span class="d-lg-none">{{ d.count }}+ Chỗ nghỉ</span>
+              </p>
             </div>
           </div>
         </a>
@@ -98,10 +110,13 @@
                   <i class="bi bi-star-fill text-warning"></i> <span>{{ acc.average_rating or '—' }}</span>
                 </div>
               </div>
-              <p class="listing-card__location text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ acc.city }}</p>
-              <div class="listing-card__price-wrap mt-auto">
-                <span class="listing-card__price">{{ "{:,.0f}".format(acc.min_price) }}đ</span>
-                <span class="listing-card__unit">/đêm</span>
+              <p class="listing-card__location text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ acc.city }}{% if acc.city %}, Việt Nam{% endif %}</p>
+              <div class="listing-card__footer">
+                <div class="listing-card__price-wrap">
+                  <span class="listing-card__price">{{ "{:,.0f}".format(acc.min_price).replace(",", ".") }}đ</span>
+                  <span class="listing-card__unit"> / đêm</span>
+                </div>
+                <span class="listing-card__cta d-lg-none">Xem chi tiết</span>
               </div>
             </div>
           </article>
@@ -113,7 +128,7 @@
     </div>
   </section>
 
-  <section class="home-section pt-0">
+  <section class="home-section pt-0 home-section--apartments">
     <div class="container-xxl px-3 px-lg-4">
       <div class="section-heading">
         <h2 class="section-heading__title">Căn hộ nổi bật</h2>
@@ -134,10 +149,13 @@
                   <i class="bi bi-star-fill text-warning"></i> <span>{{ acc.average_rating or '—' }}</span>
                 </div>
               </div>
-              <p class="listing-card__location text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ acc.city }}</p>
-              <div class="listing-card__price-wrap mt-auto">
-                <span class="listing-card__price">{{ "{:,.0f}".format(acc.min_price) }}đ</span>
-                <span class="listing-card__unit">/đêm</span>
+              <p class="listing-card__location text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ acc.city }}{% if acc.city %}, Việt Nam{% endif %}</p>
+              <div class="listing-card__footer">
+                <div class="listing-card__price-wrap">
+                  <span class="listing-card__price">{{ "{:,.0f}".format(acc.min_price).replace(",", ".") }}đ</span>
+                  <span class="listing-card__unit"> / đêm</span>
+                </div>
+                <span class="listing-card__cta d-lg-none">Xem chi tiết</span>
               </div>
             </div>
           </article>

@@ -1,62 +1,138 @@
 <header class="rovva-header sticky-top">
     <nav class="navbar navbar-expand-lg h-100 py-0">
-        <div class="container-fluid px-3 px-lg-4">
-            <a class="navbar-brand py-0 me-0" href="{{ url_for('main.index') }}">
-                <img src="{{ url_for('static', filename='shared/images/logo.png') }}" alt="Rovva - Smart Stay Platform">
-            </a>
+        <div class="container-fluid px-0">
 
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
-                data-bs-target="#rovvaNavbar" aria-controls="rovvaNavbar" aria-expanded="false"
-                aria-label="Mở menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse justify-content-center" id="rovvaNavbar">
-                <ul class="navbar-nav align-items-lg-center gap-lg-1">
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'dashboard' %} active{% endif %}"
-                            href="{{ url_for('main.index') }}">Tổng quan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'accommodations' %} active{% endif %}"
-                            href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'bookings' %} active{% endif %}"
-                            href="{{ url_for('booking.index') }}">Quản lý booking</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'reports' %} active{% endif %}"
-                            href="{{ url_for('report.index') }}">Báo cáo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'disputes' %} active{% endif %}"
-                            href="{{ url_for('dispute.index') }}">Tranh chấp</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'payments' %} active{% endif %}"
-                            href="{{ url_for('payment.index') }}">Thanh toán</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link rovva-nav-link{% if active_nav == 'messages' %} active{% endif %}"
-                            href="{{ url_for('message.index') }}">Tin nhắn</a>
-                    </li>
-                </ul>
+            <!-- Mobile / tablet bar -->
+            <div class="host-mobile-bar d-lg-none">
+                <button class="host-mobile-bar__btn" type="button"
+                        data-bs-toggle="offcanvas" data-bs-target="#hostDrawer"
+                        aria-controls="hostDrawer" aria-label="Mở menu">
+                    <i class="bi bi-list" aria-hidden="true"></i>
+                </button>
+                <a class="host-mobile-bar__logo" href="{{ url_for('main.index') }}">
+                    <img src="{{ url_for('static', filename='shared/images/logo.png') }}" alt="Rovva">
+                </a>
+                <div class="host-mobile-bar__actions">
+                    <button type="button" class="rovva-noti-btn" id="host-noti-btn" aria-label="Thông báo">
+                        <i class="bi bi-bell-fill" aria-hidden="true"></i>
+                        {% if host_unread_notifications %}
+                        <span class="rovva-noti-badge"></span>
+                        {% endif %}
+                    </button>
+                    <a href="{{ url_for('main.profile') }}" class="host-mobile-bar__avatar-link" aria-label="Hồ sơ">
+                        <img src="{{ current_user.avatar_url }}" alt="{{ current_user.full_name }}"
+                             class="rovva-avatar host-mobile-bar__avatar">
+                    </a>
+                </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2 ms-lg-3">
-                <button type="button" class="rovva-noti-btn" id="host-noti-btn" aria-label="Thông báo">
-                    <i class="bi bi-bell-fill" style="font-size: 18px; color: var(--rovva-black-blue);"></i>
-                    {% if host_unread_notifications %}
-                    <span class="rovva-noti-badge"></span>
-                    {% endif %}
-                </button>
-                <a href="{{ url_for('main.profile') }}" class="d-flex align-items-center gap-3 text-decoration-none">
-                    <span class="rovva-profile-name d-none d-md-inline">{{ current_user.full_name if current_user.is_authenticated else 'Host' }}</span>
-                    <img src="{{ current_user.avatar_url }}" alt="{{ current_user.full_name }}"
-                        class="rovva-avatar">
+            <!-- Desktop bar -->
+            <div class="d-none d-lg-flex align-items-center w-100 px-3 px-lg-4">
+                <a class="navbar-brand py-0 me-0" href="{{ url_for('main.index') }}">
+                    <img src="{{ url_for('static', filename='shared/images/logo.png') }}" alt="Rovva - Smart Stay Platform">
                 </a>
+
+                <div class="collapse navbar-collapse justify-content-center show" id="rovvaNavbar">
+                    <ul class="navbar-nav align-items-lg-center gap-lg-1">
+                        <li class="nav-item">
+                            <a class="nav-link rovva-nav-link{% if active_nav == 'dashboard' %} active{% endif %}"
+                                href="{{ url_for('main.index') }}">Tổng quan</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rovva-nav-link{% if active_nav == 'accommodations' %} active{% endif %}"
+                                href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rovva-nav-link{% if active_nav == 'bookings' %} active{% endif %}"
+                                href="{{ url_for('booking.index') }}">Quản lý booking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rovva-nav-link{% if active_nav == 'reports' %} active{% endif %}"
+                                href="{{ url_for('report.index') }}">Báo cáo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rovva-nav-link{% if active_nav == 'disputes' %} active{% endif %}"
+                                href="{{ url_for('dispute.index') }}">Tranh chấp</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rovva-nav-link{% if active_nav == 'payments' %} active{% endif %}"
+                                href="{{ url_for('payment.index') }}">Thanh toán</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rovva-nav-link{% if active_nav == 'messages' %} active{% endif %}"
+                                href="{{ url_for('message.index') }}">Tin nhắn</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-lg-3">
+                    <button type="button" class="rovva-noti-btn" id="host-noti-btn-desktop" aria-label="Thông báo">
+                        <i class="bi bi-bell-fill" style="font-size: 18px; color: var(--rovva-black-blue);"></i>
+                        {% if host_unread_notifications %}
+                        <span class="rovva-noti-badge"></span>
+                        {% endif %}
+                    </button>
+                    <a href="{{ url_for('main.profile') }}" class="d-flex align-items-center gap-3 text-decoration-none">
+                        <span class="rovva-profile-name">{{ current_user.full_name if current_user.is_authenticated else 'Host' }}</span>
+                        <img src="{{ current_user.avatar_url }}" alt="{{ current_user.full_name }}"
+                            class="rovva-avatar">
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
+
+    <!-- Mobile side drawer -->
+    <div class="offcanvas offcanvas-start host-drawer" tabindex="-1" id="hostDrawer"
+         aria-labelledby="hostDrawerLabel">
+        <div class="host-drawer__hero">
+            <div class="host-drawer__user">
+                <img src="{{ current_user.avatar_url }}" alt="" class="host-drawer__avatar">
+                <div>
+                    <div class="host-drawer__name" id="hostDrawerLabel">{{ current_user.full_name if current_user.is_authenticated else 'Host' }}</div>
+                    <div class="host-drawer__meta">
+                        <span class="host-drawer__badge">Pro Host</span>
+                        <span class="host-drawer__rating"><i class="bi bi-star-fill" aria-hidden="true"></i> 4.9</span>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="host-drawer__close" data-bs-dismiss="offcanvas" aria-label="Đóng">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="offcanvas-body host-drawer__body">
+            <div class="host-drawer__section">
+                <div class="host-drawer__section-title">Không gian làm việc</div>
+                <a class="host-drawer__link{% if active_nav == 'dashboard' %} is-active{% endif %}"
+                   href="{{ url_for('main.index') }}">Dashboard</a>
+                <a class="host-drawer__link{% if active_nav == 'accommodations' %} is-active{% endif %}"
+                   href="{{ url_for('accommodation.index') }}">Quản lý CSLT</a>
+                <a class="host-drawer__link{% if active_nav == 'bookings' %} is-active{% endif %}"
+                   href="{{ url_for('booking.index') }}">Quản lý Booking</a>
+                <a class="host-drawer__link{% if active_nav == 'reports' %} is-active{% endif %}"
+                   href="{{ url_for('report.index') }}">Báo cáo</a>
+                <a class="host-drawer__link{% if active_nav == 'disputes' %} is-active{% endif %}"
+                   href="{{ url_for('dispute.index') }}">Tranh chấp</a>
+                <a class="host-drawer__link{% if active_nav == 'payments' %} is-active{% endif %}"
+                   href="{{ url_for('payment.index') }}">Thanh toán</a>
+                <a class="host-drawer__link{% if active_nav == 'messages' %} is-active{% endif %}"
+                   href="{{ url_for('message.index') }}">
+                    <span>Tin nhắn</span>
+                </a>
+            </div>
+
+            <div class="host-drawer__section host-drawer__section--help">
+                <div class="host-drawer__section-title">Cần trợ giúp?</div>
+                <a class="host-drawer__help" href="{{ url_for('support.faq') }}">Hỗ trợ</a>
+                <a class="host-drawer__help" href="{{ url_for('support.privacy_policy') }}">Chính sách bảo mật</a>
+                <a class="host-drawer__help" href="{{ url_for('support.terms_of_service') }}">Điều khoản</a>
+                <a class="host-drawer__help" href="{{ url_for('support.faq') }}">Liên hệ</a>
+                <a class="host-drawer__logout" href="{{ url_for('auth.logout') }}">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+    </div>
 </header>

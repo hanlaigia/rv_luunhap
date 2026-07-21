@@ -214,13 +214,19 @@
                                 <i class="bi bi-pencil"></i> Chỉnh sửa
                             </a>
                             {% if acc.status == 'active' %}
-                            <button type="button" class="btn-outline-custom d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-pause"></i> Tạm ngưng
-                            </button>
+                            <form action="{{ url_for('accommodation.pause', id=acc.id) }}" method="POST"
+                                  class="m-0 p-0 d-flex flex-fill"
+                                  data-host-confirm="Tạm ngưng sẽ ẩn CSLT khỏi tìm kiếm. Bạn có chắc chắn muốn tạm ngưng?">
+                                <button type="submit" class="btn-outline-custom d-flex align-items-center justify-content-center gap-2 w-100">
+                                    <i class="bi bi-pause"></i> Tạm ngưng
+                                </button>
+                            </form>
                             {% elif acc.status == 'paused' %}
-                            <button type="button" class="btn-outline-custom d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-play"></i> Hoạt động
-                            </button>
+                            <form action="{{ url_for('accommodation.pause', id=acc.id) }}" method="POST" class="m-0 p-0 d-flex flex-fill">
+                                <button type="submit" class="btn-outline-custom d-flex align-items-center justify-content-center gap-2 w-100">
+                                    <i class="bi bi-play"></i> Hoạt động
+                                </button>
+                            </form>
                             {% else %}
                             <form action="{{ url_for('accommodation.delete', id=acc.id) }}" method="POST" class="w-50 m-0 p-0 d-flex" data-host-confirm-delete="Bạn có chắc chắn muốn xóa cơ sở lưu trú này?">
                                 <button type="submit" class="btn-outline-custom d-flex align-items-center justify-content-center gap-2 text-danger w-100">

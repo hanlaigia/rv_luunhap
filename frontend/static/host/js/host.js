@@ -1005,7 +1005,7 @@ function initRoomDetail() {
 }
 
 function initHostConfirmForms() {
-  document.querySelectorAll("form[data-host-confirm-delete]").forEach(function (form) {
+  document.querySelectorAll("form[data-host-confirm], form[data-host-confirm-delete]").forEach(function (form) {
     if (form.dataset.confirmBound) return;
     form.dataset.confirmBound = "1";
     form.addEventListener("submit", function (e) {
@@ -1014,12 +1014,16 @@ function initHostConfirmForms() {
         return;
       }
       e.preventDefault();
-      var message = form.getAttribute("data-host-confirm-delete") || "Bạn có chắc chắn muốn xóa?";
+      var isDelete = form.hasAttribute("data-host-confirm-delete");
+      var message = form.getAttribute(isDelete ? "data-host-confirm-delete" : "data-host-confirm")
+        || (isDelete ? "Bạn có chắc chắn muốn xóa?" : "Bạn có chắc chắn muốn tiếp tục?");
       showHostConfirm(message, function () {
         form.dataset.confirmed = "1";
         if (typeof form.requestSubmit === "function") form.requestSubmit();
         else form.submit();
-      }, { title: "Xác nhận xóa", okText: "Xóa", danger: true });
+      }, isDelete
+        ? { title: "Xác nhận xóa", okText: "Xóa", danger: true }
+        : { title: "Xác nhận", okText: "Xác nhận", danger: false });
     });
   });
 }
@@ -1278,11 +1282,12 @@ function initDisputeRoomFilter() {
 }
 
 function initNotificationBell() {
-  var btn = document.getElementById("host-noti-btn");
   var modalEl = document.getElementById("hostNotiModal");
-  if (!btn || !modalEl || !window.bootstrap) return;
-  btn.addEventListener("click", function () {
-    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  if (!modalEl || !window.bootstrap) return;
+  document.querySelectorAll(".rovva-noti-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    });
   });
 
   modalEl.querySelectorAll(".host-noti-item[data-href]").forEach(function (item) {

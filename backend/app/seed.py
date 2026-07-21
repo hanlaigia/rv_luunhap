@@ -22,14 +22,14 @@ def seed_database():
     db.session.add(host)
 
     guest = User(
-        full_name="Khách Hàng Mẫu",
-        email="1@ss",
+        full_name="Lại Gia Hân",
+        email="han@gmail.com",
         phone="0909999999",
         avatar="shared/images/avatars/Hinh_avata.jpg",
         role="guest",
         is_email_verified=True
     )
-    guest.set_password("1")
+    guest.set_password("123456")
     db.session.add(guest)
 
     admin = User(
@@ -45,8 +45,8 @@ def seed_database():
     db.session.add(admin)
 
     pending_host = User(
-        full_name="Nguyễn Văn Host Mới",
-        email="host.pending@rova.vn",
+        full_name="Nguyễn Anh Phong",
+        email="phong@gmail.com",
         phone="0902222222",
         role="guest",
         host_status="pending",
@@ -615,17 +615,17 @@ def patch_admin_schema():
 
 
 def patch_guest_messages_demo():
-    """Đảm bảo khách demo (1@ss) có hội thoại mẫu với host để test chat 2 chiều."""
+    """Đảm bảo khách demo (han@gmail.com) có hội thoại mẫu với host để test chat 2 chiều."""
     from datetime import datetime, timedelta
 
     from backend.app.models import Conversation, Message
 
-    guest = User.query.filter_by(email="1@ss").first()
+    guest = User.query.filter_by(email="han@gmail.com").first()
     host = User.query.filter_by(email="van.quangia@rova.vn").first()
     if not guest or not host:
         return
 
-    legacy_emails = {"guest0@email.com", "1@ss", guest.email}
+    legacy_emails = {"guest0@email.com", "han@gmail.com", guest.email}
     for conv in Conversation.query.filter(Conversation.guest_email.in_(legacy_emails)).all():
         if conv.host_id == host.id:
             conv.guest_id = guest.id
@@ -693,7 +693,7 @@ def patch_conversation_schema():
         db.session.execute(text("ALTER TABLE conversations ADD COLUMN guest_id INTEGER"))
         db.session.commit()
 
-    guest = User.query.filter_by(email="1@ss").first()
+    guest = User.query.filter_by(email="han@gmail.com").first()
     if not guest:
         return
 
@@ -727,12 +727,12 @@ def patch_review_schema():
 
 
 def patch_guest_review_demo():
-    """Gắn một đánh giá mẫu cho booking hoàn thành của khách demo (1@ss)."""
+    """Gắn một đánh giá mẫu cho booking hoàn thành của khách demo (han@gmail.com)."""
     from datetime import datetime
 
     from backend.app.models import Review
 
-    guest = User.query.filter_by(email="1@ss").first()
+    guest = User.query.filter_by(email="han@gmail.com").first()
     if not guest:
         return
 

@@ -3,16 +3,21 @@
 {% block body_attrs %}data-page="search"{% endblock %}
 
 {% block content %}
-<main>
+<div class="search-results-page">
   <section class="home-hero home-hero--compact home-hero--accommodation search-results-hero">
+    <div class="home-hero__banner d-lg-none">
+      <h1 class="home-hero__title">Tìm kiếm kỳ nghỉ mơ ước của bạn</h1>
+    </div>
     <div class="container-xxl home-hero__inner px-3 px-lg-4">
-      <h1 class="home-hero__title home-hero__title--search">Tìm và đặt nơi lưu trú lý tưởng</h1>
-      <p class="home-hero__subtitle">Từ homestay ấm cúng đến khách sạn sang trọng – tất cả đều có trên Rovva</p>
-      {% include 'customer/includes/layout/search-bar.html' %}
+      <h1 class="home-hero__title home-hero__title--search d-none d-lg-block">Tìm và đặt nơi lưu trú lý tưởng</h1>
+      <p class="home-hero__subtitle d-none d-lg-block">Từ homestay ấm cúng đến khách sạn sang trọng – tất cả đều có trên Rovva</p>
+      <div class="home-hero__search">
+        {% include 'customer/includes/layout/search-bar.html' %}
+      </div>
     </div>
   </section>
 
-  <div class="container-xxl px-3 px-lg-4 py-4 search-results-body">
+  <div class="search-results-body">
     <div class="row g-4">
       <!-- Filter column -->
       <div class="col-12 col-lg-3">
@@ -105,41 +110,33 @@
         </div>
 
         {% if results %}
-        <div class="row g-3">
+        <div class="search-results-list">
           {% for acc in results %}
-          <div class="col-12 col-md-6">
-            <a href="{{ url_for('customer.accommodation_detail', id=acc.id) }}"
-               class="card border-0 shadow-sm h-100 text-decoration-none text-dark">
-              <div class="row g-0 h-100">
-                <div class="col-5">
-                  <img src="{{ acc.cover_url }}" alt="{{ acc.name }}"
-                       class="w-100 h-100 object-fit-cover rounded-start" style="min-height: 160px;">
-                </div>
-                <div class="col-7">
-                  <div class="card-body d-flex flex-column h-100">
-                    <div class="d-flex justify-content-between align-items-start gap-2">
-                      <h3 class="h6 fw-semibold mb-1">{{ acc.name }}</h3>
-                      {% if acc.average_rating %}
-                      <span class="badge bg-warning-subtle text-warning-emphasis flex-shrink-0">
-                        <i class="bi bi-star-fill"></i> {{ acc.average_rating }}
-                      </span>
-                      {% endif %}
-                    </div>
-                    <p class="text-secondary small mb-2"><i class="bi bi-geo-alt"></i> {{ acc.city }}</p>
-                    <div class="d-flex flex-wrap gap-1 mb-2">
-                      {% for f in acc.top_features %}
-                      <span class="badge bg-light text-secondary fw-normal">{{ f }}</span>
-                      {% endfor %}
-                    </div>
-                    <div class="mt-auto">
-                      <span class="fw-bold text-primary">{{ "{:,.0f}".format(acc.min_price) }}đ</span>
-                      <span class="text-secondary small">/ đêm</span>
-                    </div>
-                  </div>
-                </div>
+          <a href="{{ url_for('customer.accommodation_detail', id=acc.id) }}" class="search-result-card">
+            <div class="search-result-card__media">
+              <img src="{{ acc.cover_url }}" alt="{{ acc.name }}">
+            </div>
+            <div class="search-result-card__body">
+              <div class="search-result-card__header">
+                <h3 class="search-result-card__title">{{ acc.name }}</h3>
+                {% if acc.average_rating %}
+                <span class="search-result-card__rating">
+                  <i class="bi bi-star-fill"></i> {{ acc.average_rating }}
+                </span>
+                {% endif %}
               </div>
-            </a>
-          </div>
+              <p class="search-result-card__spec"><i class="bi bi-geo-alt"></i> {{ acc.city }}</p>
+              {% if acc.top_features %}
+              <p class="search-result-card__spec">
+                {% for f in acc.top_features %}{{ f }}{% if not loop.last %} · {% endif %}{% endfor %}
+              </p>
+              {% endif %}
+              <p class="search-result-card__price">
+                <strong>{{ "{:,.0f}".format(acc.min_price) }}</strong><span class="search-result-card__currency">đ</span>
+                <span class="search-result-card__nights">/ đêm</span>
+              </p>
+            </div>
+          </a>
           {% endfor %}
         </div>
         {% else %}
@@ -152,5 +149,5 @@
       </div>
     </div>
   </div>
-</main>
+</div>
 {% endblock %}

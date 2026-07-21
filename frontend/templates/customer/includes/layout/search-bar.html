@@ -1,18 +1,19 @@
 <form class="smart-search mb-3" action="{{ url_for('customer.smart_search') }}" method="GET" role="search" aria-label="Smart Match">
-  <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden">
+  <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden smart-search__group">
     <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-stars text-warning"></i></span>
     <input type="text" name="q" class="form-control border-0 shadow-none"
            placeholder="Smart Match: thử “homestay Đà Lạt cho 4 người, có hồ bơi, dưới 2 triệu”"
+           data-mobile-placeholder="Smart Match"
            value="{{ request.args.get('q', '') }}" aria-label="Mô tả nhu cầu">
-    <button type="submit" class="btn btn-primary px-4 fw-semibold">
-      <i class="bi bi-magic me-1"></i> Tìm bằng AI
+    <button type="submit" class="btn btn-primary px-4 fw-semibold smart-search__btn">
+      <i class="bi bi-magic me-1"></i> <span>Tìm bằng AI</span>
     </button>
   </div>
 </form>
 
 <form class="search-widget" id="rovva-search-form" aria-label="Tìm kiếm chỗ ở"
       action="{{ url_for('customer.search') }}" method="GET">
-  <div class="search-widget__field">
+  <div class="search-widget__field search-widget__field--location">
     <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
     <div class="w-100">
       <div class="search-widget__label">Địa điểm</div>
@@ -28,31 +29,41 @@
     <option value="Vũng Tàu">
     <option value="Sapa">
   </datalist>
-  <div class="search-widget__field">
-    <i class="bi bi-calendar-event" aria-hidden="true"></i>
-    <div class="w-100">
-      <div class="search-widget__label">Ngày đi</div>
-      <input type="date" name="checkIn" required>
+  <div class="search-widget__row">
+    <div class="search-widget__dates">
+      <i class="bi bi-calendar-event search-widget__dates-icon d-lg-none" aria-hidden="true"></i>
+      <div class="search-widget__dates-body">
+        <div class="search-widget__label search-widget__dates-label d-lg-none">Ngày đi - về</div>
+        <div class="search-widget__date-inputs">
+          <div class="search-widget__field search-widget__field--checkin">
+            <i class="bi bi-calendar-event d-none d-lg-inline" aria-hidden="true"></i>
+            <div class="w-100">
+              <div class="search-widget__label d-none d-lg-block">Ngày đi</div>
+              <input type="date" name="checkIn" required aria-label="Ngày đi">
+            </div>
+          </div>
+          <div class="search-widget__field search-widget__field--checkout">
+            <i class="bi bi-calendar-check d-none d-lg-inline" aria-hidden="true"></i>
+            <div class="w-100">
+              <div class="search-widget__label d-none d-lg-block">Ngày về</div>
+              <input type="date" name="checkOut" required aria-label="Ngày về">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="search-widget__field">
-    <i class="bi bi-calendar-check" aria-hidden="true"></i>
-    <div class="w-100">
-      <div class="search-widget__label">Ngày về</div>
-      <input type="date" name="checkOut" required>
-    </div>
-  </div>
-  <div class="search-widget__field">
-    <i class="bi bi-people-fill" aria-hidden="true"></i>
-    <div class="w-100">
-      <div class="search-widget__label">Số người</div>
-      <select name="guests">
-        <option value="1">1 khách</option>
-        <option value="2" selected>2 khách</option>
-        <option value="3">3 khách</option>
-        <option value="4">4 khách</option>
-        <option value="5">5+ khách</option>
-      </select>
+    <div class="search-widget__field search-widget__field--guests">
+      <i class="bi bi-people-fill" aria-hidden="true"></i>
+      <div class="w-100">
+        <div class="search-widget__label">Số người</div>
+        <select name="guests">
+          <option value="1">1 khách</option>
+          <option value="2" selected>2 khách</option>
+          <option value="3">3 khách</option>
+          <option value="4">4 khách</option>
+          <option value="5">5+ khách</option>
+        </select>
+      </div>
     </div>
   </div>
   <button type="submit" class="search-widget__btn">

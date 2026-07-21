@@ -982,30 +982,100 @@ body.admin-body {
   .admin-grid-3 { grid-template-columns: 1fr; }
 }
 
+.admin-topbar__brand {
+  display: none;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.admin-topbar__brand-mark {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--adm-navy);
+  line-height: 1;
+}
+
+.admin-topbar__brand-sub {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--adm-muted);
+  line-height: 1;
+}
+
 @media (max-width: 991.98px) {
   .admin-sidebar {
     position: fixed;
-    left: calc(-1 * var(--adm-sidebar-w));
+    width: min(280px, 86vw);
+    left: calc(-1 * min(280px, 86vw));
     transition: left var(--adm-transition);
     height: 100vh;
-    box-shadow: var(--adm-shadow-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 
   .admin-sidebar.is-open { left: 0; }
 
+  .admin-topbar {
+    height: 56px;
+    padding: 0 0.75rem;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.08);
+  }
+
   .admin-topbar__toggle { display: flex; }
+  .admin-topbar__brand { display: flex; }
   .admin-topbar__search { display: none; }
+  .admin-topbar__breadcrumb { display: none !important; }
   .admin-topbar__date { display: none; }
   .admin-topbar__user-info { display: none; }
-  .admin-main { padding: 1.25rem; }
+  .admin-topbar__user {
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+  .admin-topbar__avatar {
+    width: 36px;
+    height: 36px;
+    border: 2px solid rgba(216, 226, 255, 0.5);
+  }
+
+  .admin-main { padding: 1rem; }
   .admin-grid-2 { grid-template-columns: 1fr; }
+
+  .admin-page-head--row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-filter-group {
+    width: 100%;
+  }
+
+  .admin-filter-select {
+    flex: 1 1 120px;
+    min-width: 0;
+  }
+
+  .admin-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-table {
+    min-width: 720px;
+  }
+
+  .admin-stat-card {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 575.98px) {
   .admin-stat-grid { grid-template-columns: 1fr; }
-  .admin-topbar { padding: 0 1rem; }
+  .admin-topbar { padding: 0 0.75rem; }
+  .admin-topbar__brand-sub { display: none; }
   .admin-welcome { padding: 1.25rem; }
   .admin-welcome h1 { font-size: 1.25rem; }
+  .admin-main { padding: 0.75rem; }
 }
 
 /* ── SmartStay-style extensions ── */

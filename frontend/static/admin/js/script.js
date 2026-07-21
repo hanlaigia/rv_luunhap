@@ -76,25 +76,42 @@
     closeSidebarMobile();
   }
 
+  const MOBILE_MAX = 991.98;
+
+  function isMobileLayout() {
+    return window.innerWidth <= MOBILE_MAX;
+  }
+
   function closeSidebarMobile() {
     sidebar?.classList.remove('open');
     overlay?.classList.remove('active');
     overlay?.setAttribute('aria-hidden', 'true');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
   }
 
   function openSidebarMobile() {
     sidebar?.classList.add('open');
     overlay?.classList.add('active');
     overlay?.setAttribute('aria-hidden', 'false');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function clearDesktopCollapse() {
+    document.body.classList.remove('sidebar-collapsed');
+    sidebar?.classList.remove('collapsed');
+    document.querySelector('.main-layout')?.classList.remove('sidebar-collapsed');
   }
 
   navItems.forEach((btn) => {
     btn.addEventListener('click', () => showView(btn.dataset.target));
   });
 
+  toggleBtn?.setAttribute('aria-expanded', 'false');
+
   toggleBtn?.addEventListener('click', () => {
-    const isMobile = window.innerWidth <= 768;
-    if (isMobile) {
+    if (isMobileLayout()) {
       if (sidebar?.classList.contains('open')) closeSidebarMobile();
       else openSidebarMobile();
       return;
@@ -107,6 +124,14 @@
   });
 
   overlay?.addEventListener('click', closeSidebarMobile);
+
+  window.addEventListener('resize', () => {
+    if (isMobileLayout()) {
+      clearDesktopCollapse();
+    } else {
+      closeSidebarMobile();
+    }
+  });
 
   logoutBtn?.addEventListener('click', () => {
     const url = logoutBtn.dataset.url;
@@ -566,4 +591,10 @@ function initDashboardCharts(mockDatabase) {
   monthSelect?.addEventListener('change', updateAllCharts);
   yearSelect.addEventListener('change', updateAllCharts);
   updateAllCharts();
+
+  window.addEventListener('resize', () => {
+    revenueBookingChart?.resize();
+    bookingStatusChart?.resize();
+    topHotelsChart?.resize();
+  });
 }

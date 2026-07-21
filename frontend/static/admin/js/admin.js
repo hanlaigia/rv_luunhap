@@ -7,15 +7,21 @@
     const open = () => {
       sidebar.classList.add('is-open');
       overlay.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
     };
     const close = () => {
       sidebar.classList.remove('is-open');
       overlay.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
     };
+    toggle.setAttribute('aria-expanded', 'false');
     toggle.addEventListener('click', () => {
       sidebar.classList.contains('is-open') ? close() : open();
     });
     overlay.addEventListener('click', close);
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 991.98) close();
+    });
   }
 
   const dateEl = document.getElementById('admin-date');

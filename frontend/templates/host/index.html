@@ -333,16 +333,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid host-page" style="max-width: 1400px;">
+<div class="container-fluid host-page host-dashboard" style="max-width: 1400px;">
 
     <div class="dashboard-header">
         <h1 class="host-page-title">Xin chào, {{ host.full_name if host else 'Văn Quản Gia' }}!</h1>
-        <p class="text-muted mb-0">Chào mừng bạn trở lại, Đây là tình hình kinh doanh hôm nay của bạn.</p>
+        <p class="text-muted mb-0 dashboard-subtitle">Chào mừng bạn trở lại, Đây là tình hình kinh doanh hôm nay của bạn.</p>
     </div>
 
     <!-- Stat Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
+    <div class="row g-3 g-lg-4 mb-4 host-stat-row">
+        <div class="col-12 col-lg-3">
             <div class="stat-card">
                 <div class="stat-badge growth">{{ stats.new_bookings }} mới tháng này</div>
                 <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
@@ -350,7 +350,7 @@
                 <div class="stat-value">{{ "{:,.0f}".format(stats.total_revenue).replace(",", ".") }}đ</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-lg-3">
             <div class="stat-card">
                 <div class="stat-badge new">{{ stats.new_bookings }} mới</div>
                 <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
@@ -358,14 +358,14 @@
                 <div class="stat-value">{{ stats.booking_count }} booking</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-lg-3">
             <div class="stat-card">
                 <div class="stat-icon"><i class="bi bi-house-door"></i></div>
                 <div class="stat-label">Phòng đang hoạt động</div>
                 <div class="stat-value">{{ stats.active_rooms }} / {{ stats.total_rooms }} phòng</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-lg-3">
             <div class="stat-card">
                 <div class="stat-icon"><i class="bi bi-bar-chart-fill"></i></div>
                 <div class="stat-label">Tỷ lệ lấp đầy</div>
@@ -374,11 +374,9 @@
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- Left Column -->
-        <div class="col-lg-8">
-
-            <!-- Revenue Chart -->
+    <div class="row g-4 host-dashboard-main">
+        <!-- 1. Chart -->
+        <div class="col-lg-8 order-1">
             <div class="chart-card">
                 <div class="chart-header">
                     <div>
@@ -404,14 +402,58 @@
                     <span class="host-chart-legend__item"><span class="host-chart-legend__dot host-chart-legend__dot--avg"></span> Doanh thu trung bình</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Recent Bookings Table -->
-            <div class="table-card">
+        <!-- 2. Notifications (mobile order after chart) -->
+        <div class="col-lg-4 order-2">
+            <div class="noti-card">
+                <div class="noti-title"><i class="bi bi-bell"></i> Thông báo hệ thống</div>
+
+                {% for n in host_recent_notifications[:3] %}
+                <div class="noti-item{% if n.category == 'dispute' %} alert{% elif n.category == 'system' %} warning{% endif %}">
+                    <div class="noti-item-title">{{ n.title }}</div>
+                    <div class="noti-item-desc">{{ n.body }}</div>
+                    <div class="noti-item-time">{{ n.created_at.strftime('%d/%m/%Y') if n.created_at else '' }}</div>
+                </div>
+                {% else %}
+                <div class="noti-item">
+                    <div class="noti-item-desc text-muted">Chưa có thông báo.</div>
+                </div>
+                {% endfor %}
+
+                <a href="{{ url_for('main.notifications') }}" class="btn btn-outline-secondary w-100 mt-2 fw-bold" style="font-size: 13px;">Xem tất cả thông báo</a>
+            </div>
+        </div>
+
+        <!-- 3. Recent Bookings -->
+        <div class="col-lg-8 order-3">
+            <div class="table-card host-recent-bookings">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold">Booking gần đây</h5>
-                    <a href="{{ url_for('booking.index') }}" class="text-decoration-none small fw-bold">Xem tất cả</a>
+                    <a href="{{ url_for('booking.index') }}" class="text-decoration-none small fw-bold host-recent-bookings__all">Xem tất cả</a>
                 </div>
-                <div class="table-responsive">
+
+                <div class="host-booking-cards d-lg-none">
+                    {% for booking in recent_bookings %}
+                    <a href="{{ url_for('booking.detail', id=booking.id) }}" class="host-booking-card">
+                        <div class="host-booking-card__top">
+                            <span class="host-booking-card__code">{{ booking.booking_code }}</span>
+                            <span class="{{ booking_status_badge_class(booking) }}">{{ booking_status_label(booking) }}</span>
+                        </div>
+                        <div class="host-booking-card__name">{{ booking.room.accommodation.name }}</div>
+                        <div class="host-booking-card__room">{{ booking.room.name }}</div>
+                        <div class="host-booking-card__footer">
+                            <div class="host-booking-card__dates">
+                                {{ booking.check_in.strftime('%d/%m') }} - {{ booking.check_out.strftime('%d/%m') }}<br>
+                                {{ booking.nights }} đêm
+                            </div>
+                            <div class="host-booking-card__price">{{ "{:,.0f}".format(booking.total_amount).replace(",", ".") }}đ</div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <div class="table-responsive d-none d-lg-block">
                     <table class="table table-bookings mb-0">
                         <thead>
                             <tr>
@@ -444,32 +486,10 @@
                     </table>
                 </div>
             </div>
-
         </div>
 
-        <!-- Right Column -->
-        <div class="col-lg-4">
-
-            <!-- Notifications -->
-            <div class="noti-card">
-                <div class="noti-title"><i class="bi bi-bell"></i> Thông báo hệ thống</div>
-
-                {% for n in host_recent_notifications[:3] %}
-                <div class="noti-item{% if n.category == 'dispute' %} alert{% elif n.category == 'system' %} warning{% endif %}">
-                    <div class="noti-item-title">{{ n.title }}</div>
-                    <div class="noti-item-desc">{{ n.body }}</div>
-                    <div class="noti-item-time">{{ n.created_at.strftime('%d/%m/%Y') if n.created_at else '' }}</div>
-                </div>
-                {% else %}
-                <div class="noti-item">
-                    <div class="noti-item-desc text-muted">Chưa có thông báo.</div>
-                </div>
-                {% endfor %}
-
-                <a href="{{ url_for('main.notifications') }}" class="btn btn-outline-secondary w-100 mt-2 fw-bold" style="font-size: 13px;">Xem tất cả thông báo</a>
-            </div>
-
-            <!-- Mẹo tăng doanh thu -->
+        <!-- 4. Tip + Profile -->
+        <div class="col-lg-4 order-4">
             <div class="tip-card">
                 <div class="tip-title">Mẹo tăng doanh thu!</div>
                 <div class="tip-desc">{{ tip_summary }}</div>
@@ -477,7 +497,6 @@
                     style="position: relative; z-index: 2; color: var(--rovva-primary-blue)">Tối ưu ngay</button>
             </div>
 
-            <!-- Profile Card -->
             <div class="profile-card">
                 <div class="profile-header">
                     <img src="{{ current_user.avatar_url }}" class="profile-avatar"
@@ -500,7 +519,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

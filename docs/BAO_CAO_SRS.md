@@ -218,7 +218,7 @@ Chú thích: ✅ Hoàn thành · 🟡 Một phần · 🔴 Chưa · ⚠️ Route
 | Customer | `1@ss` | `1` |
 | Host | `van.quangia@rova.vn` | `password123` |
 | Admin | `admin@rova.vn` | `admin123` |
-| Host pending | `host.pending@rova.vn` | `123456` |
+| Host pending | `phong@gmail.com` | `123456` |
 
 ---
 
